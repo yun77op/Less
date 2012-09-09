@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Less, a google chrome app for sina weibo</title>
+	<link rel="stylesheet" href="stylesheets/base.css">
+</head>
+<body>
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="container">
+				<ul class="nav js-global-actions" id="global-actions">
+					<li id="global-nav-home" class="home active" data-global-action="home">
+						<a class="js-hover" href="#" data-component-term="home_nav" data-nav="home">
+							<span class="new-wrapper"><i class="nav-home"></i><i class="nav-new"></i></span> tweibo
+						</a>
+					</li>
+				</ul>
+
+				<div class="pull-right">
+					<ul class="nav">
+						<li>
+							<a href="#about-modal" class="global-nav-about" data-toggle="modal">关于</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div id="content">
+			<p>
+				tweibo是一个新浪微博的Chrome扩展<img src="icon-128.png" class="pull-right">
+			</p>
+			<h2>开始吧 / 用微博账号登陆</h2>
+			<p>
+				<a id="signin" href="#" title="用微博账号登陆">
+					<img src="images/signin.png" alt="用微博账号登陆">
+				</a>
+			</p>
+		</div>
+	</div>
+	<div class="modal hide" id="about-modal">
+		<div class="modal-header">
+			<button type="button" i18n-values="title:close" class="close" data-dismiss="modal">x</button>
+			<h3>关于</h3>
+		</div>
+		<div class="modal-body">
+			<dl>
+				<dt>作者：</dt>
+				<dd><img src="http://tp4.sinaimg.cn/1322582527/50/5616688038/1" width="50" height="50" alt="thisloveless"><a href="http://weibo.com/holohuhu" target="_blank">@thislovess</a></dd>
+				<dt>Respository(git)：</dt>
+				<dd><a href="https://github.com/yun77op/Less" target="_blank">https://github.com/yun77op/Less</a></dd>
+			</dl>
+		</div>
+	</div>
+	<div>
+	<script src="scripts/lib/jquery.min.js"></script>
+	<script src="scripts/lib/bootstrap.js"></script>
+	<script src="scripts/app.js"></script>
+	<script src="scripts/util.js"></script>
+	<script src="scripts/oauth2.js"></script>
+	<script>
+		var oauth2 = new app.OAuth2('3271047289', 'https://api.weibo.com/oauth2/authorize',
+								'http://yun77op.sinaapp.com/less.html'), popup;
+		document.getElementById('signin').onclick = function(e) {
+			e.preventDefault();
+			var url = oauth2.getAccessURL();
+			url = app.util.addURLParam(url, 'state', chrome.i18n.getMessage('@@extension_id'));
+			var left = (window.screen.availWidth - 510) / 2;
+			popup = window.open(url, 'oauth2_window', 'left=' + left + 'top=30,width=600,height=450,menubar=no,location=yes,resizable=no,scrollbars=yes,status=yes');
+		};
+
+		function oauth2Callback(token) {
+			oauth2.setToken(token);
+			popup.close();
+			window.location.href = chrome.extension.getURL('main.html');
+		}
+
+	</script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+{
+	"siteTitle": {
+		"message": "Less，一個新浪微博的Google chrome的擴展"
+	},
+
+	"logout": {
+		"message": "退出"
+	},
+
+	"mentions": {
+		"message": "提到我的"
+	},
+	
+	"comments": {
+		"message": "評論"
+	},
+
+	"statuses": {
+		"message": "微博"
+	},
+
+	"compose": {
+		"message": "發布新微博"
+	},
+
+	"favorites": {
+		"message": "收藏"
+	},
+
+	"timeline": {
+		"message": "首頁"
+	},
+
+	"settings": {
+		"message": "設置"
+	},
+
+	"statusDefaultTitle": {
+		"message": "有什麼新鮮事想告訴大家？"
+	},
+
+	"statusCommentTitle": {
+		"message": "評論@$USER$的微博",
+		"placeholders": {
+			"user": {
+				"content": "$1",
+				"example": "thisloveless"
+			}
+		}
+	},
+
+	"statusRepostTitle": {
+		"message": "轉發微博"
+	},
+
+	"statusReplyTitle": {
+		"message": "回复@$USER$的评论",
+		"placeholders": {
+			"user": {
+				"content": "$1",
+				"example": "thisloveless"
+			}
+		}
+	},
+	
+	"enableGeolocation": {
+		"message": "啟用地理位置"
+	},
+
+	"topicMessage": {
+		"message": "在這裡輸入你想要說的話題"
+	},
+
+	"topic": {
+		"message": "主題"
+	},
+	
+	"commentToOrigin": {
+		"message": "同时評論給原作者 $USER$",
+		"placeholders": {
+			"user": {
+				"content": "$1",
+				"example": "thisloveless"
+			}
+		}
+	},
+
+	"commentTo": {
+		"message": "同时評論給 $USER$",
+		"placeholders": {
+			"user": {
+				"content": "$1",
+				"example": "thisloveless"
+			}
+		}
+	},
+	
+	"repostToMyTimeline": {
+		"message": "同時轉發到我的微博"
+	},
+	
+	"unreadMessage": {
+		"message": "$COUNT$條新$TYPE$",
+		"placeholders": {
+			"count": {
+				"content": "$1",
+				"example": "2"
+			},
+			"type": {
+				"content": "$2",
+				"example": "提到你的"
+			}
+		}
+	},
+	
+	"loadMore": {
+		"message": "載入更多"
+	},
+
+	"loading": {
+		"message": "載入中"
+	},
+
+	"load": {
+		"message": "載入"
+	},
+
+	"image": {
+		"message": "圖片"
+	},
+
+	"emoticons": {
+		"message": "表情"
+	},
+
+	"general": {
+		"message": "基本"
+	},
+
+	"pollingInterval": {
+		"message": "輪訓間隔"
+	},
+
+	"disappearTimeout": {
+		"message": "自動關閉延時"
+	},
+	
+	"english": {
+		"message": "英文"
+	},
+
+	"ChineseTraditional": {
+		"message": "中文繁體"
+	},
+	
+	"ChineseSimplified": {
+		"message": "中文簡體"
+	},
+
+	"seconds": {
+		"message": "秒"
+	},
+
+	"days": {
+		"message": "天"
+	},
+
+	"hours": {
+		"message": "小時"
+	},
+
+	"minutes": {
+		"message": "分鐘"
+	},
+
+	"desktopNotifications": {
+		"message": "桌面提醒"
+	},
+
+	"notifications": {
+		"message": "提醒"
+	},
+	 
+	"close": {
+		"message": "關閉"
+	},
+
+	"customize": {
+		"message": "自定義"
+	},
+
+	"theme": {
+		"message": "主題"
+	},
+
+	"background": {
+		"message": "背景"
+	},
+
+	"resetBackground": {
+		"message": "重置背景"
+	},
+
+	"fixed": {
+		"message": "鎖定"
+	},
+
+	"repeat": {
+		"message": "平鋪"
+	},
+
+	"align": {
+		"message": "對齊"
+	},
+
+	"left": {
+		"message": "居左"
+	},
+
+	"center": {
+		"message": "居中"
+	},
+
+	"right": {
+		"message": "居右"
+	},
+
+	"useOnlineImage": {
+		"message": "使用在線圖片"
+	},
+
+	"useLocalImage": {
+		"message": "使用本地圖片"
+	},
+
+	"useLocalImageTip": {
+		"message": "拖拽圖片到頁面中的 或者 點擊選擇按鈕"
+	},
+
+	"select": {
+		"message": "選擇"
+	},
+
+	"fieldEmpty": {
+		"message": "內容不能為空！"
+	},
+
+	"favoritedAt": {
+		"message": "收藏於"
+	},
+
+	"deleteFavorite": {
+		"message": "取消收藏"
+	},
+
+	"repost": {
+		"message": "轉發"
+	},
+
+	"delete": {
+		"message": "刪除"
+	},
+
+	"comment": {
+		"message": "評論"
+	},
+
+	"favorite": {
+		"message": "收藏"
+	},
+
+	"from": {
+		"message": "來自"
+	},
+
+	"ago": {
+		"message": "前"
+	},
+
+	"generatePreview": {
+		"message": "生成預覽中。。"
+	},
+
+	"uploading": {
+		"message": "上傳中。。"
+	},
+
+	"fileTypeError": {
+		"message": "圖像類型不支持！"
+	},
+
+	"fileSizeError": {
+		"message": "圖像大小不得超過5M！"
+	},
+
+	"reply": {
+		"message": "回复"
+	},
+	
+	"prev": {
+		"message": "上一頁"
+	},
+
+	"next": {
+		"message": "下一頁"
+	},
+
+	"noComments": {
+		"message": "還沒有留言哦!"
+	},
+
+	"noReposts": {
+		"message": "還沒有人轉發哦!"
+	},
+
+	"noResult": {
+		"message": "內容為空"
+	},
+
+	"relations": {
+		"message": "$USER$的關係",
+		"placeholders": {
+			"user": {
+				"content": "$1",
+				"example": "thisloveless"
+			}
+		}
+	},
+	
+	"myRelations": {
+		"message": "我的關係"
+	},
+
+	"returnToMyRelations": {
+		"message": "返回到我的關係"
+	},
+
+	"userTimeline": {
+		"message": "$USER$的主頁",
+		"placeholders": {
+			"user": {
+				"content": "$1",
+				"example": "thisloveless"
+			}
+		}
+	},
+
+	"myTimeline": {
+		"message": "我的主頁"
+	},
+
+	"returnToMyTimeline": {
+		"message": "返回到我的主頁"
+	},
+
+	"follow": {
+		"message": "關注"
+	},
+
+	"followSuccess": {
+		"message": "關注成功"
+	},
+
+	"unfollow": {
+		"message": "取消關注"
+	},
+
+	"unfollowSuccess": {
+		"message": "取消關注成功"
+	},
+
+	"follower": {
+		"message": "粉絲"
+	},
+
+	"weibo": {
+		"message": "微博"
+	},
+
+	"blog": {
+		"message": "博客"
+	},
+
+	"commentsByMe": {
+		"message": "發出的評論"
+	},
+
+	"commentsToMe": {
+		"message": "收到的評論"
+	},
+
+	"scrollToTop": {
+		"message": "回到頂部"
+	}
+}

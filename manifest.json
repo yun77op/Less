@@ -1,0 +1,22 @@
+{
+  "name": "tweibo",
+  "version": "2.4",
+  "description": "__MSG_siteTitle__",
+  "icons": {
+    "128": "icon-128.png",
+    "16": "icon-16.png"
+  },
+  "permissions": [
+    "https://api.weibo.com/*",
+    "https://rm.api.weibo.com/*",
+    "notifications",
+    "unlimitedStorage",
+    "tabs",
+    "idle"],
+  "app": {
+    "launch": {
+      "local_path": "main.html"
+    }
+  },
+  "default_locale": "en"
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Less</title>
+</head>
+<body>
+	<h1>Less</h1>
+	<script>
+		window.onload = function() {
+			var params = parseHashParams();
+			console.log(params);
+			localStorage['uid'] = params['uid'];
+			window.opener.oauth2Callback(params['access_token']);
+		};
+
+		function parseHashParams() {
+			var hash = location.hash,
+					params = {};
+
+			if (hash) {
+				hash.slice(1).split('&').forEach(function(pairStr, i) {
+					var pair = pairStr.split('=');
+					params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+				});
+			}
+
+			return params;
+		}
+
+	</script>
+</body>
+</html>

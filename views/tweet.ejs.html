@@ -1,0 +1,84 @@
+<% var html = app.util.html; %>
+<% var processTime = app.weibo.Tweet.processTime; %>
+<% var processTweetPlugins = app.weibo.processTweetPlugins; %>
+<% if (this.favorited_time) { %>
+	<div class="tweet-top">
+		<span class="right"><span i18n-content="favoritedAt"></span><%= processTime(favorited_time) %></span>
+	</div>
+	<% if (this.deleted) { %>
+		<p><%= html(text) %><a href="#" class="favorite favorited" i18n-content="deleteFavorite"></a></p>
+	<% } %>
+<% } %>
+
+<% if (!this.favorited_time || !this.deleted) { %>
+<div class="column">
+	<div class="column-left">
+		<a class="vcard" title="<%= user.name %>" href="#user/<%= user.id %>">
+			<img width="50" height="50" src="<%= user.profile_image_url %>" class="avator">
+		</a>
+	</div>
+	<div class="column-right">
+		<a href="#user/<%= user.id %>"><%= user.name %>
+			<% if (user.verified) { %>
+				<span class="icon icon-verified-<%= user.verified_type ? 1 : 0 %>"></span>
+			<% } %>
+		</a>：
+		<p><%= processTweetPlugins(html(text)) %></p>
+		<% if (typeof thumbnail_pic != 'undefined') { %>
+			<div class="tweet-pic">
+				<div class="tweet-pic-thumb" data-original="<%= original_pic %>">
+					<img src="<%= thumbnail_pic %>">
+				</div>
+			</div>
+		<% } %>
+		<% if (typeof this[key] != 'undefined') { %>
+			<% var item = this[key]; %>
+			<div class="retweet">
+				<% if (!item.deleted) { %>
+					<a href="#user/<%= item.user.id %>"><%= item.user.name %>
+						<% if (item.user.verified) { %>
+							<span class="icon icon-verified-<%= item.user.verified_type ? 1 : 0 %>"></span>
+						<% } %>
+					</a>：
+				<% } %>
+				<p><%= processTweetPlugins(html(item.text)) %></p>
+				<% if (typeof item.thumbnail_pic != 'undefined') { %>
+					<div class="tweet-pic">
+						<div class="tweet-pic-thumb" data-original="<%= item.original_pic %>">
+							<img src="<%= item.thumbnail_pic %>">
+						</div>
+					</div>
+				<% } %>
+				<% if (!item.deleted) { %>
+					<div class="tweet-footer">
+						<div class="tweet-meta">
+							<span class="tweet-time"><%= processTime(item.created_at) %></span>
+							<span class="tweet-source"><span i18n-content="from">from</span> <%= item.source %></span>
+						</div>
+						<ul class="actions">
+							<li>
+								<a href="#" title="Repost" class="repost ir" i18n-content="repost" i18n-values="title:repost">Repost</a>
+								<% if (typeof item.reposts_count != 'undefined') { %>
+									<a href="#" class="repostList-trigger"><%= item.reposts_count %></a>
+								<% } %>
+							</li>
+							<li>
+								<a href="#" title="Comment" class="comment ir" i18n-content="comment" i18n-values="title:comment">Comment</a>
+								<% if (typeof item.comments_count != 'undefined') { %>
+									<a href="#" class="commentList-trigger"><%= item.comments_count %></a
+								<% } %>
+							</li>
+							<% if (type != 'comments') { %>
+								<li>
+									<a href="#" <%= (item.favorited || item.favorited_time) ? 'i18n-content="deleteFavorite" i18n-values="title:deleteFavorite"' : 'i18n-content="favorite" i18n-values="title:favorite"' %> class="ir favorite<% if ((this.favorited || this.favorited_time)) { %> favorited <% } %>"></a>
+								</li>
+							<% } %>
+						</ul>
+					</div>
+				<% } %>
+			</div>
+		<% } %>
+		
+	</div>
+</div>
+<% } %>

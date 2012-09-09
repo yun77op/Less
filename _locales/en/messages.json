@@ -1,0 +1,395 @@
+{
+	"siteTitle": {
+		"message": "Less, a google chrome app for sina weibo"
+	},
+
+	"logout": {
+		"message": "Logout"
+	},
+
+	"mentions": {
+		"message": "Mentions"
+	},
+
+	"comments": {
+		"message": "Comments"
+	},
+
+	"statuses": {
+		"message": "Statuses"
+	},
+
+	"compose": {
+		"message": "Compose a new status"
+	},
+
+	"favorites": {
+		"message": "Favorites"
+	},
+
+	"timeline": {
+		"message": "Timeline"
+	},
+
+	"settings": {
+		"message": "Settings"
+	},
+
+	"statusDefaultTitle": {
+		"message": "What are you dong?"
+	},
+
+	"statusCommentTitle": {
+		"message": "Comment to @$USER$",
+		"placeholders": {
+			"user": {
+				"content": "$1",
+				"example": "thisloveless"
+			}
+		}
+	},
+
+	"statusRepostTitle": {
+		"message": "Repost to my timeline"
+	},
+
+	"statusReplyTitle": {
+		"message": "Reply @$USER$'s comment",
+		"placeholders": {
+			"user": {
+				"content": "$1",
+				"example": "thisloveless"
+			}
+		}
+	},
+	
+	"enableGeolocation": {
+		"message": "Enable geolocation"
+	},
+
+	"topicMessage": {
+		"message": "Here enter the topic you want to say"
+	},
+
+	"topic": {
+		"message": "Topic"
+	},
+
+	"commentToOrigin": {
+		"message": "Comment to original author $USER$",
+		"placeholders": {
+			"user": {
+				"content": "$1",
+				"example": "thisloveless"
+			}
+		}
+	},
+
+	"commentTo": {
+		"message": "Comment to $USER$",
+		"placeholders": {
+			"user": {
+				"content": "$1",
+				"example": "thisloveless"
+			}
+		}
+	},
+
+	"repostToMyTimeline": {
+		"message": "Repost to my timeline"
+	},
+	
+	"unreadMessage": {
+		"message": "$COUNT$ new $TYPE$",
+		"placeholders": {
+			"count": {
+				"content": "$1",
+				"example": "2"
+			},
+			"type": {
+				"content": "$2",
+				"example": "mentions"
+			}
+		}
+	},
+
+	"loadMore": {
+		"message": "Load more"
+	},
+
+	"loading": {
+		"message": "Loading..."
+	},
+
+	"load": {
+		"message": "Load"
+	},
+
+	"image": {
+		"message": "Image"
+	},
+
+	"emoticons": {
+		"message": "Emoticons"
+	},
+
+	"general": {
+		"message": "General"
+	},
+
+	"pollingInterval": {
+		"message": "Polling interval"
+	},
+
+	"disappearTimeout": {
+		"message": "Automatically turn off delay"
+	},
+
+	"english": {
+		"message": "English"
+	},
+
+	"ChineseTraditional": {
+		"message": "Chinese traditional"
+	},
+	
+	"ChineseSimplified": {
+		"message": "Chinese simplified"
+	},
+
+	"seconds": {
+		"message": "seconds"
+	},
+
+	"days": {
+		"message": "days"
+	},
+
+	"hours": {
+		"message": "hours"
+	},
+
+	"minutes": {
+		"message": "minutes"
+	},
+
+	"notifications": {
+		"message": "Notifications"
+	},
+
+	"desktopNotifications": {
+		"message": "Desktop notifications"
+	},
+	 
+	"close": {
+		"message": "Close"
+	},
+
+	"customize": {
+		"message": "Customize"
+	},
+
+	"theme": {
+		"message": "Theme"
+	},
+
+	"background": {
+		"message": "Background"
+	},
+
+	"resetBackground": {
+		"message": "Reset background"
+	},
+
+	"fixed": {
+		"message": "Fixed"
+	},
+
+	"repeat": {
+		"message": "Repeat"
+	},
+
+	"align": {
+		"message": "Align"
+	},
+
+	"left": {
+		"message": "Left"
+	},
+
+	"center": {
+		"message": "Center"
+	},
+
+	"right": {
+		"message": "Right"
+	},
+
+	"useOnlineImage": {
+		"message": "Use an image online:"
+	},
+
+	"useLocalImage": {
+		"message": "Use a local image:"
+	},
+
+	"useLocalImageTip": {
+		"message": "Drag image files into this page to change background or click the select button"
+	},
+
+	"select": {
+		"message": "Select"
+	},
+
+	"fieldEmpty": {
+		"message": "Type some please!"
+	},
+
+	"favoritedAt": {
+		"message": "Favorited at"
+	},
+
+	"deleteFavorite": {
+		"message": "Delete favorite"
+	},
+
+	"repost": {
+		"message": "Repost"
+	},
+
+	"delete": {
+		"message": "Delete"
+	},
+
+	"comment": {
+		"message": "Comment"
+	},
+
+	"favorite": {
+		"message": "Favorite"
+	},
+
+	"from": {
+		"message": "From"
+	},
+
+	"ago": {
+		"message": "ago"
+	},
+
+	"generatePreview": {
+		"message": "Generating preview..."
+	},
+
+	"uploading": {
+		"message": "Uploading..."
+	},
+	
+	"fileTypeError": {
+		"message": "Image file type unsupported!"
+	},
+
+	"fileSizeError": {
+		"message": "Image file size should not exceed 5M!"
+	},
+
+	"reply": {
+		"message": "Reply"
+	},
+
+	"prev": {
+		"message": "Prev"
+	},
+
+	"next": {
+		"message": "Next"
+	},
+
+	"noComments": {
+		"message": "No Comment!"
+	},
+
+	"noReposts": {
+		"message": "No Repost!"
+	},
+	
+	"noResult": {
+		"message": "No result!"
+	},
+
+	"relations": {
+		"message": "$USER$'s relationship",
+		"placeholders": {
+			"user": {
+				"content": "$1",
+				"example": "thisloveless"
+			}
+		}
+	},
+	
+	"myRelations": {
+		"message": "My relationship"
+	},
+
+	"returnToMyRelations": {
+		"message": "Back to my relationship"
+	},
+
+	"userTimeline": {
+		"message": "$USER$'s home page",
+		"placeholders": {
+			"user": {
+				"content": "$1",
+				"example": "thisloveless"
+			}
+		}
+	},
+
+	"myTimeline": {
+		"message": "My home page"
+	},
+
+	"returnToMyTimeline": {
+		"message": "Back to my home page"
+	},
+
+	"follow": {
+		"message": "Follows"
+	},
+
+	"followSuccess": {
+		"message": "Follow successfully"
+	},
+
+	"unfollow": {
+		"message": "Cancel follow"
+	},
+
+	"unfollowSuccess": {
+		"message": "Cancel follow successfully"
+	},
+
+	"follower": {
+		"message": "Followers"
+	},
+
+	"weibo": {
+		"message": "Weibo"
+	},
+
+	"blog": {
+		"message": "Blog"
+	},
+
+	"commentsByMe": {
+		"message": "Comments issued"
+	},
+
+	"commentsToMe": {
+		"message": "Comments received"
+	},
+
+	"scrollToTop": {
+		"message": "Scroll to top"
+	}
+}

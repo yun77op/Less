@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title i18n-content="siteTitle">Less, a google chrome app for sina weibo</title>
+	<link rel="stylesheet" href="stylesheets/base.css">
+	<link rel="stylesheet" href="stylesheets/less.css">
+</head>
+<body>
+	<div id="loading-mask"></div>
+
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="container">
+				<ul class="nav js-global-actions" id="global-actions">
+					<li id="global-nav-home" class="home active" data-global-action="home">
+						<a class="js-hover" href="#" data-component-term="home_nav" data-nav="home"> Home </a>
+					</li>
+				</ul>
+
+				<div class="pull-right">
+					<div class="navbar-tweet-btn pull-left">
+						<button id="global-new-tweet-button" i18n-values="title:compose" type="button" data-toggle="modal" data-target="#status-modal" class="btn btn-tweet js-global-new-tweet js-hover" data-component-term="new_tweet_button">
+							<i class="nav-tweet"></i>
+						</button>
+					</div>
+					<!-- <i class="topbar-divider"></i> -->
+					<ul class="nav">
+						<li class="me dropdown session js-session" data-global-action="t1me" id="user-dropdown">
+							<a class="dropdown-toggle" href="#" data-toggle="dropdown" id="user-dropdown-toggle">
+								<span class="new-wrapper"><i class="nav-me"></i><i class="nav-new"></i></span>
+								<span class="caret"></span>
+							</a>
+							<ul class="dropdown-menu">
+								<li class="dropdown-divider"></li>
+								<li><a href="/settings/account" data-nav="settings">Settings</a></li>
+
+								<li>
+									<a href="#" class="signout-button" i18n-content="logout" i18n-values="title:logout" title="Logout">Logout</a>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="alert fade hide global-alert">
+			<button class="close" data-dismiss="alert">x</button>
+			<div class="content"></div>
+		</div>
+	</div>
+			
+	<div id="page-container">
+		<!-- <nav id="nav" class="nav-1">
+			<ul>
+				<li id="nav-timeline">
+					<a href="#timeline" title="Timeline" i18n-content="timeline" i18n-values="title:timeline"></a>
+				</li>
+				<li id="nav-user">
+					<a href="#user"></a>
+				</li>
+				<li id="nav-relations">
+					<a href="#relations"></a>
+				</li>
+				<li id="nav-mentions">
+					<a href="#mentions" title="Mentions" i18n-content="mentions" i18n-values="title:mentions"></a>
+				</li>
+				<li id="nav-comments">
+					<a href="#comments" i18n-content="comments" i18n-values="title:comments"></a>
+				</li>
+				<li id="nav-favorites">
+					<a href="#favorites" i18n-content="favorites" i18n-values="title:favorites"></a>
+				</li>
+				<li>
+					<a href="#direct" title="Direct Messages">âœ‰</a>
+				</li>
+			</ul>
+		</nav> -->
+
+		<!-- i18n-content="settings" i18n-values="title:settings" -->
+		<div class="content-main" hidden>
+			<div id="stream">
+				<div id="comments" class="section" hidden>
+					<ul id="comments-nav" class="nav-2">
+						<li id="nav-comments-tome">
+							<a href="#comments-tome" i18n-content="commentsToMe">Comments to me</a>
+						</li>
+						<li id="nav-comments-byme">
+							<a href="#comments-byme" i18n-content="commentsByMe">Comments by me</a>
+						</li>
+					</ul>
+					<div class="content">
+						<div id="comments-tome" class="section" hidden></div>
+						<div id="comments-byme" class="section" hidden></div>
+					</div>
+				</div>
+				<div id="relations" class="section" hidden>
+					<header>
+						<a class="rtRelations" i18n-content="returnToMyRelations"></a>
+						<ul id="relations-nav" class="nav-2">
+							<li id="nav-follows">
+								<a href="#follows" i18n-content="follow">Follows</a>
+							</li>
+							<li id="nav-followers">
+								<a href="#followers" i18n-content="follower">Followers</a>
+							</li>
+						</ul>
+					</header>
+					<div class="content">
+						<div id="follows" class="section" hidden></div>
+						<div id="followers" class="section" hidden></div>
+					</div>
+				</div>
+			</div>
+
+			<button id="loadMore-button" class="button3" hidden i18n-content="loadMore">Load more</button>
+
+
+			<section id="settings" class="panel">
+				<h2 class="h3" i18n-content="settings">ABOUT:CONFIG</h2>
+				<div class="panel-content">
+					<figure>
+						<figcaption i18n-content="general">GENERAL</figcaption>
+						<div>
+							<p>
+								<input value="40" type="number" min="10" step="2" pref="general.pollingInterval" id="settings-general-pollingInterval">
+								<label for="settings-general-pollingInterval"><span i18n-content="seconds">Seconds</span><span i18n-content="pollingInterval">Polling interval</span></label>
+							</p>
+						</div>
+					</figure>
+					<figure id="settings-notifications">
+						<figcaption i18n-content="notifications" i18n-content="notifications">NOTIFICATIONS</figcaption>
+						<div>
+							<h3 i18n-content="desktopNotifications">Desktop notifications</h3>
+							<p>
+								<input id="settings-notifications-desktop-timeline" type="checkbox" pref="notification.desktop.items.timeline">
+								<label for="settings-notifications-desktop-timeline" i18n-content="timeline">Timeline</label>
+								<input id="settings-notifications-desktop-mentions" type="checkbox" pref="notification.desktop.items.mentions">
+								<label for="settings-notifications-desktop-mentions" i18n-content="mentions">Mentions</label>
+								<input id="settings-notifications-desktop-comments" type="checkbox" pref="notification.desktop.items.comments">
+								<label for="settings-notifications-desktop-comments" i18n-content="comments">Comments</label>
+							</p>
+							<p>
+								<input value="5" type="number" min="1" step="1" pref="settings.notifications.desktop.disappearTimeout" id="settings-notifications-desktop-disappearTimeout">
+								<label for="settings-notifications-desktop-disappearTimeout"><span i18n-content="seconds">Seconds</span><span i18n-content="disappearTimeout">Automatically turn off delay</span></label>
+							</p>
+						</div>
+					</figure>
+					<p><button i18n-content="close" class="button3 button3-expanded close-button">Close</button></p>
+				</div>
+			</section>
+		</div>
+		<button id="elevator" i18n-values="title:scrollToTop">â–²</button>
+	</div>
+	<!-- <a href="#" class="button3 customize-button" i18n-content="customize">Customize</a> -->
+	<div id="customize-container" hidden>
+		<nav>
+			<ul>
+				<li class="selected"><a href="#customize-theme" i18n-content="theme">Theme</a></li>
+				<li><a href="#customize-background" i18n-content="background">Background</a></li>
+			</ul>
+		</nav>
+		<div class="tab-content" id="customize-theme">
+			<ul>
+				<li>
+					<a href="#" title="default" data-name="default">
+						<img src="stylesheets/themes/default/theme_default_thumbnail.png">
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div class="tab-content hidden" id="customize-background">
+			<div id="customize-background-settings">
+				<div class="column">
+					<button id="customize-background-reset" class="button3" i18n-content="resetBackground">Reset background</button>
+				</div>
+				<div class="column">
+					<input type="checkbox" id="customize-background-fixed" pref="customize.background.fixed">
+					<label i18n-content="fixed" for="customize-background-fixed">Fixed</label>
+					<input type="checkbox" id="customize-background-repeat" pref="customize.background.repeat">
+					<label i18n-content="repeat" for="customize-background-repeat">Repeat</label>
+					<select dataType="string" id="customize-background-align" pref="customize.background.align">
+							<option value="left" i18n-content="left">Left</option>
+							<option value="center" i18n-content="center">Center</option>
+							<option value="right" i18n-content="right">Right</option>
+						</select>
+					<label i18n-content="align" for="customize-background-align">Align</label>
+				</div>
+			</div>
+			<hr>
+			<div id="customize-background-loadImage">
+				<div class="column">
+					<h2 i18n-content="useOnlineImage">Use an image online:</h2>
+					<div class="content">
+						<input type="text">
+						<a href="#" id="customize-background-onlineImage" class="button3" i18n-content="load">Load</a>
+					</div>
+				</div>
+				<div class="column">
+					<h2 i18n-content="useLocalImage">Use a local image:</h2>
+					<div class="content">
+						<p>
+							<span i18n-content="useLocalImageTip">Drag image files into this page to change background or click the select button</span>
+							<a href="#" id="customize-background-localImage" class="button3" i18n-content="select">Select</a>
+							<input type="file" id="customize-background-localFile" accept="image/*" class="visuallyhidden">
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<button class="close-button-2 close-button"></button>
+	</div>
+
+	<script id="status-modal-template" type="text/template">
+		<div class="modal-header">
+			<button type="button" i18n-values="title:close" class="close" data-dismiss="modal">x</button>
+			<h3>Whats happening?</h3>
+		</div>
+		<div class="modal-body">
+			{{#module name="application.new-tweet"}}
+			{{/module}}
+		</div>
+	</script>
+
+	<script id="new-tweet-template" type="text/template">
+		<textarea name="status" class="status-editor fullspace"></textarea>
+		<div class="status-actions clearfix">
+			<div class="pull-right">
+				<span class="status-counter">140</span>
+				<input type="submit" value="Submit" class="status-submit-btn btn" disabled>
+			</div>
+			<ul class="status-actions-list">
+				<li><a href="#" id="status-action-emoticons" i18n-content="emoticons">Emoticons</a></li>
+				<li class="dropdown" id="status-pic-dropdown">
+					<a href="#status-pic-dropdown" class="pic-action" i18n-content="image">Image</a>
+					<input type="file" class="status-pic-file visuallyhidden" accept="image/*">
+					<ul class="dropdown-menu" id="status-pic-dropdown-menu">
+						<li>
+							<canvas class="status-pic-canvas" width="200"></canvas>
+							<div class="actions">
+								<button class="status-pic-del btn-link" i18n-content="delete">Delete</button>
+							</div>
+						</li>
+					</ul>
+				</li>
+				<li><a href="#" class="topic-action" i18n-content="topic">Topic</a></li>
+			<ul>
+			<div id="status-emoticons" hidden>
+				<div id="status-emoticons-header">
+					<ul id="status-emoticons-list"></ul>
+					<div id="status-emoticons-nav">
+						<button class="nav-prev" disabled></button>
+						<button class="nav-next" disabled></button>
+					</div>
+				</div>
+				<div id="status-emoticons-faces">
+					<div class="loadingArea">
+						<img src="images/loading.gif"><span i18n-content="loading">Loading</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<ul class="status-aside"></ul>
+	</script>
+
+	<script id="status-template" type="text/template">
+		<div class="container">
+			<div>
+				{{#with user}}
+					{{> stream-item-vcard}}
+					{{#module this name="application.relationship-action"}}
+					{{/module}}
+				{{/with}}
+			</div>
+			{{> stream-item-tweet-content}}
+
+			<ul class="nav nav-tabs">
+				<li class="active"><a href="#reposts" data-toggle="tab">转发{{reposts_count}}</a></li>
+				<li><a href="#comments" data-toggle="tab">评论{{comments_count}}</a></li>
+			</ul>
+			<div class="tab-content">
+				<div class="tab-pane active" id="reposts">
+					{{#module name="application.new-tweet"}}
+					{{/module}}
+					{{#module name="application.reposts"}}
+					{{/module}}
+				</div>
+				<div class="tab-pane" id="comments">
+					{{#module name="application.new-tweet"}}
+					{{/module}}
+					{{#module name="application.comments"}}
+					{{/module}}
+				</div>
+			</div>
+		</div>
+	</script>
+
+	<script id="reposts-template" type="text/template">
+		{{#each reposts}}
+			{{#module this name="application.repost"}}
+			{{/module}}
+		{{/each}}
+	</script>
+
+	<script id="comments-template" type="text/template">
+		{{#each comments}}
+			{{#module this name="application.comment"}}
+			{{/module}}
+		{{/each}}
+	</script>
+
+	<script id="repost-template" type="text/template">
+		<div class="stream-item-vcard">
+			<a class="vcard" title="{{ user.screen_name }}" href="#!/{{ id }}">
+				<img width="30" height="30" src="{{ user.profile_image_url }}" class="avator">
+			</a>
+		</div>
+		<div class="stream-item-content">
+			<a href="#!/{{user.id}}" class="username">{{user.screen_name}}</a>:
+			<p>
+				{{ text }}<span>({{#date_format created_at}}{{/date_format}})</span>
+			</p>
+			<div class="stream-item-footer">
+				<a class="repost-action" href="#">Repost</a>
+			</div>
+		</div>
+	</script>
+
+	<script id="comment-template" type="text/template">
+		<div class="stream-item-vcard">
+			<a class="vcard" title="{{ user.screen_name }}" href="#!/{{ id }}">
+				<img width="30" height="30" src="{{ user.profile_image_url }}" class="avator">
+			</a>
+		</div>
+		<div class="stream-item-content">
+			<a href="#!/{{user.id}}" class="username">{{user.screen_name}}</a>:
+			<p>
+				{{ text }}<span>({{#date_format created_at}}{{/date_format}})</span>
+			</p>
+			<div class="stream-item-footer">
+				<a class="comment-action" href="#">Comment</a>
+			</div>
+		</div>
+	</script>
+
+	<script src="scripts/lib/jquery.min.js"></script>
+	<script src="scripts/lib/bootstrap.js"></script>
+	<script src="scripts/lib/handlebars.js"></script>
+	<script src="scripts/lib/underscore.js"></script>
+	<script src="scripts/lib/backbone.js"></script>
+	<script src="scripts/mvc.js"></script>
+	<script src="scripts/app.js"></script>
+	<script src="scripts/options.js"></script>
+	<script src="scripts/jquery.alert.js"></script>
+	<script src="scripts/message.js"></script>
+	<script src="scripts/lib/event_target.js"></script>
+	<script src="scripts/jquery.elevator.js"></script>
+	<script src="scripts/util.js"></script>
+	<script src="scripts/oauth2.js"></script>
+	<script src="scripts/stream_item.js"></script>
+	<script src="scripts/tweet_plugin.js"></script>
+	<script src="scripts/status.js"></script> 
+	<!-- <script src="scripts/lib/settings.js"></script>
+	<script src="scripts/lib/options_bundle.js"></script>
+	<script src="scripts/settings_bundle.js"></script>
+	<script src="scripts/remider.js"></script>-->
+	<script src="scripts/weibo.js"></script>
+	<!-- <script src="scripts/weibo_emoticons.js"></script> -->
+	<script src="scripts/Message.js"></script>
+	<script src="scripts/i18n_template.js"></script>
+	<script src="scripts/init_bundle.js"></script>
+	<script src="scripts/main.js"></script>
+</body>
+</html>

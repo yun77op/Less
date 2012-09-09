@@ -1,0 +1,218 @@
+<div class="flex-module">
+	<div class="profile-summary">
+		<a href="#!/{{id}}">
+			<div class="content">
+				  <img src="{{profile_image_url}}" class="avatar">
+				  <b class="fullname">{{screen_name}}</b>
+				  <small class="meta">View my profile page</small>
+			</div>
+		</a>
+	</div>
+</div>
+<div class="flex-module">{{> profile-stats}}</div>
+
+
+
+<ul class="profile-stats">
+	<li><a href="#!/{{id}}"><strong>{{statuses_count}}</strong>TWEETS</a></li>
+	<li><a href="#!/{{id}}/following"><strong>{{friends_count}}</strong>FOLLOWING</a></li>
+	<li><a href="#!/{{id}}/followers"><strong>{{followers_count}}</strong>FOLLOWERS</a></li>
+</ul>
+
+
+<div class="flex-module clearfix">
+	<img src="{{avatar_large}}" class="pull-left avator" alt="{{screen_name}}">
+	<div class="profile-card-inner">
+		<h1>{{screen_name}}</h1>
+		{{#if description}}
+			<p class="bio">{{description}}</p>
+		{{/if}}
+		<p>
+			<span class="location">{{location}}</span>
+			{{#if url}}
+				<span class="divider">.</span>
+				<a class="url" href={{url}} target="_blank">{{url}}</a>
+			{{/if}}
+		</p>
+	</div>
+	<div class="profile-card-actions">
+		{{#module this name="application.relationship-action"}}
+		{{/module}}
+		{{> profile-stats}}
+	</div>
+</div>
+
+
+<a href="#" class="btn btn-primary relationship-btn{{#if following}} following{{/if}}{{#if follow_me}} follow-me{{/if}}">
+	<span class="btn-text action-following">Following</span>
+	<span class="btn-text action-follow">Follow</span>
+	<span class="btn-text action-unfollow">Unfollow</span>
+</a>
+
+<ul class="nav nav-tabs nav-stacked">
+	<li data-nav="tweets"><a href="#!/{{id}}">Tweets</a></li>
+	<li data-nav="following"><a href="#!/{{id}}/following">Following</a></li>
+	<li data-nav="followers"><a href="#!/{{id}}/followers">Followers</a></li>
+</ul>
+
+<div class="stream">
+	
+</div>
+
+<div class="container">
+	{{#module name="application.profile-card"}}
+	{{/module}}
+	<div class="row">
+		<div class="dashboard span4">
+			{{#module name="application.profile-nav"}}
+			{{/module}}
+		</div>
+		<div class="content-main span8">
+		</div>
+	</div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="dashboard span4">
+      {{#module name="application.mini-profile"}}
+      {{/module}}
+    </div>
+    <div class="content-main span8">
+      {{#module name="application.stream"}}
+      {{/module}}
+    </div>
+  </div>
+</div>
+
+<div class="stream-item-vcard">
+	<a class="vcard" title="{{ name }}" href="#!/{{ id }}">
+		<img width="50" height="50" src="{{ profile_image_url }}" class="avator">
+	</a>
+</div>
+
+{{#with user}}
+	{{> stream-item-vcard}}
+{{/with}}
+{{> stream-item-tweet-content}}
+
+{{> stream-item-vcard}}
+{{> stream-item-profile-content}}
+
+
+<div class="stream-item-footer">
+  <span class="metadata">
+	  <a href="#!/statuses/{{id}}">{{#date_format created_at}}{{/date_format}}</a>
+    <span i18n-content="from">from</span> {{{ source }}}
+  </span>
+  <ul class="actions">
+    <li>
+      <a href="#" title="Repost" class="action-repost" i18n-content="repost" i18n-values="title:repost">
+        <span class="icon icon-16 icon-repost"></span>
+      </a>
+      {{#if reposts_count}}
+        <a href="#" class="action-show-repostList">{{ reposts_count }}</a>
+      {{/if}}
+    </li>
+    <li>
+      <a href="#" title="Comment" class="action-comment" i18n-content="comment" i18n-values="title:comment">
+        <span class="icon icon-16 icon-comment"></span>
+      </a>
+      {{#if comments_count}}
+        <a href="#" class="action-show-commentList">{{ comments_count }}</a>
+      {{/if}}
+    </li>
+  </ul>
+</div>
+
+<div class="stream-item-content">
+	<div class="actions">
+		{{#module this name="application.Relationship-action"}}
+		{{/module}}
+	</div>
+	<div class="content">
+		<a href="#!/{{id}}" class="username">{{screen_name}}</a>
+		<p class="bio">{{description}}</p>
+	</div>
+</div>
+
+<div class="stream-item-content">
+  <div class="tweet">
+    <a href="#!/{{user.id}}" class="username">{{user.screen_name}}</a>:
+    <p>{{ text }}</p>
+    {{#if thumbnail_pic}}
+      <div class="tweet-pic">
+        <div class="tweet-pic-thumb" data-original="{{ original_pic }}">
+          <img src="{{ thumbnail_pic }}">
+        </div>
+      </div>
+    {{/if}}
+    {{#if retweeted_status}}
+      {{#with retweeted_status}}
+        {{> stream-item-tweet-content}}
+      {{/with}}
+    {{/if}}
+    {{> stream-item-footer}}
+  </div>
+</div>
+
+<div class="listView">
+  <div class="loading-area">
+    <img src="images/loading.gif"><span i18n-content="loading">Loading</span>
+  </div>
+  <div class="listView-container" hidden>
+    <div class="arrow">
+      <span>◆</span>
+    </div>
+    <div class="listView-content"></div>
+    <nav>
+      <a href="#" class="prev" i18n-content="prev">Prev</a>
+      <a href="#" class="next" i18n-content="next">Next</a>
+    </nav>
+  </div>
+</div>
+
+<div class="listView-item">
+  <a class="vcard column-left" title="{{ user.name }}" href="#!/{{ user.id }}">
+    <img width="30" height="30" src="{{ user.profile_image_url }}" class="avator">
+  </a>
+  <div class="column-right">
+    <p><a href="#!/{{ user.id }}">{{ user.name }}
+      {{#if user.verified}}
+        <span class="icon icon-verified-{{ user.verified_type ? 1 : 0 }}"></span>
+      {{/if}}</a>：
+      {{ text }}
+    </p>
+    <div class="tweet-footer">
+      <div class="tweet-meta">
+        <span class="tweet-time">{{#date_format created_at}}{{/date_format}}</span>
+      </div>
+      <ul class="actions">
+        <li><a href="#" title="Reply" class="reply" i18n-content="reply" i18n-values="title:reply">Reply</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+
+<img src="images/loading.gif" class="throbber" hidden>
+<div class="tweet-pic-origin" hidden>
+  <div class="actions">
+    <a href="#" class="action-collapse">收起</a>
+    <a href="#" target="_blank" class="action-view-origin">查看大图</a>
+    <a href="#" class="action-rotate-left">左转</a>
+    <a href="#" class="action-rotate-right">右转</a>
+  </div>
+</div>
+
+
+<div class="container">
+	<div>
+		{{#with user}}
+			{{> stream-item-vcard}}
+			{{#module this name="application.relationship-action"}}
+			{{/module}}
+		{{/with}}
+	</div>
+	{{> stream-item-tweet-content}}
+</div>
