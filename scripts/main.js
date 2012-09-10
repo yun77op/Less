@@ -7,7 +7,6 @@
 	$('#loading-mask').fadeOut();
 
 	app.message = new app.Message('top');
-
 	app.alert = $('.global-alert').alert2();
 
 	app.weibo.request({
@@ -17,8 +16,6 @@
 		}
 	}, function(data) {
 		app.weibo.user = data;
-
-
 
 		Handlebars.registerHelper('date_format', function(date, options) {
 			date = new Date(date);
@@ -428,25 +425,6 @@
 		});
 
 
-		var StatusView = Backbone.View.extend({
-			template: Handlebars.compile('<div class="container">{{#module name="application.status"}}{{/module}}</div>'),
-		    	render: function() {
-				application.$el.html(this.template());
-				return this;
-			}
-		});
-
-		var statusView = new StatusView();
-
-		var StatusViewState = BaseViewState.extend({
-			path: '!/statuses/:id',
-			view: statusView,
-		    	modules: ['application.status', 'application.reposts', 'application.comments']
-		});
-
-		var statusViewState = new StatusViewState();
-
-
 		var ProfileView = Backbone.View.extend({
 			template: Handlebars.compile(' <div class="container"> {{#module name="application.profile-card"}} {{/module}} <div class="row"> <div class="dashboard span4"> {{#module name="application.profile-nav"}} {{/module}} </div> <div class="content-main span8"> </div> </div> </div> '),
 			render: function() {
@@ -460,7 +438,6 @@
 
 		var ProfileViewState = Backbone.ViewState.extend({
 			path: '!/:uid',
-		    	modules: ['application.profile-nav', 'application.profile-card'],
 			view: profileView,
 			enter: function() {
 				if (!this.active) {
@@ -485,8 +462,7 @@
 		});
 
 		var profileFollowingViewState = new ProfileFollowingViewState({
-			path: 'following',
-		    	modules: ['application.profile-following']
+			path: 'following'
 		});
 
 		
@@ -499,16 +475,14 @@
 		});
 
 		var profileFollowersViewState = new ProfileFollowersViewState({
-			path: 'followers',
-		    	modules: ['application.profile-followers']
+			path: 'followers'
 		});
 
 
 		Backbone.install('twb', {
 			el: '#page-container'
-		}, function(routeManager) {{
+		}, function(routeManager) {
 			routeManager.register(profileViewState);
-			routeManager.register(statusViewState);
 			routeManager.registerSubViewState(profileFollowingViewState, profileViewState);
 			routeManager.registerSubViewState(profileFollowersViewState, profileViewState);
 			routeManager.register(indexViewState);
