@@ -25,13 +25,12 @@
 	};
 
 
-	// TODO: Combine with model?
 	var ViewState = function(options) {
 		this.active = false;
 		this._configure(options);
 	};
 
-	ViewState.mergedOptions = ['path', 'view', 'modules'];
+	ViewState.mergedOptions = ['path', 'view'];
 
 	ViewState.prototype = {
 		_configure: function(options) {
@@ -57,8 +56,6 @@
 			if (this.parent && !this.parent.active) {
 				this.parent._handleEnter.apply(this.parent, arguments);
 			}
-
-
 
 			this.modules.forEach(function(module, i) {
 				if (typeof module == 'string') {
@@ -96,8 +93,8 @@
 				return path;
 			}
 
-			var pathAry = [path],
-					slash = '/';
+			var pathAry = [path];
+			var slash = '/';
 
 			if (this.parent && this.parent.path) {
 				pathAry.unshift(this.parent.path);
@@ -139,7 +136,7 @@
 
 				while (activeViewState) {
 					activeViewState.active = false;
-					activeViewState.modules.forEach(function(module, i) {
+					activeViewState.modules.forEach(function(module) {
 						if (typeof module == 'string')
 							module = getModule(module);
 
@@ -192,16 +189,16 @@
 		},
 
 		initialize: function() {
-			var html;
+			var tpl;
 
 			if (this.template instanceof Element) {
-				html = this.template.innerHTML;
+                tpl = this.template.innerHTML;
 			} else if (typeof this.template == 'string') {
-				html = this.template;
+                tpl = this.template;
 			}
 
-			if (html) {
-				this.template = Handlebars.compile(html);
+			if (tpl) {
+				this.template = Handlebars.compile(tpl);
 			}
 
 			this.active = false;
@@ -211,15 +208,17 @@
 			this.enter.apply(this, args);
 			this.prepareRender();
 			this.prepareEl();
-	       	},
-			
+	    },
+
 		render: function() {
-			var html = typeof this.template == 'function' ? this.template(this.model ? this.model.attributes : {}) : this.template;
+            var data = this.model ? this.model.attributes : {};
+			var html = typeof this.template == 'function' ? this.template(data) : this.template;
+
 			this.$el.html(html);
 			return this;
 		},
 	    	
-	    	destroy: function() {},
+	    destroy: function() {},
 
 		enter: function() {},
 		
@@ -232,24 +231,22 @@
 			html += '"';
 
 			for (key in attrs) {
-				ret += ' ' + key + '="' + attrs[key] + '"';
+				html += ' ' + key + '="' + attrs[key] + '"';
 			}
 
 			html += '>';
-			if (typeof this.placeholder == 'string') {
-				html += this.placeholder;
-			}
+            html += typeof this.placeholder == 'string' ? this.placeholder : '';
 			html += '</' + this.tagName + '>';
 
 			return html;
 		},
 
 		prepareRender: function() {
-			var self = this,
-				model = this.model,
-				changed = false,
-				mid = _.uniqueId('m'),
-				selector = '#' + mid;
+			var self = this;
+		    var model = this.model;
+            var changed = false;
+		    var mid = _.uniqueId('m');
+			var selector = '#' + mid;
 
 			this.mid = mid;
 
@@ -302,8 +299,8 @@
 	};
 
 	var Available = function() {
-		var args = Array.prototype.slice.call(arguments),
-				fn = args.pop();
+		var args = Array.prototype.slice.call(arguments);
+        var fn = args.pop();
 
 		this.testItems = args;
 		this._timer = null;

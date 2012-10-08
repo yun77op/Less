@@ -7,17 +7,17 @@ define(function(require, exports) {
 		var StatusView = Backbone.View.extend({
 			template: tpl,
 			render: function() {
-				$(this.el).html(this.template(this.model.toJSON()));
-				return this.template();
+				this.$el.html(this.template(this.model.toJSON()));
+				return this;
 			}
 		});
 
-		var statusViewState = new Backbone.ViewStatus({
+		var StatusViewState = Backbone.ViewStatus.extend({
 			name: 'status',
 			path: '!/statuses/:id',
-			view: statusView
+			view: StatusView
 		});
 
-		routeManager.register(statusViewState);
+		routeManager.register(StatusViewState);
 	};
 });

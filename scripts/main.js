@@ -58,7 +58,7 @@
 		Handlebars.registerPartial('stream-item-tweet-content', '<div class="stream-item-content"> <div class="tweet"> <a href="#!/{{user.id}}" class="username">{{user.screen_name}}</a>: <p>{{ text }}</p> {{#if thumbnail_pic}} <div class="tweet-pic"> <div class="tweet-pic-thumb" data-original="{{ original_pic }}"> <img src="{{ thumbnail_pic }}"> </div> </div> {{/if}} {{#if retweeted_status}} {{#with retweeted_status}} {{> stream-item-tweet-content}} {{/with}} {{/if}} {{> stream-item-footer}} </div> </div>');
 		Handlebars.registerPartial('stream-item-profile-content', '  <div class="stream-item-content"> <div class="actions"> {{#module this name="application.relationship-action"}} {{/module}} </div> <div class="content"> <a href="#!/{{id}}" class="username">{{screen_name}}</a> <p class="bio">{{description}}</p> </div> </div> ');
 		Handlebars.registerPartial('profile-stats', ' <ul class="profile-stats"> <li><a href="#!/{{id}}"><strong>{{statuses_count}}</strong>TWEETS</a></li> <li><a href="#!/{{id}}/following"><strong>{{friends_count}}</strong>FOLLOWING</a></li> <li><a href="#!/{{id}}/followers"><strong>{{followers_count}}</strong>FOLLOWERS</a></li> </ul> ');
-		
+
 		var methodMap = {
 			'create': 'POST',
 			'update': 'PUT',
@@ -102,9 +102,9 @@
 			render: function() {
 				this.$el.html(this.template());
 
-				var data = this.model.attributes,
-		    			$stream = $('.stream', this.$el),
-					View = this.View;
+				var data = this.model.attributes;
+		    	var $stream = $('.stream', this.$el);
+                var View = this.View;
 
 				data[data._key].forEach(function(status, i) {
 					var streamItemView = new View({
@@ -178,43 +178,6 @@
 		});
 
 
-		var StatusModule = Backbone.Module.extend({
-			name: 'status',
-			model: new StreamModuleModel({
-				_url: 'statuses/show.json'
-		       	}),
-			template: document.getElementById('status-template'),
-			enter: function(id) {
-				this.model.set('urlParams', {
-					id: id
-				});
-			},
-		    	render: function() {
-				StatusModule.__super__['render'].call(this);
-				var picEl = this.el.querySelector('.tweet-pic'),
-		    			self = this;
-
-				if (picEl) new app.weibo.ImageView({
-					el: picEl,
-				 	expand: true
-				});
-
-				$('a[data-toggle="tab"]').on('show', function() {
-					self.model.fetch();	
-				});
-			},
-		    	events: {
-				'click .action-show-commentList': 'showCommentList'
-			},
-			showCommentList: function(e) {
-			
-			}
-		});
-
-		var statusModule = new StatusModule();
-
-
-
 		var CommentsRepostsModule = Backbone.Module.extend({
 		    	enter: function(id) {
 				this.model.set('urlParams', {
@@ -243,8 +206,8 @@
 			},
 			repost: function(e) {
 					
-			}		
-		});		
+			}
+		});
 
 		var CommentsModule = CommentsRepostsModule.extend({
 			name: 'comments',
@@ -371,8 +334,6 @@
 		});
 
 
-			
-		application.registerModule(statusModule);
 		application.registerModule(repostsModule);
 		application.registerModule(RepostModule);
 		application.registerModule(commentsModule);
@@ -390,7 +351,7 @@
 
 		var StatusModalModule = Backbone.Module.extend({
 			id: 'status-modal',
-		    	className: 'modal hide',
+		    className: 'modal hide',
 			template: document.getElementById('status-modal-template')
 		});
 		
@@ -479,16 +440,16 @@
 		});
 
 
-		Backbone.install('twb', {
-			el: '#page-container'
-		}, function(routeManager) {
-			routeManager.register(profileViewState);
-			routeManager.registerSubViewState(profileFollowingViewState, profileViewState);
-			routeManager.registerSubViewState(profileFollowersViewState, profileViewState);
-			routeManager.register(indexViewState);
-			
-			Backbone.history.start();
-		});
+//		Backbone.install('twb', {
+//			el: '#page-container'
+//		}, function(routeManager) {
+//			routeManager.register(profileViewState);
+//			routeManager.registerSubViewState(profileFollowingViewState, profileViewState);
+//			routeManager.registerSubViewState(profileFollowersViewState, profileViewState);
+//			routeManager.register(indexViewState);
+//
+//			Backbone.history.start();
+//		});
 	});
 
 })();
