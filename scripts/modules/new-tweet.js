@@ -99,10 +99,10 @@ define(function (require, exports) {
         },
 
         show:function (options) {
-            var type = options.type || this.type,
-                title, textareaValue = '',
-                $statusAside = $('.status-aside', this.$el),
-                asideItems = [];
+            var type = options.type || this.type;
+            var title, textareaValue = '';
+            var $statusAside = $('.status-aside', this.$el);
+            var asideItems = [];
 
             this.el.classList.add(type);
             this.type = type;
@@ -287,19 +287,18 @@ define(function (require, exports) {
         },
 
         indicateCouter:function () {
-            var textarea = this.el.querySelector('.status-editor'),
-                counterEl = this.el.querySelector('.status-counter'),
-                text = textarea.value,
-                textTrimmedLen = text.trim().length,
-                counter = text.length,
-                limit = 140,
-                submitBtn = this.submitBtn,
-                diff;
+            var textarea = this.el.querySelector('.status-editor');
+            var counterEl = this.el.querySelector('.status-counter');
+            var submitBtn = this.submitBtn;
 
-            result = text.match(/[^\x00-\xff]/g);
-            counter += result && result.length || 0;
+            var text = textarea.value;
+            var textTrimmedLen = text.trim().length;
+
+            var result = text.match(/[^\x00-\xff]/g);
+            var counter = text.length + result && result.length || 0;
             counter = Math.ceil(counter / 2);
-            diff = limit - counter;
+            var limit = 140;
+            var diff = limit - counter;
 
             counterEl.textContent = diff;
 

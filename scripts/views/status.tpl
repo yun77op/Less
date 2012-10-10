@@ -1,3 +1,3 @@
 <div class="container">
-	{{#module name="application.status"}}{{/module}}
+	{{#module name="status"}}{{/module}}
 </div>
