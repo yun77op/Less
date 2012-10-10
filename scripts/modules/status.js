@@ -1,15 +1,16 @@
 define(function(require, exports) {
 
     var tpl = require('../views/status_module.tpl');
+    var StreamModuleModel = require('../models/stream.js');
 
     var StatusModule = Backbone.Module.extend({
         name: 'status',
 
+        template: tpl,
+
         model: new StreamModuleModel({
             _url: 'statuses/show.json'
         }),
-
-        template: tpl,
 
         enter: function(id) {
             this.model.set('urlParams', {
@@ -42,4 +43,6 @@ define(function(require, exports) {
 
         }
     });
+
+    return StatusModule;
 });

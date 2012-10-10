@@ -1,4 +1,4 @@
-app.define('app', function() {
+define(function (require, exports) {
 
 	var Message = function() {
 		this.initialize.apply(this, arguments);
@@ -72,7 +72,10 @@ app.define('app', function() {
 		autoHide: false
 	};
 
-	return {
-		Message: Message
-	};
+    var instances = {};
+
+	return function(id) {
+        var instance = instances[id] || (instances[id] = new Message(id));
+        return instance;
+    };
 });

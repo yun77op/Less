@@ -1,6 +1,8 @@
-app.define('app', function() {
+define(function(require, exports) {
 
-	function OAuth2(client_id, request_url, redirect_url) {
+    var util = require('./util');
+
+    function OAuth2(client_id, request_url, redirect_url) {
 		this.client_id = client_id;
 		this.request_url = request_url;
 		this.redirect_url = redirect_url;
@@ -34,7 +36,7 @@ app.define('app', function() {
 			redirect_uri: this.redirect_url,
 			response_type: 'token'
 		};
-		return app.util.addURLParam(url, params);
+		return util.addURLParam(url, params);
 	};
 
 	p.request = function(method, url, params, multi, callback) {
@@ -125,7 +127,7 @@ app.define('app', function() {
 	p.getSingedURL = function() {
 		var url = this.url;
 		if (this.method == 'GET') {
-			url = app.util.addURLParam(url, this.params);
+			url = util.addURLParam(url, this.params);
 		}
 		this.signed_url = url;
 		return url;
@@ -175,7 +177,7 @@ app.define('app', function() {
 			// 	data.append(i, this.params[i]);
 			// }
 		} else {
-			data = app.util.stringify(this.params);
+			data = util.stringify(this.params);
 		}
 
 		return data;
@@ -194,8 +196,6 @@ app.define('app', function() {
 
 	app.addSingletonGetter(OAuth2);
 
-	return {
-		OAuth2: OAuth2
-	};
+	return OAuth2;
 
 });

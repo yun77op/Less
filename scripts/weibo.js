@@ -1,5 +1,5 @@
-app.define('app.weibo', function() {
-	var oauth2 =  app.OAuth2.getInstance();
+define(function(require, exports) {
+    var oauth2 = require('./oauth2').getInstance();
 
 	const API_SHORTHANDS = {
 		'timeline': 'statuses/home_timeline.json',

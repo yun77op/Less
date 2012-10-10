@@ -1,4 +1,4 @@
-app.define('app.util', function() {
+define(function(require, exports) {
 
 	/**
 	 * Decodes a URL-encoded string into key/value pairs.
@@ -190,7 +190,42 @@ app.define('app.util', function() {
 			height: height
 		};
 	}
-	
+
+    function dateFormat(date, options) {
+        date = new Date(date);
+        var	timeStamp = date.getTime(),
+            diff = new Date().getTime() - timeStamp,
+            second = 1000,
+            minute = 1000 * 60,
+            hour = 60 * minute,
+            day = 24 * hour,
+            result;
+
+        var cycle = {
+            days: day,
+            hours: hour,
+            minutes: minute,
+            seconds: second
+        };
+
+        var immediate = diff / day;
+        if (immediate > 5) {
+            result = [date.getFullYear(), date.getMonth() + 1, date.getDate()].join('-') +
+                ' ' + date.toLocaleTimeString();
+        } else {
+            for (var metric in cycle) {
+                immediate = diff / cycle[metric];
+                if (immediate > 1) {
+                    result = Math.round(immediate) + ' '+
+                        chrome.i18n.getMessage(metric) + ' ' +
+                        chrome.i18n.getMessage('ago');
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
 
 	return {
 		clone: clone,
