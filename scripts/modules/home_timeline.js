@@ -1,18 +1,17 @@
 define(function(require, exports) {
 
-    var StreamModule = require('./stream.js');
     var StreamModuleModel = require('../models/stream.js');
+    var tpl = require('../views/home-timeline.tpl');
 
-    var HomeTimelineModule = StreamModule.extend({
+    var HomeTimelineModule = Backbone.Module.extend({
         name: 'home-timeline',
-        View: app.weibo.StreamItemTweetView
+        template: tpl
     });
 
 
     var homeTimelineModule = new HomeTimelineModule({
         model: new StreamModuleModel({
-            url: 'statuses/home_timeline.json',
-            key: 'statuses'
+            url: 'statuses/home_timeline.json'
         })
     });
 
