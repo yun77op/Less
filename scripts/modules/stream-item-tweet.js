@@ -1,9 +1,8 @@
-define(function (require, exports) {
+define(function (require) {
 
-    var each = each = Array.prototype.forEach;
     var weibo = require('../weibo');
 
-    var StreamItemTweetModule = Backbone.Module.extend({
+    var TweetModule = Backbone.Module.extend({
         name: 'stream-item-tweet',
 
         className:'stream-item',
@@ -52,14 +51,15 @@ define(function (require, exports) {
 
         favorite:function (e) {
             e.preventDefault();
-<<<<<<< HEAD
 
-            //Prevent race
+
+
+            var self = this;
+            var currentTarget = e.currentTarget;
+
+            // prevent race
             if (currentTarget.disabled) return;
 
-            var self = this;
-            var currentTarget = e.currentTarget;
-
             var action = currentTarget.classList.contains('favorited') ? 'destroy' : 'create';
             var model = this.model;
 
@@ -67,19 +67,6 @@ define(function (require, exports) {
                 model = model[model.key];
             }
 
-=======
-            var self = this;
-            var currentTarget = e.currentTarget;
-            //Prevent race
-            if (currentTarget.disabled) {
-                return;
-            }
-            var action = currentTarget.classList.contains('favorited') ? 'destroy' : 'create';
-            var model = this.model;
-            if ($(currentTarget).parents('.retweet').length > 0) {
-                model = model[model.key];
-            }
->>>>>>> origin/master
             weibo.request({
                 method:'POST',
                 path:'favorites/' + action + '.json',
@@ -152,5 +139,5 @@ define(function (require, exports) {
         }
     });
 
-    return StreamItemTweetModule;
+    return TweetModule;
 });
