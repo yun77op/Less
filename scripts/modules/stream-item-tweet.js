@@ -52,6 +52,7 @@ define(function (require, exports) {
 
         favorite:function (e) {
             e.preventDefault();
+<<<<<<< HEAD
 
             //Prevent race
             if (currentTarget.disabled) return;
@@ -66,6 +67,19 @@ define(function (require, exports) {
                 model = model[model.key];
             }
 
+=======
+            var self = this;
+            var currentTarget = e.currentTarget;
+            //Prevent race
+            if (currentTarget.disabled) {
+                return;
+            }
+            var action = currentTarget.classList.contains('favorited') ? 'destroy' : 'create';
+            var model = this.model;
+            if ($(currentTarget).parents('.retweet').length > 0) {
+                model = model[model.key];
+            }
+>>>>>>> origin/master
             weibo.request({
                 method:'POST',
                 path:'favorites/' + action + '.json',
