@@ -20,15 +20,13 @@ define(function (require) {
 
         repost:function (e) {
             e.preventDefault();
-            var options = {
-                type:'repost',
-                username:this.model.user.name
+            var data = {
+                username:this.model.get('user').name
             };
 
-            if (this.model.retweeted_status) {
-                options.comment_ori = true;
-                options.ori_username = this.model.retweeted_status.user.name;
-                options.text = this.model.text;
+            if (this.model.get('retweeted_status')) {
+                data.comment_ori = this.model.get('text');
+                data.ori_username = this.model.get('retweeted_status').user.name;
             }
 
             weibo.status.show(options);
@@ -36,23 +34,23 @@ define(function (require) {
 
         comment:function (e) {
             e.preventDefault();
-            var options = {
-                type:'comment',
+            var TweetCommentModule = require('./tweet-comment');
+            var data = {
                 username:this.model.get('user').name
             };
 
-            if (this.model.retweeted_status) {
-                options.comment_ori = true;
-                options.ori_username = this.model.retweeted_status.user.name;
+            if (this.model.get('retweeted_status')) {
+                data.comment_ori = true;
+                data.ori_username = this.model.get('retweeted_status').user.name;
             }
 
-            weibo.status.show(options);
+            new TweetCommentModule({
+                model: new Backbone.Model(data)
+            });
         },
 
         favorite:function (e) {
             e.preventDefault();
-
-
 
             var self = this;
             var currentTarget = e.currentTarget;
@@ -100,24 +98,28 @@ define(function (require) {
         commentList:function (e) {
             var currentTarget = $(e.currentTarget);
             var name, isRetweet;
+
             if (currentTarget.parents('.retweet').length > 0) {
                 name = 'retweetComments';
                 isRetweet = true;
             } else {
                 name = 'comments';
             }
+
             this.setupListView(e, name, 'comments', isRetweet);
         },
 
         repostList:function (e) {
             var currentTarget = $(e.currentTarget);
             var name, isRetweet;
+
             if (currentTarget.parents('.retweet').length > 0) {
                 name = 'retweetReposts';
                 isRetweet = true;
             } else {
                 name = 'reposts';
             }
+
             this.setupListView(e, name, 'reposts', isRetweet);
         },
 

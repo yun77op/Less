@@ -1,11 +1,11 @@
-define(function (require, exports) {
+define(function (require) {
 
     function readImage(file, callback) {
         var readerDataURL = new FileReader();
 
         readerDataURL.onload = function (e) {
             var img = new Image();
-            img.onload = function (e) {
+            img.onload = function () {
                 callback && callback(img);
             };
             img.src = e.target.result;
@@ -14,9 +14,6 @@ define(function (require, exports) {
         readerDataURL.readAsDataURL(file);
     }
 
-    var geoControlPartial = Handlebars.compile('<input class="geo-control" id="status-geo-control" type="checkbox"><label for="status-geo-control" i18n-content="enableGeolocation">Enable Geolocation</label>'),
-        commentControlPartial = Handlebars.compile('<label><input type="checkbox" class="comment-control">{{text}}</label>'),
-        commentOriControlPartial = Handlebars.compile('<label><input type="checkbox" class="commentOrigin-control">{{text}}</label>');
 
     var PicView = Backbone.View.extend({
         loadFile:function (file, callback) {
@@ -34,9 +31,9 @@ define(function (require, exports) {
 
             this.imageFile = file;
 
-            readImage(file, function (img) {
+            readImage(file, function(img) {
                 var canvas = self.el.querySelector('.status-pic-canvas'),
-                    ctx = canvas.getContext('2d'), ratio, limit = 200,
+                    ctx = canvas.getContext('2d'), limit = 200,
                     rect = util.scale(img.width, img.height, limit, limit);
 
                 canvas.height = rect.height;
@@ -56,105 +53,41 @@ define(function (require, exports) {
         }
     });
 
-    var tpl = require('../views/new-tweet.tpl');
-    var weibo = require('../weibo');
-    var Message = require('../Message')('top');
-    var util = require('../util');
+    var TweetModalModule = require('./tweet-modal');
 
-    var NewTweetModule = Backbone.Module.extend({
-        name:'new-tweet',
-
-        className: 'modal hide',
-
-        id: 'status-modal',
-
-        template: tpl,
-
-        initialize:function () {
-            NewTweetModule.__super__['initialize'].call(this);
-
-            var self = this;
-
-            this.type = 'update';
-            this.$el.on('hidden', function () {
-                self.reset();
-            });
-        },
-
-        render: function () {
-            NewTweetModule.__super__['render'].call(this);
-
-            this.submitBtn = this.el.querySelector('.status-submit-btn');
-            this.picView = new PicView({
-                el:this.el.querySelector('#status-pic-dropdown-menu')
-            });
-
-            return this;
-        },
-
-        reset:function () {
-            this.el.querySelector('.status-editor').value = '';
-            this.el.classList.remove('className', this.type);
-            this.picView.del();
-        },
-
-        show:function (options) {
-            var type = options.type || this.type;
-            var title, textareaValue = '';
-            var $statusAside = $('.status-aside', this.$el);
-            var asideItems = [];
-
-            this.el.classList.add(type);
-            this.type = type;
-
-            switch (type) {
-                case 'update':
-                case 'upload':
-                    title = chrome.i18n.getMessage('statusDefaultTitle');
-                    break;
-                case 'reply':
-                    title = chrome.i18n.getMessage('statusReplyTitle', options.username);
-                    textareaValue = chrome.i18n.getMessage('reply') + '@' + options.username + ':';
-                    break;
-                case 'comment':
-                    title = chrome.i18n.getMessage('statusCommentTitle', options.username);
-                    if (options.comment_ori) {
-                        asideItems.push(commentOriControlPartial({text:chrome.i18n.getMessage('commentToOrigin', options.ori_username)}));
-                    }
-                    break;
-                case 'repost':
-                    title = chrome.i18n.getMessage('statusRepostTitle');
-                    asideItems.push(commentControlPartial({text:chrome.i18n.getMessage('commentTo', options.username)}));
-
-                    if (options.comment_ori) {
-                        asideItems.push(commentControlPartial({text:chrome.i18n.getMessage('commentTo', options.ori_username)}));
-                        textareaValue = '//@' + options.username + ':' + options.text;
-                    }
-                    break;
-            }
-
-            asideItems.forEach(function (html, i) {
-                $(html).wrapAll('<li></li>').parent().appendTo($statusAside);
-            });
-
-            this.el.querySelector('.status-editor').value = textareaValue;
-            this.el.querySelector('.modal-header h3').textContent = title;
-            this.$el.modal('show');
-        },
-
-        events:{
+    TweetModalModule.extend({
+        events: {
             'change .geo-control':'enableGeo',
             'click .pic-action':'triggerFileChange',
             'change .status-pic-file':'loadFile',
-            'click .topic-action':'insertTopic',
-            'click .status-submit-btn':'connect',
-            'keyup .status-editor':'indicateCouter'
+            'click .topic-action':'insertTopic'
+        },
+
+        initialize: function() {
+            _.extend(this.events, TweetModalModule.__super__['events']);
+            this.model.set({
+                title: chrome.i18n.getMessage('statusDefaultTitle'),
+                actions_list: {
+                    picture: true,
+                    geo: true,
+                    topic: true
+                }
+            });
+            TweetModalModule.__super__['initialize'].apply(this, arguments);
+        },
+
+        render: function() {
+            TweetModalModule.__super__['render'].call(this);
+            this.picView = new PicView({
+                el: this.el.querySelector('#status-pic-dropdown-menu')
+            });
+            return this;
         },
 
         enableGeo:function (e) {
             e.preventDefault();
-            var control = e.currentTarget,
-                self = this;
+            var control = e.currentTarget;
+            var self = this;
 
             if (control.checked) {
                 navigator.geolocation.getCurrentPosition(function (position) {
@@ -168,16 +101,17 @@ define(function (require, exports) {
             }
         },
 
-        triggerFileChange:function (e) {
+        _triggerFileChange:function (e) {
             e.preventDefault();
             this.el.querySelector('.status-pic-file').click();
         },
 
         loadFile:function (e) {
             e.preventDefault();
-            var fileEl = e.currentTarget,
-                file = fileEl.files[0],
-                self = this;
+
+            var fileEl = e.currentTarget;
+            var file = fileEl.files[0];
+            var self = this;
 
             if (!file) return;
 
@@ -185,9 +119,7 @@ define(function (require, exports) {
             Message.show(chrome.i18n.getMessage('generatePreview'));
             this.type = 'upload';
             this.picView.loadFile(file, function (err) {
-                if (err) {
-                    return;
-                }
+                if (err) return;
 
                 self.picView.$el.show();
                 self.submitBtn.disabled = false;
@@ -196,12 +128,13 @@ define(function (require, exports) {
 
         insertTopic:function (e) {
             e.preventDefault();
-            var text = chrome.i18n.getMessage('topicMessage'),
-                textarea = this.el.querySelector('.status-editor'),
-                delimeter = '#',
-                textFormatted = delimeter + text + delimeter,
-                value = textarea.value,
-                index = value.indexOf(textFormatted);
+
+            var text = chrome.i18n.getMessage('topicMessage');
+            var textarea = this.el.querySelector('.status-editor');
+            var delimeter = '#';
+            var textFormatted = delimeter + text + delimeter;
+            var value = textarea.value;
+            var index = value.indexOf(textFormatted);
 
             if (~index) {
                 textarea.selectionStart = index + 1;
@@ -225,98 +158,8 @@ define(function (require, exports) {
             }
             textarea.focus();
             this.indicateCouter();
-        },
-
-        connect:function () {
-            var textarea = this.el.querySelector('.status-editor'),
-                text = String(textarea.value).trim();
-
-            if (text == '') {
-                textarea.focus();
-                return Message.show(chrome.i18n.getMessage('fieldEmpty'), true);
-            }
-
-            var params = {}, self = this, path;
-
-            switch (this.type) {
-                case 'upload':
-                    path = 'statuses/upload.json';
-                    params.status = text;
-                    params.imageFile = this.picView.imageFile;
-                    $.extend(params, this.geo);
-                    break;
-                case 'update':
-                    path = 'statuses/update.json';
-                    params.status = text;
-                    $.extend(params, this.geo);
-                    break;
-                case 'repost':
-                    path = 'statuses/repost.json';
-                    params.status = text;
-                    params.id = this.model.id;
-                    var is_comment = 0;
-                    is_comment += el.querySelector('#status-comment').checked ? 1 : 0;
-                    is_comment += el.querySelector('#status-commentOrigin').checked ? 2 : 0;
-                    params.is_comment = is_comment;
-                    break;
-                case 'comment':
-                    path = 'comments/create.json';
-                    params.id = this.model.id;
-                    if (this.model.retweeted_status) {
-                        params.comment_ori = el.querySelector('#status-commentOrigin').checked ? 1 : 0;
-                    }
-                    params.comment = text;
-                    break;
-                case 'reply':
-                    path = 'comments/reply.json';
-                    params.comment = text;
-                    params.cid = this.model.cid;
-                    params.id = this.model.id;
-                    params.without_mention = '0'; //TODO
-            }
-
-            Message.show(chrome.i18n.getMessage('loading'));
-            weibo.request({
-                method:'POST',
-                path:path,
-                params:params
-            }, function () {
-                self.$el.modal('hide');
-                Message.show('Success', true);
-            });
-        },
-
-        indicateCouter:function () {
-            var textarea = this.el.querySelector('.status-editor');
-            var counterEl = this.el.querySelector('.status-counter');
-            var submitBtn = this.submitBtn;
-
-            var text = textarea.value;
-            var textTrimmedLen = text.trim().length;
-
-            var result = text.match(/[^\x00-\xff]/g);
-            var counter = text.length + result && result.length || 0;
-            counter = Math.ceil(counter / 2);
-            var limit = 140;
-            var diff = limit - counter;
-
-            counterEl.textContent = diff;
-
-            if (diff < 0 || !textTrimmedLen) {
-                submitBtn.disabled = true;
-                submitBtn.classList.remove('btn-primary');
-            } else {
-                submitBtn.disabled = false;
-                submitBtn.classList.add('btn-primary');
-            }
-
-            counterEl.classList[diff < 0 ? 'add' : 'remove']('danger');
         }
     });
 
-    var newTweetModule = new NewTweetModule();
-    newTweetModule.render().$el.appendTo('body');
-    weibo.status = newTweetModule;
-
-    return newTweetModule;
+    return TweetModalModule;
 });

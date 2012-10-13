@@ -1,7 +1,5 @@
 app.define('app.weibo', function() {
-	var weibo = app.weibo,
-		status = weibo.status,
-		each = Array.prototype.forEach;
+	var weibo = app.weibo;
 
 
 	function ListView(el, model, action, type, trigger) {
@@ -154,10 +152,5 @@ app.define('app.weibo', function() {
 			app.weibo.status.show();
 		}
 	});
-	
-
-	return {
-		StreamItemProfileView: StreamItemProfileView
-	};
 
 });

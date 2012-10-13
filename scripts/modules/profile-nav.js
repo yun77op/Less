@@ -1,4 +1,4 @@
-define(function(require, exports) {
+define(function(require) {
 
     var tpl = require('../views/profile-nav.tpl');
 
@@ -6,7 +6,6 @@ define(function(require, exports) {
         name: 'profile-nav',
 
         template: tpl,
-
 
         enter: function(uid) {
             this.model.set('urlParams', {
