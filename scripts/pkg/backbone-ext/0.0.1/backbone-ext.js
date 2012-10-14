@@ -1,21 +1,5 @@
 (function() {
 
-    var getValue = function(object, prop) {
-        if (!(object && object[prop])) return null;
-        return _.isFunction(object[prop]) ? object[prop]() : object[prop];
-    }
-
-    var getVar = function(varStrOrAry) {
-        var ary = varStrOrAry;
-
-        if (typeof varStrOrAry == 'string')
-            ary = varStrOrAry.split('.');
-
-        return _.reduce(ary, function(memo, key) {
-            return memo[key];
-        }, window);
-    };
-
     var buildinAvailables = {
         dom: function(selector) {
             return $(this.selector).length > 0;
@@ -85,8 +69,8 @@
         return result;
     };
 
-    Available.prototype._excute = function(selector) {
-        this.callbacks.forEach(function(fn, i) {
+    Available.prototype._excute = function() {
+        this.callbacks.forEach(function(fn) {
             fn();
         });
         this.callbacks = [];
@@ -216,6 +200,10 @@
             }
 
             this.active = false;
+
+            _.defaults(this, {
+                syncOnStart: true
+            });
         },
 
         start: function(args) {
@@ -257,7 +245,7 @@
 
             this.mid = mid;
 
-            if (!this.options.alone && model && model.isNew()) {
+            if (this.syncOnStart && model && model.isNew()) {
                 model.fetch({
                     success: function() {
                         changed = true;

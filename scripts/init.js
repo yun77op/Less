@@ -9,6 +9,14 @@ define(function(require, exports) {
     Backbone.install({
         el: '#page-container'
     }, function(application, routeManager) {
+        var render_tmp  = Backbone.Module.prototype.render;
+
+        Backbone.Module.prototype.render = function() {
+            render_tmp.apply(this, arguments);
+            i18nTemplate.process(this.el, chrome.i18n.getMessage);
+            return this;
+        };
+
         Handlebars.registerHelper('date_format', util.dateFormat);
 
         Handlebars.registerPartial('stream-item-vcard', require('./views/stream_item_vcard.tpl'));
@@ -22,6 +30,7 @@ define(function(require, exports) {
 //        routeManager.registerSubViewState(profileFollowersViewState, profileViewState);
 
 
+        application.registerModule(require('./modules/weibo-emoticons.js'));
         application.registerModule(require('./modules/stream-picture.js'));
         application.registerModule(require('./modules/stream-item-tweet.js'));
         application.registerModule(require('./modules/mini_profile.js'));
@@ -36,6 +45,16 @@ define(function(require, exports) {
 
         require('./view_states/index.js')(application, routeManager);
         require('./view_states/profile.js')(application, routeManager);
+
+        $('#global-new-tweet-button').click(function(e) {
+            e.stopPropagation();
+
+            var NewTweetModule = require('./modules/new-tweet');
+            var newTweetModule = new NewTweetModule({
+                model: new Backbone.Model()
+            });
+            newTweetModule.show();
+        });
 
         Backbone.history.start();
         Backbone.history.checkUrl();

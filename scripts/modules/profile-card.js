@@ -1,7 +1,7 @@
 define(function(require, exports) {
 
     var tpl = require('../views/profile-card.tpl');
-    var StreamModuleModel = require('../models/stream.js');
+    var StreamModel = require('../models/stream.js');
 
     var ProfileCardModule = Backbone.Module.extend({
         name: 'profile-card',
@@ -15,7 +15,7 @@ define(function(require, exports) {
     });
 
     var profileCardModule = new ProfileCardModule({
-        model: new StreamModuleModel({
+        model: new StreamModel({
             url: 'users/show.json',
             urlParams: {
                 uid: localStorage['uid']

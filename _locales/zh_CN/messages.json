@@ -67,6 +67,10 @@
 		"message": "启用地理位置"
 	},
 
+    "disableGeolocation": {
+        "message": "删除地理位置"
+    },
+
 	"topicMessage": {
 		"message": "在这里输入你想要说的话题"
 	},

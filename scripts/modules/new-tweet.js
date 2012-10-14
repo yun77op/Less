@@ -1,5 +1,9 @@
 define(function (require) {
 
+    var TweetModalModule = require('./tweet-modal');
+    var Message = require('../Message')('top');
+    var util = require('../util');
+
     function readImage(file, callback) {
         var readerDataURL = new FileReader();
 
@@ -14,27 +18,24 @@ define(function (require) {
         readerDataURL.readAsDataURL(file);
     }
 
-
     var PicView = Backbone.View.extend({
         loadFile:function (file, callback) {
-            var size = file.size,
-                self = this,
-                err;
+            var self = this;
+            var err;
 
-            if (size > 5 * 1024 * 1024) {
+            if (file.size > 5 * 1024 * 1024) {
                 err = new Error(chrome.i18n.getMessage('fileSizeError'));
             }
 
-            if (err) {
-                return callback(err);
-            }
+            if (err) return callback(err);
 
             this.imageFile = file;
 
             readImage(file, function(img) {
-                var canvas = self.el.querySelector('.status-pic-canvas'),
-                    ctx = canvas.getContext('2d'), limit = 200,
-                    rect = util.scale(img.width, img.height, limit, limit);
+                var canvas = self.el.querySelector('.status-pic-canvas');
+                var ctx = canvas.getContext('2d');
+                var limit = 200;
+                var rect = util.scale(img.width, img.height, limit, limit);
 
                 canvas.height = rect.height;
                 ctx.clearRect(0, 0, 200, 200);
@@ -43,28 +44,36 @@ define(function (require) {
             });
         },
 
-        events:{
+        events: {
             'click .status-pic-del':'del'
         },
 
-        del:function () {
-            this.imageFile = null;
+        show: function() {
+            this.active = true;
+            this.$el.show();
+        },
+
+        del: function () {
+            $(document).trigger('picture:del');
             this.$el.hide();
+            this.imageFile = null;
+            this.active = false;
         }
     });
 
-    var TweetModalModule = require('./tweet-modal');
-
-    TweetModalModule.extend({
+    var NewTweetModule = TweetModalModule.extend({
         events: {
-            'change .geo-control':'enableGeo',
-            'click .pic-action':'triggerFileChange',
-            'change .status-pic-file':'loadFile',
-            'click .topic-action':'insertTopic'
+            'click .action-geo':'_toggleGeo',
+            'click .pic-action':'_triggerFileChange',
+            'change .status-pic-file':'_loadFile',
+            'click .topic-action':'_insertTopic'
         },
 
         initialize: function() {
-            _.extend(this.events, TweetModalModule.__super__['events']);
+            var self = this;
+
+            _.extend(this.events, NewTweetModule.__super__['events']);
+
             this.model.set({
                 title: chrome.i18n.getMessage('statusDefaultTitle'),
                 actions_list: {
@@ -73,40 +82,53 @@ define(function (require) {
                     topic: true
                 }
             });
-            TweetModalModule.__super__['initialize'].apply(this, arguments);
+
+            this._setType('update');
+            $(document).on('picture:del', function() {
+                self._setType('update');
+            });
+            NewTweetModule.__super__['initialize'].apply(this, arguments);
         },
 
         render: function() {
-            TweetModalModule.__super__['render'].call(this);
+            NewTweetModule.__super__['render'].apply(this, arguments);
             this.picView = new PicView({
                 el: this.el.querySelector('#status-pic-dropdown-menu')
             });
             return this;
         },
 
-        enableGeo:function (e) {
+        _toggleGeo:function (e) {
             e.preventDefault();
             var control = e.currentTarget;
+            var text;
             var self = this;
 
-            if (control.checked) {
+            if (!control.checked) {
                 navigator.geolocation.getCurrentPosition(function (position) {
                     self.geo = {
                         lat:position.coords.latitude,
                         long:position.coords.longitude
-                    }
+                    };
+
+                    control.textContent = chrome.i18n.getMessage('disableGeolocation');
                 });
+                text = 'enableGeolocation';
+                control.checked = true;
             } else {
+                control.textContent = chrome.i18n.getMessage('enableGeolocation');
                 this.geo = null;
+                control.checked = false;
             }
         },
 
         _triggerFileChange:function (e) {
             e.preventDefault();
+            if (this.picView.active) return;
             this.el.querySelector('.status-pic-file').click();
         },
 
-        loadFile:function (e) {
+        _loadFile:function (e) {
             e.preventDefault();
 
             var fileEl = e.currentTarget;
@@ -117,16 +139,15 @@ define(function (require) {
 
             this.submitBtn.disabled = true;
             Message.show(chrome.i18n.getMessage('generatePreview'));
-            this.type = 'upload';
+            this._setType('upload');
             this.picView.loadFile(file, function (err) {
-                if (err) return;
-
-                self.picView.$el.show();
-                self.submitBtn.disabled = false;
+                self.picView.show();
+                self.indicateCounter();
+                Message.hide();
             });
         },
 
-        insertTopic:function (e) {
+        _insertTopic:function (e) {
             e.preventDefault();
 
             var text = chrome.i18n.getMessage('topicMessage');
@@ -158,8 +179,29 @@ define(function (require) {
             }
             textarea.focus();
             this.indicateCouter();
+        },
+
+        _setType: function(type) {
+            this.type = type;
+            var map = {
+                update: 'statuses/update.json',
+                upload: 'statuses/upload.json'
+            }
+            this.url = map[type];
+        },
+
+        getParameters: function() {
+            var parameters = _.extend({
+                status: this.getTextareaValue()
+            }, this.geo);
+
+            if (this.type == 'upload') {
+                parameters.imageFile = this.picView.imageFile
+            }
+
+            return parameters;
         }
     });
 
-    return TweetModalModule;
+    return NewTweetModule;
 });

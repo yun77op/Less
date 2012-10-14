@@ -1,4 +1,4 @@
-(function() {
+define(function (require) {
 	var categories = {
 		list: [],
 		faces: {}

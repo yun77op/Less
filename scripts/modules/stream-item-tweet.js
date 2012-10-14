@@ -20,33 +20,24 @@ define(function (require) {
 
         repost:function (e) {
             e.preventDefault();
-            var data = {
-                username:this.model.get('user').name
-            };
+            var TweetRepostModule = require('./tweet-repost');
 
-            if (this.model.get('retweeted_status')) {
-                data.comment_ori = this.model.get('text');
-                data.ori_username = this.model.get('retweeted_status').user.name;
-            }
+            var tweetRepostModule = new TweetRepostModule({
+                model: this.model.clone()
+            });
 
-            weibo.status.show(options);
+            tweetRepostModule.show();
         },
 
         comment:function (e) {
             e.preventDefault();
             var TweetCommentModule = require('./tweet-comment');
-            var data = {
-                username:this.model.get('user').name
-            };
 
-            if (this.model.get('retweeted_status')) {
-                data.comment_ori = true;
-                data.ori_username = this.model.get('retweeted_status').user.name;
-            }
-
-            new TweetCommentModule({
-                model: new Backbone.Model(data)
+            var tweetCommentModule = new TweetCommentModule({
+                model: this.model.clone()
             });
+
+            tweetCommentModule.show();
         },
 
         favorite:function (e) {

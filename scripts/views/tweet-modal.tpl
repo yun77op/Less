@@ -7,26 +7,10 @@
     <div class="status-actions clearfix">
         <div class="pull-right">
             <span class="status-counter">140</span>
-            <input type="submit" value="Submit" class="status-submit-btn btn" disabled>
+            <input type="submit" value="Submit" class="status-submit-btn btn btn-primary" disabled>
         </div>
         <ul class="status-actions-list">
-            <li>
-                <a href="#" id="status-action-emoticons" i18n-content="emoticons">Emoticons</a>
-                <div id="status-emoticons" hidden>
-                    <div id="status-emoticons-header">
-                        <ul id="status-emoticons-list"></ul>
-                        <div id="status-emoticons-nav">
-                            <button class="nav-prev" disabled></button>
-                            <button class="nav-next" disabled></button>
-                        </div>
-                    </div>
-                    <div id="status-emoticons-faces">
-                        <div class="loadingArea">
-                            <img src="images/loading.gif"><span i18n-content="loading">Loading</span>
-                        </div>
-                    </div>
-                </div>
-            </li>
+            <li>{{#module name="weibo-emoticons"}}{{/module}}</li>
             {{#if actions_list.picture}}
                 <li class="dropdown" id="status-pic-dropdown">
                     <a href="#status-pic-dropdown" class="pic-action" i18n-content="image">Image</a>
@@ -43,8 +27,7 @@
             {{/if}}
             {{#if actions_list.geo}}
                 <li>
-                    <input class="geo-control" id="status-geo-control" type="checkbox">
-                    <label for="status-geo-control" i18n-content="enableGeolocation">Enable Geolocation</label>
+                    <button id="status-geo-control" class="action-geo btn-link" i18n-content="enableGeolocation">Enable Geolocation</button>
                 </li>
             {{/if}}
             {{#if actions_list.topic}}
@@ -62,7 +45,7 @@
         {{/if}}
         {{#if comment_ori}}
             <li>
-                <label><input type="checkbox" class="commentOrigin-control">{{comment_ori}}</label>
+                <label><input type="checkbox" class="commentOrigin-control">{{ori_username}}</label>
             </li>
         {{/if}}
     </ul>

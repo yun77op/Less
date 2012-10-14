@@ -1,4 +1,4 @@
-define(function (require, exports) {
+define(function (require) {
 
     var tpl = require('../views/tweet-modal.tpl');
     var weibo = require('../weibo');
@@ -15,7 +15,7 @@ define(function (require, exports) {
         template: tpl,
 
         initialize:function () {
-            NewTweetModule.__super__['initialize'].call(this);
+            TweetModalModule.__super__['initialize'].apply(this, arguments);
 
             var self = this;
 
@@ -25,16 +25,19 @@ define(function (require, exports) {
         },
 
         render: function () {
-            NewTweetModule.__super__['render'].call(this);
+            TweetModalModule.__super__['render'].apply(this, arguments);
             this.submitBtn = this.el.querySelector('.status-submit-btn');
             return this;
         },
 
-        show:function (options) {
+        show:function () {
             this.render().$el.appendTo('body');
-            var textareaValue = this.getTextareaValue && this.getTextareaValue() || '';
-            this.el.querySelector('.status-editor').value = textareaValue;
+            var textareaValue = this.getTextareaQuote && this.getTextareaQuote() || '';
+            var textarea = this.el.querySelector('.status-editor');
+            textarea.value = textareaValue;
             this.$el.modal('show');
+            textarea.focus();
+            this.indicateCounter();
         },
 
         events:{
@@ -42,59 +45,28 @@ define(function (require, exports) {
             'keyup .status-editor':'indicateCounter'
         },
 
-        connect:function () {
+        getTextareaValue: function() {
             var textarea = this.el.querySelector('.status-editor');
-            var text = String(textarea.value).trim();
+            return String(textarea.value).trim();
+        },
+
+        connect:function () {
+            var text = this.getTextareaValue();
+            var textarea = this.el.querySelector('.status-editor');
+            var self = this;
 
             if (text === '') {
                 textarea.focus();
                 return Message.show(chrome.i18n.getMessage('fieldEmpty'), true);
             }
 
-            var params = {}, self = this, path;
-
-            switch (this.type) {
-                case 'upload':
-                    path = 'statuses/upload.json';
-                    params.status = text;
-                    params.imageFile = this.picView.imageFile;
-                    $.extend(params, this.geo);
-                    break;
-                case 'update':
-                    path = 'statuses/update.json';
-                    params.status = text;
-                    $.extend(params, this.geo);
-                    break;
-                case 'repost':
-                    path = 'statuses/repost.json';
-                    params.status = text;
-                    params.id = this.model.id;
-                    var is_comment = 0;
-                    is_comment += el.querySelector('#status-comment').checked ? 1 : 0;
-                    is_comment += el.querySelector('#status-commentOrigin').checked ? 2 : 0;
-                    params.is_comment = is_comment;
-                    break;
-                case 'comment':
-                    path = 'comments/create.json';
-                    params.id = this.model.id;
-                    if (this.model.retweeted_status) {
-                        params.comment_ori = el.querySelector('#status-commentOrigin').checked ? 1 : 0;
-                    }
-                    params.comment = text;
-                    break;
-                case 'reply':
-                    path = 'comments/reply.json';
-                    params.comment = text;
-                    params.cid = this.model.cid;
-                    params.id = this.model.id;
-                    params.without_mention = '0'; //TODO
-            }
+            var parameters = this.getParameters();
 
             Message.show(chrome.i18n.getMessage('loading'));
             weibo.request({
                 method:'POST',
-                path:path,
-                params:params
+                path: this.url,
+                params: parameters
             }, function () {
                 self.$el.modal('hide');
                 Message.show('Success', true);
@@ -102,30 +74,20 @@ define(function (require, exports) {
         },
 
         indicateCounter:function () {
-            var textarea = this.el.querySelector('.status-editor');
+            var text = this.getTextareaValue();
+            var textLen = text.length;
             var counterEl = this.el.querySelector('.status-counter');
             var submitBtn = this.submitBtn;
 
-            var text = textarea.value;
-            var textTrimmedLen = text.trim().length;
-
             var result = text.match(/[^\x00-\xff]/g);
-            var counter = text.length + result && result.length || 0;
+            var counter = text.length + (result && result.length) || 0;
             counter = Math.ceil(counter / 2);
             var limit = 140;
-            var diff = limit - counter;
+            var diff = counter - limit;
 
-            counterEl.textContent = diff;
-
-            if (diff < 0 || !textTrimmedLen) {
-                submitBtn.disabled = true;
-                submitBtn.classList.remove('btn-primary');
-            } else {
-                submitBtn.disabled = false;
-                submitBtn.classList.add('btn-primary');
-            }
-
-            counterEl.classList[diff < 0 ? 'add' : 'remove']('danger');
+            counterEl.textContent = String(-diff);
+            submitBtn.disabled = (counter > 0 && counter <= 140) ? false : true;
+            counterEl.classList[diff > 0 ? 'add' : 'remove']('danger');
         }
     });
 

@@ -7,6 +7,8 @@ define(function(require) {
 
         template: tpl,
 
+        syncOnStart: false,
+
         enter: function(uid) {
             this.model.set('urlParams', {
                 uid: uid
@@ -46,7 +48,6 @@ define(function(require) {
     });
 
     return new ProfileNavModule({
-        alone: true,
         model: new Backbone.Model()
     });
 });
