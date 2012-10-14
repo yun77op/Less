@@ -1,6 +1,6 @@
 (function() {
 
-    var buildinAvailables = {
+    var defaultAvailables = {
         dom: function(selector) {
             return $(this.selector).length > 0;
         }
@@ -54,7 +54,7 @@
 
             if (typeof item == 'function') {
                 test = item;
-            } else if (test = buildinAvailables[item.type]) {
+            } else if (test = defaultAvailables[item.type]) {
                 args = item.value;
             }
 
@@ -103,7 +103,7 @@
             var self = this;
             var fullPath = viewState.getfullPath();
 
-            if (typeof fullPath == 'undefined') return;
+            if (_.isUndefined(fullPath)) return;
 
             this.router.route(fullPath, viewState.name, function() {
                 viewState._handleEnter.apply(viewState, arguments);
@@ -176,7 +176,7 @@
             Backbone.View.prototype._configure.call(this, clonedOptions);
         },
 
-        initialize: function() {
+        initialize: function(options) {
             var tpl;
 
             if (this.template instanceof Element) {
@@ -185,20 +185,8 @@
                 tpl = this.template;
             }
 
-            if (tpl) {
-                this.template = Handlebars.compile(tpl);
-            }
-
-            var moduleName, module;
-
-            this.modules = [];
-
-            while(result = modulePattern.exec(tpl)) {
-                moduleName = result[2];
-                module = Backbone.application.getModuleByName(moduleName);
-                this.modules.push(module);
-            }
-
+            if (tpl) this.template = Handlebars.compile(tpl);
+            this._resolveModules(tpl);
             this.active = false;
 
             _.defaults(this, {
@@ -206,10 +194,34 @@
             });
         },
 
-        start: function(args) {
+        _resolveModules: function(tpl) {
+            var result, name, module;
+
+            this.modules = [];
+
+            while(result = modulePattern.exec(tpl)) {
+                name = result[2];
+                module = Backbone.application.getModuleByName(name);
+                this.modules.push(module);
+            }
+        },
+
+        _handleEnter: function() {
+            var args = arguments;
+            if (_.isUndefined(this.modules)) {
+                console.log(this.name);
+            }
+            this.modules.forEach(function(module) {
+                module._handleEnter && module._handleEnter.apply(module, args);
+            });
+
             this.enter.apply(this, args);
-            this.prepareRender();
+            this.active = true;
+        },
+
+        start: function(options) {
             this.prepareEl();
+            this.prepareRender(options);
         },
 
         render: function() {
@@ -231,28 +243,26 @@
             };
 
             var content = typeof this.placeholder == 'string' ? this.placeholder : '';
-            var el = this.make(this.tagName, attrs, content);
-
-            return el;
+            return this.make(this.tagName, attrs, content);
         },
 
-        prepareRender: function() {
+        prepareRender: function(options) {
             var self = this;
             var model = this.model;
-            var changed = false;
-            var mid = _.uniqueId('m');
+            var changed = true;
+            var mid = this.mid = _.uniqueId('m');
             var selector = '#' + mid;
-
-            this.mid = mid;
+            options = options || {};
 
             if (this.syncOnStart && model && model.isNew()) {
-                model.fetch({
+                changed = false;
+                var fetchOptions = {
+                    data: this.options.data,
                     success: function() {
                         changed = true;
                     }
-                });
-            } else {
-                changed = true;
+                };
+                model.fetch(fetchOptions);
             }
 
             new Available({
@@ -262,8 +272,9 @@
                 return changed;
             }, function() {
                 self.setElement($(selector).get(0), true);
+                self._handleEnter.apply(this, arguments);
                 self.render();
-                self.active = true;
+                options.success && options.success.call(self);
             });
         }
     });
@@ -273,28 +284,13 @@
     Module.extend = Backbone.View.extend;
 
 
-
     var ViewState = Module.extend({
-        active: false,
-
         _handleEnter: function() {
-            var args = arguments;
-
             if (this.parent && !this.parent.active) {
-                this.parent._handleEnter.apply(this.parent, args);
+                this.parent._handleEnter.apply(this.parent, arguments);
             }
 
-            this.modules.forEach(function(module) {
-                module.enter.apply(module, args);
-            });
-
-            this.enter.apply(this, args);
-
-            this.modules.forEach(function(module) {
-                module.afterEnter && module.afterEnter.apply(module, args);
-            });
-
-            this.active = true;
+            ViewState.__super__['_handleEnter'].apply(this, arguments);
         },
 
         getfullPath: function() {
@@ -329,14 +325,14 @@
             context = null;
         }
 
-        var moduleName = options.hash.name;
-        var module = Backbone.application.getModuleByName(moduleName);
+        var name = options.hash.name;
+        var module = Backbone.application.getModuleByName(name);
 
-        if (typeof module == 'function') module = new module();
-
-        // module.model instanceof Backbone.Model
-        if (typeof module.model == 'function' || !module.model) {
-            module.model = new (module.model || Backbone.Model)(context || {});
+        if (typeof module == 'function') {
+            var options = {};
+            var Model = _.isFunction(module.model) ? module.model : Backbone.Model;
+            options.model = new Model(context || {});
+            module = new module(options);
         }
 
         module.prepareRender();

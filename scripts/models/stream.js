@@ -9,12 +9,12 @@ define(function(require, exports) {
         'read': 'GET'
     };
 
-    var StreamModuleModel = Backbone.Model.extend({
+    var StreamModel = Backbone.Model.extend({
         sync: function(method, model, options) {
             var params = {
-                path: model.get('url'),
+                path: model.url,
                 method: methodMap[method],
-                params: model.get('urlParams')
+                params: options.data
             };
 
             weibo.request(params, {
@@ -24,5 +24,5 @@ define(function(require, exports) {
         }
     });
 
-    return StreamModuleModel;
+    return StreamModel;
 });

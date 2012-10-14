@@ -1,13 +1,14 @@
 define(function (require) {
 
     var weibo = require('../weibo');
+    var tpl = require('../views/stream-item.tpl');
 
-    var TweetModule = Backbone.Module.extend({
-        name: 'stream-item-tweet',
+    var StreamItemModule = Backbone.Module.extend({
+        name: 'stream-item',
 
         className:'stream-item',
 
-        template:Handlebars.compile('{{#with user}} {{> stream-item-vcard}} {{/with}} {{> stream-item-tweet-content}}'),
+        template: tpl,
 
         events:{
             'click .action-repost':'repost',
@@ -87,17 +88,15 @@ define(function (require) {
         },
 
         commentList:function (e) {
-            var currentTarget = $(e.currentTarget);
-            var name, isRetweet;
+            var target = $(e.currentTarget);
+            var MiniCommentListModule = require('./mini-comment-list');
 
-            if (currentTarget.parents('.retweet').length > 0) {
-                name = 'retweetComments';
-                isRetweet = true;
-            } else {
-                name = 'comments';
-            }
-
-            this.setupListView(e, name, 'comments', isRetweet);
+            var miniCommentListModule = new MiniCommentListModule();
+            miniCommentListModule.start({
+                success: function() {
+//                    (this.$el);
+                }
+            });
         },
 
         repostList:function (e) {
@@ -132,5 +131,5 @@ define(function (require) {
         }
     });
 
-    return TweetModule;
+    return StreamItemModule;
 });

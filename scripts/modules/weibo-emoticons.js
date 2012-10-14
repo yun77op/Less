@@ -77,10 +77,6 @@ define(function (require) {
             var template = Handlebars.compile(body_tpl);
             var emoticons = this.model.get('emoticons')[category];
             emoticons = emoticons.map(function(elm, i) {
-                if (elm.phrase === undefined) {
-                    console.log(i);
-                    return elm;
-                }
                 elm.title = elm.phrase.slice(1, -1);
                 return elm;
             });
