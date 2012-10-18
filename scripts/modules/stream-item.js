@@ -88,15 +88,21 @@ define(function (require) {
         },
 
         commentList:function (e) {
-            var target = $(e.currentTarget);
-            var MiniCommentListModule = require('./mini-comment-list');
+            e.preventDefault();
 
-            var miniCommentListModule = new MiniCommentListModule();
-            miniCommentListModule.start({
-                success: function() {
-//                    (this.$el);
+            var $target = $(e.currentTarget);
+            var MiniCommentListModule = require('./mini-comment-list');
+            var CommentsModel = require('../models/comments');
+
+            var miniCommentListModule = new MiniCommentListModule({
+                model: new CommentsModel(),
+                data: {
+                    id: this.model.get('id'),
+                    count: 10
                 }
             });
+            miniCommentListModule.render().$el.insertAfter($target.parents('.stream-item-footer'));
+            miniCommentListModule.fetch(1);
         },
 
         repostList:function (e) {

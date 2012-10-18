@@ -208,20 +208,13 @@
 
         _handleEnter: function() {
             var args = arguments;
-            if (_.isUndefined(this.modules)) {
-                console.log(this.name);
-            }
+
             this.modules.forEach(function(module) {
                 module._handleEnter && module._handleEnter.apply(module, args);
             });
 
             this.enter.apply(this, args);
             this.active = true;
-        },
-
-        start: function(options) {
-            this.prepareEl();
-            this.prepareRender(options);
         },
 
         render: function() {
@@ -272,7 +265,7 @@
                 return changed;
             }, function() {
                 self.setElement($(selector).get(0), true);
-                self._handleEnter.apply(this, arguments);
+                self._handleEnter();
                 self.render();
                 options.success && options.success.call(self);
             });
@@ -329,10 +322,11 @@
         var module = Backbone.application.getModuleByName(name);
 
         if (typeof module == 'function') {
-            var options = {};
-            var Model = _.isFunction(module.model) ? module.model : Backbone.Model;
-            options.model = new Model(context || {});
-            module = new module(options);
+            module = new module();
+        }
+
+        if (!module.model) {
+            module.model = new Backbone.Model(context || {});
         }
 
         module.prepareRender();

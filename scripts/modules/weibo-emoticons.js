@@ -3,6 +3,10 @@ define(function (require) {
     var tpl = require('../views/weibo-emoticons.tpl');
     var StreamModel = require('../models/stream.js');
 
+    var EmotionsModel = StreamModel.extend({
+        url: 'emotions.json'
+    });
+
     var EmoticonsModule = Backbone.Module.extend({
         name: 'weibo-emoticons',
 
@@ -14,9 +18,7 @@ define(function (require) {
 
         syncOnStart: false,
 
-        model: new StreamModel({
-            url: 'emotions.json'
-        }),
+        model: new EmotionsModel(),
 
         initialize: function() {
             EmoticonsModule.__super__['initialize'].apply(this, arguments);

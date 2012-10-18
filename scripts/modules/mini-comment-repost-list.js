@@ -11,9 +11,12 @@ define(function(require) {
 
         template: tpl,
 
+        syncOnStart: false,
+
         initialize: function() {
             this.currentPage = 1;
 
+            MiniCommentRepostListModule.__super__['initialize'].apply(this, arguments);
         },
 
         navPrev: function(e) {
@@ -33,7 +36,7 @@ define(function(require) {
 
         setupBody: function(streams) {
             var body_tpl = require('../views/mini-comment-repost-body.tpl');
-            var template = Handlebar.compile(body_tpl);
+            var template = Handlebars.compile(body_tpl);
             var html = template({
                 streams: streams
             });
@@ -42,12 +45,12 @@ define(function(require) {
         },
 
         fetch: function(page) {
+            var data = $.extend({}, this.options.data, {
+                page: page
+            });
+
             this.model.fetch({
-                data: {
-                    id: this.model.get('id'),
-                    page: page,
-                    count: this.pageNum
-                },
+                data: data,
                 success: this._fetchCallback.bind(this)
             });
         },
@@ -55,7 +58,7 @@ define(function(require) {
         _fetchCallback: function(resp, status, xhr) {
             var self = this;
 
-
+            this.setupBody(this.model.get('comments'));
 
 //            this.trigger.textContent = data.total_number;
 

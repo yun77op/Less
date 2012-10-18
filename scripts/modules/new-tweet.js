@@ -178,7 +178,7 @@ define(function (require) {
                 }
             }
             textarea.focus();
-            this.indicateCouter();
+            this.indicateCounter();
         },
 
         _setType: function(type) {
@@ -186,7 +186,7 @@ define(function (require) {
             var map = {
                 update: 'statuses/update.json',
                 upload: 'statuses/upload.json'
-            }
+            };
             this.url = map[type];
         },
 
