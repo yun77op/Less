@@ -8,7 +8,7 @@ define(function(require, exports) {
     });
 
     var UserTimelineModule = Backbone.Module.extend({
-        name: 'user-timeline',
+        name: 'followers',
         template: tpl,
         enter: function(uid) {
             this.options.data.uid = uid;

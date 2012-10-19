@@ -1,26 +1,21 @@
 define(function(require, exports) {
 
     var tpl = require('../views/profile-card.tpl');
-    var StreamModel = require('../models/stream.js');
+    var UserModel = require('../models/user');
 
     var ProfileCardModule = Backbone.Module.extend({
         name: 'profile-card',
         className: 'module',
         template: tpl,
         enter: function(uid) {
-            this.model.set('urlParams', {
-                uid: uid
-            });
+            this.options.data.uid = uid;
         }
     });
 
+
     var profileCardModule = new ProfileCardModule({
-        model: new StreamModel({
-            url: 'users/show.json',
-            urlParams: {
-                uid: localStorage['uid']
-            }
-        })
+        model: new UserModel(),
+        data: {}
     });
 
     return profileCardModule;

@@ -15,8 +15,8 @@ define(function (require) {
             'click .action-comment':'comment',
             'click .action-favorite':'favorite',
             'click .action-del':'del',
-            'click .action-show-repostList':'repostList',
-            'click .action-show-commentList':'commentList'
+            'click .action-show-repostList':'toggleRepostList',
+            'click .action-show-commentList':'toggleCommentList'
         },
 
         repost:function (e) {
@@ -87,53 +87,62 @@ define(function (require) {
             });
         },
 
-        commentList:function (e) {
-            e.preventDefault();
-
-            var $target = $(e.currentTarget);
-            var MiniCommentListModule = require('./mini-comment-list');
-            var CommentsModel = require('../models/comments');
-
-            var miniCommentListModule = new MiniCommentListModule({
-                model: new CommentsModel(),
+        _setupListModule: function(key, target, model) {
+            var $target = $(target);
+            var MiniCommentRepostListModule = require('./mini-comment-repost-list');
+            var miniCommentRepostListModule = new MiniCommentRepostListModule({
+                model: model,
                 data: {
                     id: this.model.get('id'),
                     count: 10
-                }
+                },
+                key: key
             });
-            miniCommentListModule.render().$el.insertAfter($target.parents('.stream-item-footer'));
-            miniCommentListModule.fetch(1);
+
+            miniCommentRepostListModule.render().$el.insertAfter($target.parents('.stream-item-footer'));
+            miniCommentRepostListModule.fetch(1);
+
+            return miniCommentRepostListModule;
         },
 
-        repostList:function (e) {
-            var currentTarget = $(e.currentTarget);
-            var name, isRetweet;
+        _removeActiveCommentRepostList: function() {
+            var activeListModuleName;
 
-            if (currentTarget.parents('.retweet').length > 0) {
-                name = 'retweetReposts';
-                isRetweet = true;
-            } else {
-                name = 'reposts';
+            if (this.miniCommentRepostListModule) {
+                activeListModuleName = this.miniCommentRepostListModule.name;
+                this.miniCommentRepostListModule.remove();
+                this.miniCommentRepostListModule = null;
             }
 
-            this.setupListView(e, name, 'reposts', isRetweet);
+            return activeListModuleName;
         },
 
-        setupListView:function (e, name, type, isRetweet) {
+        toggleCommentList:function (e) {
             e.preventDefault();
-            var currentTarget = e.currentTarget;
-            var listViewEl = this.el.querySelector('.tweet-listView');
-            var action = type == 'comments' ? 'comments/show' : 'statuses/repost_timeline';
-            var model = !isRetweet ? this.model : this.model[this.model.key];
-            if (this.currentListViewName == name || listViewEl) {
-                listViewEl.parentNode.removeChild(listViewEl);
-            }
-            if (this.currentListViewName != name) {
-                new ListView(this.el, model, action, type, currentTarget).retrievePage(1);
-                this.currentListViewName = name;
-            } else {
-                this.currentListViewName = null;
-            }
+
+            var moduleName = 'mini-comment-list';
+            var activeListModuleName = this._removeActiveCommentRepostList();
+
+            if (activeListModuleName == moduleName) return;
+
+            var CommentsModel = require('../models/comments');
+            var miniCommentRepostListModule = this._setupListModule('comments', e.currentTarget, new CommentsModel());
+            miniCommentRepostListModule.name = moduleName;
+            this.miniCommentRepostListModule = miniCommentRepostListModule;
+        },
+
+        toggleRepostList:function (e) {
+            e.preventDefault();
+
+            var moduleName = 'mini-repost-list';
+            var activeListModuleName = this._removeActiveCommentRepostList();
+
+            if (activeListModuleName == moduleName) return;
+
+            var RepostsModel = require('../models/reposts');
+            var miniCommentRepostListModule = this._setupListModule('reposts', e.currentTarget, new RepostsModel());
+            miniCommentRepostListModule.name = moduleName;
+            this.miniCommentRepostListModule = miniCommentRepostListModule;
         }
     });
 

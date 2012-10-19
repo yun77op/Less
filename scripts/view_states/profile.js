@@ -7,23 +7,38 @@ define(function(require, exports) {
             name: 'profile',
             path: '!/:uid',
             template: tpl,
-            render: function() {
-                application.$el.html(this.template());
-            },
+            el: application.el,
             enter: function() {
-                if (!this.active) {
-                    this.render();
-                }
-
-                var $el = $('.content-main');
-                var userTimelineModule = application.getModuleByName('user-timeline');
-
-                $el.html(userTimelineModule.start(arguments));
-
+                ProfileViewState.__super__['enter'].apply(this, arguments);
+                ProfileViewState.__super__['render'].apply(this, arguments);
                 return this;
             }
         });
 
-        routeManager.register(new ProfileViewState());
+        var profileViewState = new ProfileViewState({
+            model: new Backbone.Model({
+                user_timeline: true
+            })
+        });
+
+        routeManager.register(profileViewState);
+
+
+        var ProfileFollowingViewState = ProfileViewState.extend({
+            name: 'profile-following',
+            path: '!/:uid/following',
+            initialize: function() {
+
+            }
+        });
+
+        new ProfileFollowingViewState({
+            model: new Backbone.Model({
+
+            })
+        });
+
+//        routeManager.registerSubViewState(profileFollowingViewState, profileViewState);
+//        routeManager.registerSubViewState(profileFollowersViewState, profileViewState);
     };
 });

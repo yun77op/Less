@@ -7,6 +7,8 @@ define(function (require) {
 
         className:'stream-item',
 
+        tagName: 'li',
+
         template: tpl,
 
         events:{
@@ -15,6 +17,7 @@ define(function (require) {
 
         reply: function() {
             var TweetReplyModule = require('./tweet-reply');
+            console.log(this.model.attributes);
             var tweetReplyModule = new TweetReplyModule({
                 model: this.model.clone()
             });

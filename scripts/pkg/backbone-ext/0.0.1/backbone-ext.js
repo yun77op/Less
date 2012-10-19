@@ -106,8 +106,9 @@
             if (_.isUndefined(fullPath)) return;
 
             this.router.route(fullPath, viewState.name, function() {
-                viewState._handleEnter.apply(viewState, arguments);
                 var activeViewState = self.activeViewState;
+                self.activeViewState = viewState;
+                viewState._handleEnter.apply(viewState, arguments);
 
                 while (activeViewState) {
                     activeViewState.active = false;
@@ -122,7 +123,6 @@
                     activeViewState = activeViewState.parent;
                 }
 
-                self.activeViewState = viewState;
             });
         }
     };
@@ -144,7 +144,8 @@
     };
 
     Application.prototype._configure = function(options) {
-        this.$el = $(options.el);
+        this.el = options.el;
+        this.$el = $(this.el);
         this.modules = {};
     };
 

@@ -6,13 +6,13 @@ define(function (require, exports) {
 
         initialize: function() {
             this.model.set({
-                title: chrome.i18n.getMessage('statusReplyTitle', this.model.get('username'))
+                title: chrome.i18n.getMessage('statusReplyTitle', this.model.get('user').name)
             });
             TweetReplyModule.__super__['initialize'].apply(this, arguments);
         },
 
         getTextareaQuote: function() {
-            return chrome.i18n.getMessage('reply') + '@' + this.model.get('username') + ':';
+            return chrome.i18n.getMessage('reply') + '@' + this.model.get('user').name + ':';
         },
 
         getParameters: function() {
