@@ -3,11 +3,11 @@ define(function(require, exports) {
     var StreamModel = require('../models/stream.js');
     var tpl = require('../views/users.tpl');
 
-    var UserTimelineModel = StreamModel.extend({
-        url: 'statuses/user_timeline.json'
+    var FriendsModel = StreamModel.extend({
+        url: 'friendships/friends.json'
     });
 
-    var UserTimelineModule = Backbone.Module.extend({
+    var FollowingModule = Backbone.Module.extend({
         name: 'followers',
         template: tpl,
         enter: function(uid) {
@@ -15,8 +15,8 @@ define(function(require, exports) {
         }
     });
 
-    return new UserTimelineModule({
-        model: new UserTimelineModel(),
+    return new FollowingModule({
+        model: new FriendsModel(),
         data: {}
     });
 });

@@ -29,6 +29,7 @@ define(function(require, exports) {
         application.registerModule(require('./modules/stream-picture.js'));
         application.registerModule(require('./modules/stream-item.js'));
         application.registerModule(require('./modules/mini-stream-item.js'));
+        application.registerModule(require('./modules/user.js'));
         application.registerModule(require('./modules/mini_profile.js'));
         application.registerModule(require('./modules/home-timeline.js'));
         application.registerModule(require('./modules/status.js'));
@@ -38,7 +39,6 @@ define(function(require, exports) {
         application.registerModule(require('./modules/profile-card.js'));
         application.registerModule(require('./modules/profile-nav.js'));
         application.registerModule(require('./modules/new-tweet.js'));
-        application.registerModule(require('./modules/followers.js'));
 
         require('./view_states/index.js')(application, routeManager);
         require('./view_states/profile.js')(application, routeManager);

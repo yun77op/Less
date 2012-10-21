@@ -13,6 +13,6 @@ define(function(require, exports) {
             }
         });
 
-        routeManager.register(new IndexViewState());
+        routeManager.register(IndexViewState);
     };
 });

@@ -9,41 +9,19 @@ define(function(require) {
 
         syncOnStart: false,
 
+        initialize: function() {
+            this.on('nav', this._changeNavStatus, this);
+            ProfileNavModule.__super__['initialize'].apply(this, arguments);
+        },
+
         enter: function(uid) {
-            this.model.set('urlParams', {
-                uid: uid
-            });
+            this.model.set({ id: uid });
         },
 
-        afterEnter: function() {
-            var self = this;
-
-//            new Backbone.Available(function() {
-//                return self.active;
-//            }, function() {
-//                self.highlightTab();
-//            });
-        },
-
-        events: {
-            'click .nav-tabs li': 'handleTabClick'
-        },
-
-        highlightTab: function() {
-            var fragment = Backbone.history.getFragment();
-            var ary = fragment.split('/');
-            var nav = 'tweets';
-
-            if (ary.length == 3) nav = ary.pop();
-            $('[data-nav="' + nav + '"]', this.$el).addClass('active');
-        },
-
-        handleTabClick: function(e) {
-            var $el = $(e.currentTarget);
+        _changeNavStatus: function(nav_val) {
             var activeClassName = 'active';
-
-            $el.siblings().removeClass(activeClassName);
-            $el.addClass(activeClassName);
+            var $target = $('li[data-nav=' + nav_val + ']', this.$el).addClass(activeClassName);
+            $target.siblings().removeClass(activeClassName);
         }
     });
 

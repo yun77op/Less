@@ -39,13 +39,13 @@
         {{#if comment}}
             {{#each comment}}
                 <li>
-                    <label><input type="checkbox" class="comment-control">{{this}}</label>
+                    <label><input type="checkbox" name="comment" class="comment-control">{{this}}</label>
                 </li>
             {{/each}}
         {{/if}}
         {{#if comment_ori}}
             <li>
-                <label><input type="checkbox" class="commentOrigin-control">{{ori_username}}</label>
+                <label><input type="checkbox" name="commentOrigin" class="commentOrigin-control">{{ori_username}}</label>
             </li>
         {{/if}}
     </ul>

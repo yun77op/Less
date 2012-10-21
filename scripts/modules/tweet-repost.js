@@ -28,8 +28,9 @@ define(function (require) {
             };
 
             var is_comment = 0;
-            is_comment += el.querySelector('#status-comment').checked ? 1 : 0;
-            is_comment += el.querySelector('#status-commentOrigin').checked ? 2 : 0;
+            is_comment += this.el.querySelector('.comment-control').checked ? 1 : 0;
+            is_comment += this.el.querySelector('.commentOrigin-control') &&
+                          this.el.querySelector('.commentOrigin-control').checked ? 2 : 0;
             params.is_comment = is_comment;
 
             return params;

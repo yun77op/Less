@@ -89,41 +89,43 @@
     RouteManager.prototype = {
         constructor: RouteManager,
 
-        register: function(viewState) {
-            this.viewStates[viewState.name] = viewState;
-            this.route(viewState);
+        _getInstance: function(ViewState) {
+            var name = ViewState.prototype.name;
+            return this.viewStates[name] || (this.viewStates[name] = new ViewState());
         },
 
-        registerSubViewState: function(subViewState, viewState) {
-            subViewState.parent = viewState;
-            this.register(subViewState);
+        _handleRoute: function(viewState) {
+            var activeViewState = this.activeViewState;
+            var args = Array.prototype.slice.call(arguments).slice(1);
+
+            if (activeViewState && !activeViewState.isParentOf(viewState)) {
+                while (activeViewState) {
+                    activeViewState._handleLeave();
+                    activeViewState = activeViewState.parent;
+                }
+            }
+
+            this.activeViewState = viewState;
+            viewState._handleEnter.apply(viewState, args);
+        },
+
+        register: function(ViewState) {
+            var viewState = this._getInstance(ViewState);
+            this.route(viewState);
+            return this;
+        },
+
+        registerSubViewState: function(ViewState, parentViewState) {
+            this._getInstance(ViewState).parent = this._getInstance(parentViewState);
+            this.register(ViewState);
+            return this;
         },
 
         route: function(viewState) {
             var self = this;
-            var fullPath = viewState.getfullPath();
+            var fullPath = viewState.getFullPath();
 
-            if (_.isUndefined(fullPath)) return;
-
-            this.router.route(fullPath, viewState.name, function() {
-                var activeViewState = self.activeViewState;
-                self.activeViewState = viewState;
-                viewState._handleEnter.apply(viewState, arguments);
-
-                while (activeViewState) {
-                    activeViewState.active = false;
-                    activeViewState.modules.forEach(function(module) {
-                        if (typeof module == 'string') {
-                            module = Backbone.application.getModuleByName(module);
-                        }
-
-                        module.destroy();
-                        module.active = false;
-                    });
-                    activeViewState = activeViewState.parent;
-                }
-
-            });
+            this.router.route(fullPath, viewState.name, this._handleRoute.bind(this, viewState));
         }
     };
 
@@ -150,7 +152,7 @@
     };
 
     Application.prototype.registerModule = function(module) {
-        var moduleName = typeof module == 'function' ? module.prototype.name : module.name;
+        var moduleName = _.isFunction(module) ? module.prototype.name : module.name;
         this.modules[moduleName] = module;
     };
 
@@ -202,20 +204,36 @@
 
             while(result = modulePattern.exec(tpl)) {
                 name = result[2];
-                module = Backbone.application.getModuleByName(name);
-                this.modules.push(module);
+                this.registerModule(name);
             }
         },
 
         _handleEnter: function() {
             var args = arguments;
 
+            this.beforeEnter.apply(this, args);
+
             this.modules.forEach(function(module) {
-                module._handleEnter && module._handleEnter.apply(module, args);
+                module._handleEnter.apply(module, args);
             });
 
             this.enter.apply(this, args);
             this.active = true;
+        },
+
+        _handleLeave: function() {
+            this.modules.forEach(function(module) {
+                module._handleLeave();
+            });
+
+            this.destroy();
+            this.active = false;
+        },
+
+        registerModule: function(moduleOrName) {
+            var module = _.isString(moduleOrName) ? Backbone.application.getModuleByName(moduleOrName) :moduleOrName;
+            this.modules.push(module);
+            return this;
         },
 
         render: function() {
@@ -228,7 +246,15 @@
 
         destroy: function() {},
 
+        beforeEnter: function() {},
+
         enter: function() {},
+
+        start: function(el) {
+            this.prepareRender();
+            el.innerHTML = this.prepareEl().outerHTML;
+            return this;
+        },
 
         prepareEl: function() {
             var attrs = {
@@ -265,20 +291,22 @@
             }, function() {
                 return changed;
             }, function() {
-                self.setElement($(selector).get(0), true);
-                self._handleEnter();
-                self.render();
+                self.setElement(document.querySelector(selector), true)
+                    .render()
+                    .trigger('ready');
                 options.success && options.success.call(self);
             });
         }
     });
 
     Module.mergedOptions = ['placeholder'];
-
     Module.extend = Backbone.View.extend;
+
+    _.extend(Module.prototype, Backbone.Events);
 
 
     var ViewState = Module.extend({
+
         _handleEnter: function() {
             if (this.parent && !this.parent.active) {
                 this.parent._handleEnter.apply(this.parent, arguments);
@@ -287,7 +315,19 @@
             ViewState.__super__['_handleEnter'].apply(this, arguments);
         },
 
-        getfullPath: function() {
+        isParentOf: function(viewState) {
+            var tmp, result = false;
+            while(tmp = viewState.parent) {
+                if (tmp == this) {
+                    result =  true;
+                    break;
+                }
+                tmp = viewState.parent
+            }
+            return result;
+        },
+
+        getFullPath: function() {
             var path = this.path;
 
             // Don't expand
@@ -295,9 +335,7 @@
                 return path.slice(1);
             }
 
-            if (path instanceof RegExp) {
-                return path;
-            }
+            if (path instanceof RegExp) return path;
 
             var pathAry = [path];
             var slash = '/';
@@ -322,7 +360,7 @@
         var name = options.hash.name;
         var module = Backbone.application.getModuleByName(name);
 
-        if (typeof module == 'function') {
+        if (_.isFunction(module)) {
             module = new module();
         }
 
