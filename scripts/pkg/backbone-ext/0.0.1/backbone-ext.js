@@ -136,6 +136,7 @@
         var application = new Application(options);
         var routerManager = new RouteManager();
         Backbone.application = application;
+        Backbone.routerManager = routerManager;
         callback(application, routerManager);
     };
 
@@ -189,7 +190,6 @@
             }
 
             if (tpl) this.template = Handlebars.compile(tpl);
-            this._resolveModules(tpl);
             this.active = false;
 
             _.defaults(this, {
@@ -197,32 +197,20 @@
             });
         },
 
-        _resolveModules: function(tpl) {
-            var result, name, module;
-
-            this.modules = [];
-
-            while(result = modulePattern.exec(tpl)) {
-                name = result[2];
-                this.registerModule(name);
-            }
-        },
-
         _handleEnter: function() {
             var args = arguments;
 
             this.beforeEnter.apply(this, args);
-
-            this.modules.forEach(function(module) {
-                module._handleEnter.apply(module, args);
-            });
-
             this.enter.apply(this, args);
             this.active = true;
+
+            this.modules && this.modules.forEach(function(module) {
+                module._handleEnter.apply(module, args);
+            });
         },
 
         _handleLeave: function() {
-            this.modules.forEach(function(module) {
+            this.modules && this.modules.forEach(function(module) {
                 module._handleLeave();
             });
 
@@ -231,7 +219,8 @@
         },
 
         registerModule: function(moduleOrName) {
-            var module = _.isString(moduleOrName) ? Backbone.application.getModuleByName(moduleOrName) :moduleOrName;
+            var module = _.isString(moduleOrName) ? Backbone.application.getModuleByName(moduleOrName) : moduleOrName;
+            this.modules || (this.modules = []);
             this.modules.push(module);
             return this;
         },
@@ -251,15 +240,17 @@
         enter: function() {},
 
         start: function(el) {
-            this.prepareRender();
             el.innerHTML = this.prepareEl().outerHTML;
+            this.prepareRender();
             return this;
         },
 
         prepareEl: function() {
+            var mid = this.mid = _.uniqueId('m');
+
             var attrs = {
                 class: this.name + (this.className ? ' ' + this.className : ''),
-                id: this.mid
+                id: mid
             };
 
             var content = typeof this.placeholder == 'string' ? this.placeholder : '';
@@ -270,8 +261,7 @@
             var self = this;
             var model = this.model;
             var changed = true;
-            var mid = this.mid = _.uniqueId('m');
-            var selector = '#' + mid;
+            var selector = '#' + this.mid;
             options = options || {};
 
             if (this.syncOnStart && model && model.isNew()) {
@@ -292,10 +282,13 @@
                 return changed;
             }, function() {
                 self.setElement(document.querySelector(selector), true)
-                    .render()
-                    .trigger('ready');
+                    .render();
+                self._handleEnter();
+                self.trigger('ready');
                 options.success && options.success.call(self);
             });
+
+            return this;
         }
     });
 
@@ -354,10 +347,11 @@
     Handlebars.registerHelper('module', function(context, options) {
         if (typeof options == 'undefined') {
             options = context;
-            context = null;
+            context = {};
         }
 
-        var name = options.hash.name;
+        var hash = options.hash;
+        var name = hash.name;
         var module = Backbone.application.getModuleByName(name);
 
         if (_.isFunction(module)) {
@@ -365,10 +359,20 @@
         }
 
         if (!module.model) {
-            module.model = new Backbone.Model(context || {});
+            module.model = new Backbone.Model(context);
         }
 
-        module.prepareRender();
+        if (!hash.parent) {
+            Backbone.routerManager.activeViewState.registerModule(module);
+        } else {
+            Backbone.application.getModuleByName(hash.parent).registerModule(module);
+        }
+
+        var handleEnter_tmp = module._handleEnter;
+        module._handleEnter = function() {
+            handleEnter_tmp.apply(module, arguments);
+            module.prepareRender();
+        };
 
         return module.prepareEl().outerHTML;
     });

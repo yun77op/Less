@@ -6,7 +6,7 @@ define(function(require, exports) {
     var ProfileCardModule = Backbone.Module.extend({
         name: 'profile-card',
         template: tpl,
-        enter: function(uid) {
+        beforeEnter: function(uid) {
             this.options.data.uid = uid;
         }
     });
