@@ -56,6 +56,8 @@
                 test = item;
             } else if (test = defaultAvailables[item.type]) {
                 args = item.value;
+            } else {
+                throw new Error('Available test item ' + item + 'not found.');
             }
 
             if (!Array.isArray(args)) {
@@ -200,11 +202,15 @@
         _handleEnter: function() {
             var args = arguments;
 
-            this.beforeEnter.apply(this, args);
-            this.enter.apply(this, args);
-            this.active = true;
+            if (!this.active) {
+                this.beforeEnter.apply(this, args);
+                this.enter.apply(this, args);
+                this.active = true;
+            }
 
-            this.modules && this.modules.forEach(function(module) {
+            this.modules && _.chain(this.modules).filter(function(module) {
+                return !module.active;
+            }).each(function(module) {
                 module._handleEnter.apply(module, args);
             });
         },
@@ -240,24 +246,34 @@
         enter: function() {},
 
         start: function(el) {
-            el.innerHTML = this.prepareEl().outerHTML;
+            el.innerHTML = this.prepareEl('html');
             this.prepareRender();
             return this;
         },
 
-        prepareEl: function() {
+        prepareEl: function(type) {
             var mid = this.mid = _.uniqueId('m');
-
             var attrs = {
                 class: this.name + (this.className ? ' ' + this.className : ''),
                 id: mid
             };
 
             var content = typeof this.placeholder == 'string' ? this.placeholder : '';
-            return this.make(this.tagName, attrs, content);
+            var el =  this.make(this.tagName, attrs, content);
+            return type.toLowerCase() == 'html' ? el.outerHTML : el;
         },
 
-        prepareRender: function(options) {
+        prepareRender: function() {
+            var handleEnter_tmp = this._handleEnter;
+            var self = this;
+            this._handleEnter = function() {
+                var active = self.active;
+                handleEnter_tmp.apply(self, arguments);
+                if (!active) self._render();
+            };
+        },
+
+        _render: function(options) {
             var self = this;
             var model = this.model;
             var changed = true;
@@ -281,10 +297,11 @@
             }, function() {
                 return changed;
             }, function() {
-                self.setElement(document.querySelector(selector), true)
-                    .render();
-                self._handleEnter();
-                self.trigger('ready');
+                var el = document.querySelector(selector);
+                self.setElement(el, true)
+                    .render()
+                    .trigger('ready')
+                    ._handleEnter();
                 options.success && options.success.call(self);
             });
 
@@ -345,7 +362,7 @@
 
 
     Handlebars.registerHelper('module', function(context, options) {
-        if (typeof options == 'undefined') {
+        if (_.isUndefined(options)) {
             options = context;
             context = {};
         }
@@ -368,13 +385,9 @@
             Backbone.application.getModuleByName(hash.parent).registerModule(module);
         }
 
-        var handleEnter_tmp = module._handleEnter;
-        module._handleEnter = function() {
-            handleEnter_tmp.apply(module, arguments);
-            module.prepareRender();
-        };
+        module.prepareRender();
 
-        return module.prepareEl().outerHTML;
+        return module.prepareEl('html');
     });
 
 
