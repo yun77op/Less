@@ -2,7 +2,7 @@
 
     var defaultAvailables = {
         dom: function(selector) {
-            return $(this.selector).length > 0;
+            return $(selector).length > 0;
         }
     };
 
@@ -24,7 +24,7 @@
     };
 
     Available.prototype.startInterval = function() {
-        this._timer = setInterval(this._poll, 50);
+        this._timer = setInterval(this._poll, 1000);
     };
 
     Available.prototype.push = function(fn) {
@@ -48,6 +48,8 @@
 
     Available.prototype._test = function() {
         var item, test, args, result = false;
+        var passed = 0;
+        var count = this.testItems.length;
 
         for (var i = 0, l = this.testItems.length; i < l; ++i) {
             item = this.testItems[i];
@@ -64,11 +66,10 @@
                 args = [args];
             }
 
-            result = test.apply(null, args);
-            if (result) break;
+            passed += test.apply(null, args);
         }
 
-        return result;
+        return passed == count;
     };
 
     Available.prototype._excute = function() {
@@ -97,14 +98,15 @@
         },
 
         _handleRoute: function(viewState) {
-            var activeViewState = this.activeViewState;
+            var previousViewState = this.activeViewState;
             var args = Array.prototype.slice.call(arguments).slice(1);
 
-            if (activeViewState && !activeViewState.isParentOf(viewState)) {
-                while (activeViewState) {
-                    activeViewState._handleLeave();
-                    activeViewState = activeViewState.parent;
+            while (previousViewState) {
+                previousViewState._handleLeave();
+                if (previousViewState.isParentOf(viewState)) {
+                    previousViewState.active = true;
                 }
+                previousViewState = previousViewState.parent;
             }
 
             this.activeViewState = viewState;
@@ -165,9 +167,6 @@
         return module;
     };
 
-
-    var modulePattern = /{{#module.+?name=(['"])([^'"]+)\1/g;
-
     var Module = Backbone.View.extend({
         _configure: function(options) {
             var key, clonedOptions = _.clone(options);
@@ -204,14 +203,17 @@
 
             if (!this.active) {
                 this.beforeEnter.apply(this, args);
+                Backbone.application._currentModule = this;
                 this.enter.apply(this, args);
                 this.active = true;
+                this.ready && this.trigger('ready');
             }
 
             this.modules && _.chain(this.modules).filter(function(module) {
                 return !module.active;
             }).each(function(module) {
                 module._handleEnter.apply(module, args);
+                module._handleEnter = Module.prototype._handleEnter; // reset
             });
         },
 
@@ -221,7 +223,6 @@
             });
 
             this.destroy();
-            this.active = false;
         },
 
         registerModule: function(moduleOrName) {
@@ -239,7 +240,17 @@
             return this;
         },
 
-        destroy: function() {},
+        destroy: function() {
+            this.disableActive();
+        },
+
+        disableActive: function() {
+            this.active = false;
+
+            this.modules && this.modules.forEach(function(module) {
+                module.disableActive();
+            });
+        },
 
         beforeEnter: function() {},
 
@@ -249,6 +260,11 @@
             el.innerHTML = this.prepareEl('html');
             this.prepareRender();
             return this;
+        },
+
+        onReady: function(func) {
+            if (this.ready) return func.call(this);
+            this.on('ready', func, this);
         },
 
         prepareEl: function(type) {
@@ -274,10 +290,8 @@
         },
 
         _render: function(options) {
-            var self = this;
             var model = this.model;
             var changed = true;
-            var selector = '#' + this.mid;
             options = options || {};
 
             if (this.syncOnStart && model && model.isNew()) {
@@ -293,17 +307,17 @@
 
             new Available({
                 type: 'dom',
-                value: selector
+                value: '#' + this.mid
             }, function() {
                 return changed;
             }, function() {
-                var el = document.querySelector(selector);
-                self.setElement(el, true)
+                var el = document.getElementById(this.mid);
+                this.setElement(el, true)
                     .render()
-                    .trigger('ready')
                     ._handleEnter();
-                options.success && options.success.call(self);
-            });
+                this.trigger('ready').ready = true;
+                options.success && options.success.call(this);
+            }.bind(this));
 
             return this;
         }
@@ -317,8 +331,10 @@
 
     var ViewState = Module.extend({
 
+        leave: function() {},
+
         _handleEnter: function() {
-            if (this.parent && !this.parent.active) {
+            if (this.parent) {
                 this.parent._handleEnter.apply(this.parent, arguments);
             }
 
@@ -367,9 +383,9 @@
             context = {};
         }
 
-        var hash = options.hash;
-        var name = hash.name;
-        var module = Backbone.application.getModuleByName(name);
+        var name = options.hash.name;
+        var application = Backbone.application;
+        var module = application.getModuleByName(name);
 
         if (_.isFunction(module)) {
             module = new module();
@@ -379,12 +395,7 @@
             module.model = new Backbone.Model(context);
         }
 
-        if (!hash.parent) {
-            Backbone.routerManager.activeViewState.registerModule(module);
-        } else {
-            Backbone.application.getModuleByName(hash.parent).registerModule(module);
-        }
-
+        application._currentModule.registerModule(module);
         module.prepareRender();
 
         return module.prepareEl('html');

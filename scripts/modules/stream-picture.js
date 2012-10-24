@@ -39,6 +39,8 @@ define(function (require, exports) {
                 this.$el.on('click', '.tweet-pic-origin img', this.collapse);
                 this.$el.on('click', '.tweet-pic-origin canvas', this.collapse);
             }
+
+            return this;
         },
 
         show:function () {
