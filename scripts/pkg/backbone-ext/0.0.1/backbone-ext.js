@@ -102,7 +102,7 @@
             var args = Array.prototype.slice.call(arguments).slice(1);
 
             while (previousViewState) {
-                previousViewState._handleLeave();
+                previousViewState.destroy();
                 if (previousViewState.isParentOf(viewState)) {
                     previousViewState.active = true;
                 }
@@ -168,19 +168,6 @@
     };
 
     var Module = Backbone.View.extend({
-        _configure: function(options) {
-            var key, clonedOptions = _.clone(options);
-
-            for (key in options) {
-                if (~Module.mergedOptions.indexOf(key)) {
-                    delete clonedOptions[key];
-                    this[key] = options[key];
-                }
-            }
-
-            Backbone.View.prototype._configure.call(this, clonedOptions);
-        },
-
         initialize: function(options) {
             var tpl;
 
@@ -217,14 +204,6 @@
             });
         },
 
-        _handleLeave: function() {
-            this.modules && this.modules.forEach(function(module) {
-                module._handleLeave();
-            });
-
-            this.destroy();
-        },
-
         registerModule: function(moduleOrName) {
             var module = _.isString(moduleOrName) ? Backbone.application.getModuleByName(moduleOrName) : moduleOrName;
             this.modules || (this.modules = []);
@@ -241,14 +220,11 @@
         },
 
         destroy: function() {
-            this.disableActive();
-        },
-
-        disableActive: function() {
             this.active = false;
+            this.off(); // remove all events
 
             this.modules && this.modules.forEach(function(module) {
-                module.disableActive();
+                module.destroy();
             });
         },
 
@@ -323,15 +299,12 @@
         }
     });
 
-    Module.mergedOptions = ['placeholder'];
     Module.extend = Backbone.View.extend;
 
     _.extend(Module.prototype, Backbone.Events);
 
 
     var ViewState = Module.extend({
-
-        leave: function() {},
 
         _handleEnter: function() {
             if (this.parent) {
@@ -400,7 +373,6 @@
 
         return module.prepareEl('html');
     });
-
 
 
     ViewState.extend = Backbone.View.extend;

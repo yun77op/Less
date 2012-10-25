@@ -6,12 +6,12 @@ define(function(require, exports) {
     var MiniProfileModule = Backbone.Module.extend({
         name: 'mini-profile',
         className: 'module',
-        template: tpl
+        template: tpl,
+        placeholder: 'Loading..'
     });
 
     var miniProfileModule = new MiniProfileModule({
         model: new UserModel(),
-        placeholder: 'Loading..',
         data: {
             uid: localStorage.uid
         }
