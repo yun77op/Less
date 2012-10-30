@@ -7,11 +7,7 @@ define(function(require, exports) {
             name: 'index',
             path: '',
             template: tpl,
-            el: application.el,
-            enter: function() {
-                IndexViewState.__super__['render'].apply(this, arguments);
-                return this;
-            }
+            el: application.el
         });
 
         routeManager.register(IndexViewState);

@@ -8,6 +8,8 @@ define(function(require, exports) {
 
         template: tpl,
 
+        syncOnStart: false,
+
         events: {
             'click .action-unfollow': 'unfollow',
             'click .action-follow': 'follow'
@@ -44,5 +46,5 @@ define(function(require, exports) {
         }
     });
 
-    return new RelationshipActionModule();
+    return RelationshipActionModule;
 });

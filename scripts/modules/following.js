@@ -8,9 +8,9 @@ define(function(require, exports) {
     });
 
     var FollowingModule = Backbone.Module.extend({
-        name: 'followers',
+        name: 'following',
         template: tpl,
-        enter: function(uid) {
+        beforeEnter: function(uid) {
             this.options.data.uid = uid;
         }
     });

@@ -10,7 +10,7 @@ define(function(require, exports) {
     var UserTimelineModule = Backbone.Module.extend({
         name: 'user-timeline',
         template: tpl,
-        enter: function(uid) {
+        beforeEnter: function(uid) {
             this.options.data.uid = uid;
         }
     });

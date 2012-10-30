@@ -1,26 +1,27 @@
 (function() {
 
+    // shorthands
+    var slice = Array.prototype.slice;
+
     var defaultAvailables = {
         dom: function(selector) {
             return $(selector).length > 0;
         }
     };
 
-    var Available = function() {
-        var args = Array.prototype.slice.call(arguments);
-        var fn = args.pop();
-
-        this.testItems = args;
+    var Available = function(tests, func) {
+        this.tests = tests;
         this._timer = null;
         this.ready = false;
         this.callbacks = [];
 
-        if (fn) {
-            this.push(fn);
+        if (func) {
+            this.push(func);
         }
 
         _.bindAll(this, '_poll');
         this.startInterval();
+        this._poll();
     };
 
     Available.prototype.startInterval = function() {
@@ -49,10 +50,10 @@
     Available.prototype._test = function() {
         var item, test, args, result = false;
         var passed = 0;
-        var count = this.testItems.length;
+        var count = this.tests.length;
 
-        for (var i = 0, l = this.testItems.length; i < l; ++i) {
-            item = this.testItems[i];
+        for (var i = 0, l = this.tests.length; i < l; ++i) {
+            item = this.tests[i];
 
             if (typeof item == 'function') {
                 test = item;
@@ -97,21 +98,32 @@
             return this.viewStates[name] || (this.viewStates[name] = new ViewState());
         },
 
-        _handleRoute: function(viewState) {
+        _handleRoute: function(targetViewState) {
             var previousViewState = this.activeViewState;
-            var args = Array.prototype.slice.call(arguments).slice(1);
+            var args = slice.call(arguments).slice(1);
+            this.activeViewState = targetViewState;
 
-            while (previousViewState) {
+            if (targetViewState == previousViewState) {
                 previousViewState.destroy();
-                if (previousViewState.isParentOf(viewState)) {
-                    previousViewState.active = true;
+                previousViewState.transition();
+            } else if (targetViewState.isParentOf(previousViewState)) {
+                while (previousViewState) {
+                    if (previousViewState != targetViewState) {
+                        previousViewState.destroy();
+                        previousViewState.transition();
+                        previousViewState = previousViewState.parent;
+                    } else {
+                        targetViewState.active = false;
+                        break;
+                    }
                 }
-                previousViewState = previousViewState.parent;
+            } else {
+                previousViewState && previousViewState.transition();
             }
 
-            this.activeViewState = viewState;
-            viewState._handleEnter.apply(viewState, args);
+            targetViewState._handleEnter.apply(targetViewState, args);
         },
+
 
         register: function(ViewState) {
             var viewState = this._getInstance(ViewState);
@@ -178,29 +190,32 @@
             }
 
             if (tpl) this.template = Handlebars.compile(tpl);
-            this.active = false;
 
-            _.defaults(this, {
-                syncOnStart: true
-            });
+            this.mid = this.el.id || _.uniqueId('m');
+            this.active = false;
         },
 
         _handleEnter: function() {
-            var args = arguments;
+            if (this.active) return;
 
-            if (!this.active) {
-                this.beforeEnter.apply(this, args);
-                Backbone.application._currentModule = this;
-                this.enter.apply(this, args);
-                this.active = true;
-                this.ready && this.trigger('ready');
+            var args = slice.call(arguments);
+
+            this.beforeEnter.apply(this, args);
+            Backbone.application._currentModule = this;
+            if (!this.ready) {
+                this._render({
+                    success: this._handleChildEnter.bind(this, args)
+                });
             }
+            this.enter.apply(this, args);
+            this.active = true;
+        },
 
+        _handleChildEnter: function(args) {
             this.modules && _.chain(this.modules).filter(function(module) {
                 return !module.active;
             }).each(function(module) {
                 module._handleEnter.apply(module, args);
-                module._handleEnter = Module.prototype._handleEnter; // reset
             });
         },
 
@@ -219,22 +234,39 @@
             return this;
         },
 
+        // events
+        beforeEnter: function() {},
+
+        enter: function() {},
+
         destroy: function() {
             this.active = false;
+            this.ready = false;
             this.off(); // remove all events
 
             this.modules && this.modules.forEach(function(module) {
                 module.destroy();
             });
+
+            if (!(this instanceof ViewState)) {
+                this.$el.remove();
+            }
         },
 
-        beforeEnter: function() {},
+        append: function(module, selector, args) {
+            if (Array.isArray(selector)) {
+                args = selector;
+                selector = null;
+            }
 
-        enter: function() {},
+            args = args || [];
 
-        start: function(el) {
-            el.innerHTML = this.prepareEl('html');
-            this.prepareRender();
+            var container = selector ? this.el.querySelector(selector) : this.el;
+            var el = module.prepareEl();
+            container.appendChild(el);
+
+            this.registerModule(module);
+            module._handleEnter.apply(module, args);
             return this;
         },
 
@@ -244,25 +276,14 @@
         },
 
         prepareEl: function(type) {
-            var mid = this.mid = _.uniqueId('m');
             var attrs = {
                 class: this.name + (this.className ? ' ' + this.className : ''),
-                id: mid
+                id: this.mid
             };
 
             var content = typeof this.placeholder == 'string' ? this.placeholder : '';
             var el =  this.make(this.tagName, attrs, content);
-            return type.toLowerCase() == 'html' ? el.outerHTML : el;
-        },
-
-        prepareRender: function() {
-            var handleEnter_tmp = this._handleEnter;
-            var self = this;
-            this._handleEnter = function() {
-                var active = self.active;
-                handleEnter_tmp.apply(self, arguments);
-                if (!active) self._render();
-            };
+            return type && type.toLowerCase() == 'html' ? el.outerHTML : el;
         },
 
         _render: function(options) {
@@ -270,7 +291,7 @@
             var changed = true;
             options = options || {};
 
-            if (this.syncOnStart && model && model.isNew()) {
+            if (this.syncOnStart !== false && model) {
                 changed = false;
                 var fetchOptions = {
                     data: this.options.data,
@@ -281,16 +302,17 @@
                 model.fetch(fetchOptions);
             }
 
-            new Available({
+            var tests = [{
                 type: 'dom',
                 value: '#' + this.mid
             }, function() {
                 return changed;
-            }, function() {
+            }];
+
+            new Available(tests, function() {
                 var el = document.getElementById(this.mid);
                 this.setElement(el, true)
-                    .render()
-                    ._handleEnter();
+                    .render();
                 this.trigger('ready').ready = true;
                 options.success && options.success.call(this);
             }.bind(this));
@@ -306,23 +328,30 @@
 
     var ViewState = Module.extend({
 
+        transition: function() {
+
+        },
+
         _handleEnter: function() {
             if (this.parent) {
                 this.parent._handleEnter.apply(this.parent, arguments);
+                this.ready = true;
             }
 
             ViewState.__super__['_handleEnter'].apply(this, arguments);
         },
 
         isParentOf: function(viewState) {
-            var tmp, result = false;
-            while(tmp = viewState.parent) {
+            var tmp = viewState, result = false;
+
+            do {
+                tmp = tmp && tmp.parent;
                 if (tmp == this) {
                     result =  true;
                     break;
                 }
-                tmp = viewState.parent
-            }
+            } while(tmp);
+
             return result;
         },
 
@@ -369,7 +398,6 @@
         }
 
         application._currentModule.registerModule(module);
-        module.prepareRender();
 
         return module.prepareEl('html');
     });

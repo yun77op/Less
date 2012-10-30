@@ -10,6 +10,8 @@ define(function (require) {
 
         template: tpl,
 
+        syncOnStart: false,
+
         events:{
             'click .action-repost':'repost',
             'click .action-comment':'comment',

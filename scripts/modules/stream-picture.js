@@ -10,6 +10,8 @@ define(function (require, exports) {
 
         template: tpl,
 
+        syncOnStart: false,
+
         initialize:function (options) {
             StreamPictureModule.__super__['initialize'].apply(this, arguments);
 

@@ -10,12 +10,10 @@ define(function(require, exports) {
         placeholder: 'Loading..'
     });
 
-    var miniProfileModule = new MiniProfileModule({
+    return new MiniProfileModule({
         model: new UserModel(),
         data: {
             uid: localStorage.uid
         }
     });
-
-    return miniProfileModule;
 });

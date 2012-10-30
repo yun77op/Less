@@ -10,11 +10,11 @@ define(function(require) {
         syncOnStart: false,
 
         initialize: function() {
-            this.on('nav', this._changeNavStatus, this);
             ProfileNavModule.__super__['initialize'].apply(this, arguments);
         },
 
-        enter: function(uid) {
+        beforeEnter: function(uid) {
+            this.on('nav', this._changeNavStatus, this);
             this.model.set({ id: uid });
         },
 
