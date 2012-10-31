@@ -3,7 +3,7 @@
 define(function (require) {
 
 //    var pollingInterval = app.settings.get('general', 'pollingInterval') * 1000;
-    var pollingInterval = 60 * 1000;
+    var pollingInterval = 120 * 1000;
     var tabSelected = true;
     var weibo = require('./weibo');
 
@@ -20,7 +20,7 @@ define(function (require) {
             base_url:'https://rm.api.weibo.com/2/',
             path:'remind/unread_count.json'
         }, {
-            success:function (data) {
+            success: function (data) {
                 var i, val;
                 for (i in data) {
                     val = data[i];
@@ -28,7 +28,7 @@ define(function (require) {
                 }
             },
 
-            failure:function () {
+            failure: function () {
                 self.pollingInterval *= 2;
             }
         });

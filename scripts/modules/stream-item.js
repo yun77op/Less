@@ -3,7 +3,7 @@ define(function (require) {
     var weibo = require('../weibo');
     var tpl = require('../views/stream-item.tpl');
 
-    var StreamItemModule = Backbone.Module.extend({
+    return Backbone.Module.extend({
         name: 'stream-item',
 
         className:'stream-item',
@@ -101,52 +101,44 @@ define(function (require) {
                 key: key
             });
 
-            miniCommentRepostListModule.render().$el.insertAfter($target.parents('.stream-item-footer'));
+            miniCommentRepostListModule.rawRender().$el.insertAfter($target.parents('.stream-item-footer'));
             miniCommentRepostListModule.fetch(1);
 
             return miniCommentRepostListModule;
         },
 
         _removeActiveCommentRepostList: function() {
-            var activeListModuleName;
-
             if (this.miniCommentRepostListModule) {
-                activeListModuleName = this.miniCommentRepostListModule.name;
                 this.miniCommentRepostListModule.remove();
                 this.miniCommentRepostListModule = null;
             }
-
-            return activeListModuleName;
         },
 
         toggleCommentList:function (e) {
             e.preventDefault();
+            this._removeActiveCommentRepostList();
 
             var moduleName = 'mini-comment-list';
-            var activeListModuleName = this._removeActiveCommentRepostList();
+            if (this.activeListModuleName == moduleName) return;
 
-            if (activeListModuleName == moduleName) return;
-
-            var CommentsModel = require('../models/comments');
-            var miniCommentRepostListModule = this._setupListModule('comments', e.currentTarget, new CommentsModel());
-            miniCommentRepostListModule.name = moduleName;
+            var Comments = require('../models/comments');
+            var miniCommentRepostListModule = this._setupListModule('comments', e.currentTarget, new Comments());
+            this.activeListModuleName = moduleName;
             this.miniCommentRepostListModule = miniCommentRepostListModule;
         },
 
         toggleRepostList:function (e) {
             e.preventDefault();
+            this._removeActiveCommentRepostList();
 
             var moduleName = 'mini-repost-list';
-            var activeListModuleName = this._removeActiveCommentRepostList();
 
-            if (activeListModuleName == moduleName) return;
+            if (this.activeListModuleName == moduleName) return;
 
             var RepostsModel = require('../models/reposts');
             var miniCommentRepostListModule = this._setupListModule('reposts', e.currentTarget, new RepostsModel());
-            miniCommentRepostListModule.name = moduleName;
+            this.activeListModuleName = moduleName;
             this.miniCommentRepostListModule = miniCommentRepostListModule;
         }
     });
-
-    return StreamItemModule;
 });

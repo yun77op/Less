@@ -25,11 +25,11 @@ define(function(require) {
             _.defaults(this.options.data, { count: 10 });
         },
 
-        navPrev: function(e) {
+        navPrev: function() {
             this.fetch(this.currentPage - 1);
         },
 
-        navNext: function(e) {
+        navNext: function() {
             this.fetch(this.currentPage + 1);
         },
 
@@ -80,11 +80,10 @@ define(function(require) {
             this._setBody('<p>Empty!</p>');
         },
 
-        _fetchCallback: function(page, resp, status, xhr) {
+        _fetchCallback: function(page) {
             var comments = this.model.get(this.options.key);
 
             this.currentPage = page;
-
             this.totalPage = Math.ceil(this.model.get('total_number') / this.options.data.count);
 
             if (comments.length == 0) {

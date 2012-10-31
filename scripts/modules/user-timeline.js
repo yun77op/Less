@@ -1,9 +1,9 @@
-define(function(require, exports) {
+define(function(require) {
 
-    var StreamModel = require('../models/stream.js');
     var tpl = require('../views/user-timeline.tpl');
+    var Statuses = require('../models/statuses');
 
-    var UserTimelineModel = StreamModel.extend({
+    var UserStatuses = Statuses.extend({
         url: 'statuses/user_timeline.json'
     });
 
@@ -16,7 +16,7 @@ define(function(require, exports) {
     });
 
     return new UserTimelineModule({
-        model: new UserTimelineModel(),
+        model: new UserStatuses(),
         data: {}
     });
 });

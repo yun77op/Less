@@ -7,27 +7,29 @@
 <body>
 	<h1>Less</h1>
 	<script>
+        'use strict';
+
 		window.onload = function() {
 			var params = parseHashParams();
-			console.log(params);
-			localStorage['uid'] = params['uid'];
-			window.opener.oauth2Callback(params['access_token']);
+			localStorage.uid = params.uid;
+            localStorage.oauth2_token = params.access_token;
+            if (window.opener) window.opener.oauth2Callback(params.access_token);
+            window.close();
 		};
 
-		function parseHashParams() {
-			var hash = location.hash,
-					params = {};
+        function parseHashParams() {
+            var hash = window.location.hash;
+            var params = {};
 
-			if (hash) {
-				hash.slice(1).split('&').forEach(function(pairStr, i) {
-					var pair = pairStr.split('=');
-					params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
-				});
-			}
+            if (hash) {
+                hash.slice(1).split('&').forEach(function (pairStr, i) {
+                    var pair = pairStr.split('=');
+                    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+                });
+            }
 
-			return params;
-		}
-
+            return params;
+        }
 	</script>
 </body>
 </html>

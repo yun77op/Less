@@ -2,7 +2,7 @@ define(function (require) {
 
     var tpl = require('../views/mini-stream-item.tpl');
 
-    var MiniStreamItemModule = Backbone.Module.extend({
+    return Backbone.Module.extend({
         name: 'mini-stream-item',
 
         className:'stream-item',
@@ -11,7 +11,7 @@ define(function (require) {
 
         template: tpl,
 
-        events:{
+        events: {
             'click .action-reply': 'reply'
         },
 
@@ -26,7 +26,5 @@ define(function (require) {
         }
 
     });
-
-    return MiniStreamItemModule;
 
 });

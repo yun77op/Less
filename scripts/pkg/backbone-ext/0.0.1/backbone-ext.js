@@ -47,7 +47,7 @@
         }
     };
 
-    Available.prototype._poll = function(selector) {
+    Available.prototype._poll = function() {
         if (this._test()) {
             clearInterval(this._timer);
             this._excute()
@@ -55,7 +55,7 @@
     };
 
     Available.prototype._test = function() {
-        var item, test, args, result = false;
+        var item, test, args;
         var passed = 0;
         var count = this.tests.length;
 
@@ -148,7 +148,6 @@
         },
 
         route: function(viewState) {
-            var self = this;
             var fullPath = viewState.getFullPath();
 
             this.router.route(fullPath, viewState.name, this._handleRoute.bind(this, viewState));
@@ -190,7 +189,7 @@
     };
 
     var Module = Backbone.View.extend({
-        initialize: function(options) {
+        initialize: function() {
             var tpl;
 
             if (this.template instanceof Element) {
@@ -211,9 +210,9 @@
             var args = slice.call(arguments);
 
             this.beforeEnter.apply(this, args);
-            Backbone.application._currentModule = this;
+
             if (!this.ready) {
-                this._render({
+                this.render({
                     success: this._handleChildEnter.bind(this, args)
                 });
             }
@@ -236,7 +235,7 @@
             return this;
         },
 
-        render: function() {
+        rawRender: function() {
             var data = this.model ? this.model.toJSON() : {};
             var html = typeof this.template == 'function' ? this.template(data) : this.template;
 
@@ -297,10 +296,12 @@
             return type && type.toLowerCase() == 'html' ? el.outerHTML : el;
         },
 
-        _render: function(options) {
+        render: function(options) {
             var model = this.model;
             var changed = true;
             options = options || {};
+
+            Backbone.application._currentModule = this;
 
             if (this.syncOnStart !== false && getValue(model, 'url')) {
                 changed = false;
@@ -323,7 +324,7 @@
             new Available(tests, function() {
                 var el = document.getElementById(this.mid);
                 this.setElement(el, true)
-                    .render();
+                    .rawRender();
                 this.trigger('ready').ready = true;
                 options.success && options.success.call(this);
             }.bind(this));
