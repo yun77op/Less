@@ -1,5 +1,5 @@
 <div class="stream">
-    {{#each statuses}}
+    {{#each this}}
         {{#module this name="stream-item"}}{{/module}}
     {{/each}}
 </div>

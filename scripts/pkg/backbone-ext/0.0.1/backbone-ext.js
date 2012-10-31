@@ -3,6 +3,13 @@
     // shorthands
     var slice = Array.prototype.slice;
 
+    // Helper function to get a value from a Backbone object as a property
+    // or as a function.
+    var getValue = function(object, prop) {
+        if (!(object && object[prop])) return null;
+        return _.isFunction(object[prop]) ? object[prop]() : object[prop];
+    };
+
     var defaultAvailables = {
         dom: function(selector) {
             return $(selector).length > 0;
@@ -103,22 +110,25 @@
             var args = slice.call(arguments).slice(1);
             this.activeViewState = targetViewState;
 
-            if (targetViewState == previousViewState) {
-                previousViewState.destroy();
+
+            if (previousViewState && previousViewState.isParentOf(targetViewState)) {
                 previousViewState.transition();
-            } else if (targetViewState.isParentOf(previousViewState)) {
+            } else if (targetViewState == previousViewState || targetViewState.isParentOf(previousViewState)) {
                 while (previousViewState) {
                     if (previousViewState != targetViewState) {
                         previousViewState.destroy();
-                        previousViewState.transition();
                         previousViewState = previousViewState.parent;
                     } else {
-                        targetViewState.active = false;
+                        targetViewState.destroy();
                         break;
                     }
                 }
             } else {
-                previousViewState && previousViewState.transition();
+                // different view state
+                while (previousViewState) {
+                    previousViewState.destroy();
+                    previousViewState = previousViewState.parent;
+                }
             }
 
             targetViewState._handleEnter.apply(targetViewState, args);
@@ -227,7 +237,7 @@
         },
 
         render: function() {
-            var data = this.model ? this.model.attributes : {};
+            var data = this.model ? this.model.toJSON() : {};
             var html = typeof this.template == 'function' ? this.template(data) : this.template;
 
             this.$el.html(html);
@@ -251,6 +261,7 @@
             if (!(this instanceof ViewState)) {
                 this.$el.remove();
             }
+            this.modules = null;
         },
 
         append: function(module, selector, args) {
@@ -291,7 +302,7 @@
             var changed = true;
             options = options || {};
 
-            if (this.syncOnStart !== false && model) {
+            if (this.syncOnStart !== false && getValue(model, 'url')) {
                 changed = false;
                 var fetchOptions = {
                     data: this.options.data,
