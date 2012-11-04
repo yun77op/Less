@@ -9,8 +9,6 @@ define(function(require, exports) {
 
         className: 'stream-item user',
 
-        syncOnStart: false,
-
         template: tpl,
 
         follow: function(e) {

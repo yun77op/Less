@@ -10,8 +10,6 @@ define(function (require) {
 
         template: tpl,
 
-        syncOnStart: false,
-
         events:{
             'click .action-repost':'repost',
             'click .action-comment':'comment',
@@ -101,7 +99,7 @@ define(function (require) {
                 key: key
             });
 
-            miniCommentRepostListModule.rawRender().$el.insertAfter($target.parents('.stream-item-footer'));
+            miniCommentRepostListModule.render().$el.insertAfter($target.parents('.stream-item-footer'));
             miniCommentRepostListModule.fetch(1);
 
             return miniCommentRepostListModule;

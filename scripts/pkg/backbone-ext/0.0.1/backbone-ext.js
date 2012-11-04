@@ -212,12 +212,13 @@
             this.beforeEnter.apply(this, args);
 
             if (!this.ready) {
-                this.render({
+                this._render({
                     success: this._handleChildEnter.bind(this, args)
                 });
             }
             this.enter.apply(this, args);
             this.active = true;
+            return this;
         },
 
         _handleChildEnter: function(args) {
@@ -235,7 +236,7 @@
             return this;
         },
 
-        rawRender: function() {
+        render: function() {
             var data = this.model ? this.model.toJSON() : {};
             var html = typeof this.template == 'function' ? this.template(data) : this.template;
 
@@ -292,18 +293,18 @@
             };
 
             var content = typeof this.placeholder == 'string' ? this.placeholder : '';
-            var el =  this.make(this.tagName, attrs, content);
+            var el = this.make(this.tagName, attrs, content);
             return type && type.toLowerCase() == 'html' ? el.outerHTML : el;
         },
 
-        render: function(options) {
+        _render: function(options) {
             var model = this.model;
             var changed = true;
             options = options || {};
 
             Backbone.application._currentModule = this;
 
-            if (this.syncOnStart !== false && getValue(model, 'url')) {
+            if (getValue(model, 'url')) {
                 changed = false;
                 var fetchOptions = {
                     data: this.options.data,
@@ -324,7 +325,7 @@
             new Available(tests, function() {
                 var el = document.getElementById(this.mid);
                 this.setElement(el, true)
-                    .rawRender();
+                    .render();
                 this.trigger('ready').ready = true;
                 options.success && options.success.call(this);
             }.bind(this));
@@ -340,9 +341,7 @@
 
     var ViewState = Module.extend({
 
-        transition: function() {
-
-        },
+        transition: function() {},
 
         _handleEnter: function() {
             if (this.parent) {
@@ -406,7 +405,8 @@
         }
 
         if (!module.model) {
-            module.model = new Backbone.Model(context);
+            var Model = Backbone.Model.extend({ url: null });
+            module.model = new Model(context);
         }
 
         application._currentModule.registerModule(module);

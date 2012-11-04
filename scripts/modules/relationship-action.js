@@ -8,8 +8,6 @@ define(function(require, exports) {
 
         template: tpl,
 
-        syncOnStart: false,
-
         events: {
             'click .action-unfollow': 'unfollow',
             'click .action-follow': 'follow'

@@ -16,8 +16,6 @@ define(function (require) {
 
         template: tpl,
 
-        syncOnStart: false,
-
         model: new EmotionsModel(),
 
         initialize: function() {

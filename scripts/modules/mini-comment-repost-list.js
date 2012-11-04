@@ -11,8 +11,6 @@ define(function(require) {
 
         template: tpl,
 
-        syncOnStart: false,
-
         initialize: function() {
             MiniCommentRepostListModule.__super__['initialize'].apply(this, arguments);
 
@@ -44,12 +42,13 @@ define(function(require) {
         },
 
         setupBody: function(streams) {
-            var body_tpl = require('../views/mini-comment-repost-body.tpl');
-            var template = Handlebars.compile(body_tpl);
-            var html = template({
-                streams: streams
+            var coll = new Backbone.Collection(streams);
+            var MiniComments = new require('./mini-comment-body');
+            var miniComments = new MiniComments({
+                model: coll
             });
-            this._setBody(html);
+            this._setBody('');
+            this.append(miniComments, '.body');
             return this;
         },
 

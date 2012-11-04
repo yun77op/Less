@@ -1,9 +1,7 @@
 <div class="arrow">
     <span>◆</span>
 </div>
-<div class="body">
-
-</div>
+<div class="body"></div>
 <nav class="hide">
     <ul>
         <li><button class="nav-prev btn-link" i18n-content="prev">Prev</a></button>

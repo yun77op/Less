@@ -7,8 +7,6 @@ define(function(require) {
 
         template: tpl,
 
-        syncOnStart: false,
-
         initialize: function() {
             ProfileNavModule.__super__['initialize'].apply(this, arguments);
         },
@@ -25,7 +23,5 @@ define(function(require) {
         }
     });
 
-    return new ProfileNavModule({
-        model: new Backbone.Model()
-    });
+    return new ProfileNavModule();
 });
