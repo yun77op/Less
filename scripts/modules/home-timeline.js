@@ -33,7 +33,7 @@ define(function(require, exports) {
                 data: {
                     max_id: this.model.last().id
                 },
-                success: function(model, resp) {
+                success: function() {
                     this._scrollFetching = false;
                 }.bind(this)
             };
@@ -53,10 +53,6 @@ define(function(require, exports) {
         _renderUnread: function() {
             this.fetch({
                 data: { since_id: this.model.first().id },
-                success: function(data, textStatus) {
-                    this.addOne(data);
-                }.bind(this),
-                silent: true,
                 position: 'prepend'
             });
         },

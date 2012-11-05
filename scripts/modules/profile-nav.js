@@ -7,10 +7,6 @@ define(function(require) {
 
         template: tpl,
 
-        initialize: function() {
-            ProfileNavModule.__super__['initialize'].apply(this, arguments);
-        },
-
         beforeEnter: function(uid) {
             this.on('nav', this._changeNavStatus, this);
             this.model.set({ id: uid });

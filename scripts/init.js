@@ -1,6 +1,7 @@
 define(function(require, exports) {
     var oauth2 = require('./oauth2').getInstance();
     var util = require('./util.js');
+    var TweetPlugins = require('./tweet_plugin');
 
     if (!oauth2.hasToken()) {
         window.location.href = chrome.extension.getURL('login.html');
@@ -18,6 +19,7 @@ define(function(require, exports) {
         };
 
         Handlebars.registerHelper('date_format', util.dateFormat);
+        Handlebars.registerHelper('tweet_plugins_process', TweetPlugins.process);
 
         Handlebars.registerPartial('stream-item-vcard', require('./views/stream_item_vcard.tpl'));
         Handlebars.registerPartial('stream-item-tweet-content', require('./views/stream-item-content.tpl'));
@@ -56,6 +58,8 @@ define(function(require, exports) {
 
         Backbone.history.start();
         Backbone.history.checkUrl();
+
+        $('#loading-mask').fadeOut();
     });
 
 });

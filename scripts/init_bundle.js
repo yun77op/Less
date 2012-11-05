@@ -19,12 +19,10 @@
 		window.location.href = chrome.extension.getURL('main.html');
 	};
 
-	_.each(document.querySelectorAll('.panel'), function(panel) {
-		panel.querySelector('.close-button').onclick = function(e) {
-			e.preventDefault();
-			panel.classList.remove('slideDown');
-		};
-	});
+	$('#global-actions').on('click', 'li', function() {
+        var $li = $(this).addClass('active');
+        $li.siblings().removeClass('active');
+    });
 
 	$('#elevator').elevator({
 		min: 400,

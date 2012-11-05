@@ -16,6 +16,9 @@
 					<li id="global-nav-home" class="home active" data-global-action="home">
 						<a class="js-hover" href="#" data-component-term="home_nav" data-nav="home"> Home </a>
 					</li>
+                    <li>
+                        <a href="#/connect/" data-nav="connect">Connect</a>
+                    </li>
 				</ul>
 
 				<div class="pull-right">
@@ -153,7 +156,6 @@
 				</div>
 			</section>
 		</div>
-		<button id="elevator" i18n-values="title:scrollToTop">â–²</button>
 	</div>
 	<!-- <a href="#" class="button3 customize-button" i18n-content="customize">Customize</a> -->
 	<div id="customize-container" hidden>
@@ -213,20 +215,6 @@
 		</div>
 		<button class="close-button-2 close-button"></button>
 	</div>
-
-	<script id="reposts-template" type="text/template">
-		{{#each reposts}}
-			{{#module this name="application.repost"}}
-			{{/module}}
-		{{/each}}
-	</script>
-
-	<script id="comments-template" type="text/template">
-		{{#each comments}}
-			{{#module this name="application.comment"}}
-			{{/module}}
-		{{/each}}
-	</script>
 
 	<script id="repost-template" type="text/template">
 		<div class="stream-item-vcard">
