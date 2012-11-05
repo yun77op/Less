@@ -40,11 +40,13 @@ define(function(require, exports) {
         application.registerModule(require('./modules/relationship-action.js'));
         application.registerModule(require('./modules/profile-card.js'));
         application.registerModule(require('./modules/profile-nav.js'));
+        application.registerModule(require('./modules/connect-nav.js'));
         application.registerModule(require('./modules/new-tweet.js'));
         application.registerModule(require('./modules/following.js'));
 
         require('./view_states/index.js')(application, routeManager);
         require('./view_states/profile.js')(application, routeManager);
+        require('./view_states/connect.js')(application, routeManager);
 
         $('#global-new-tweet-button').click(function(e) {
             e.stopPropagation();

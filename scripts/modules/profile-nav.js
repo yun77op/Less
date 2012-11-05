@@ -2,7 +2,7 @@ define(function(require) {
 
     var tpl = require('../views/profile-nav.tpl');
 
-    var ProfileNavModule = Backbone.Module.extend({
+    return Backbone.Module.extend({
         name: 'profile-nav',
 
         template: tpl,
@@ -18,6 +18,4 @@ define(function(require) {
             $target.siblings().removeClass(activeClassName);
         }
     });
-
-    return new ProfileNavModule();
 });

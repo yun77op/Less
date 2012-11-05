@@ -66,7 +66,7 @@ define(function(require, exports) {
             this.model.fetch(mergedOptions);
         },
         destroy: function() {
-            Reminder.off('status', this._handleUnread);
+            Reminder.off('status', this._handleUnread, this);
             HomeTimelineModule.__super__['destroy'].apply(this, arguments);
         }
     });

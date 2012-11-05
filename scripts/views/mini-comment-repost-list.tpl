@@ -1,6 +1,3 @@
-<div class="arrow">
-    <span>◆</span>
-</div>
 <div class="body"></div>
 <nav class="hide">
     <ul>

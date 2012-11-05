@@ -219,6 +219,9 @@ i {
   border-bottom: 1px solid #e8e8e8;
   padding: 9px 12px;
 }
+.stream-item:first-child {
+    border-top: 1px solid #e8e8e8;
+}
 .stream-item-footer {
   overflow: hidden;
   margin: 1em 0 .5em 0;

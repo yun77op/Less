@@ -14,7 +14,7 @@ define(function (require) {
         });
     });
 
-    function fetchUnread_() {
+    function fetchUnread() {
 
         weibo.request({
             base_url:'https://rm.api.weibo.com/2/',
@@ -34,16 +34,16 @@ define(function (require) {
         });
     }
 
-    setInterval(fetchUnread, pollingInterval);
-
-    function fetchUnread() {
+    setInterval(function () {
         //Idle threshold in seconds
         chrome.idle.queryState(30, function (newState) {
             var idle = newState != 'active';
             if (idle || !tabSelected) return;
-            fetchUnread_();
+            fetchUnread();
         });
-    }
+    }, pollingInterval);
+
+
 
     var Reminder = function() {};
 
