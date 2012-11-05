@@ -30,37 +30,44 @@ define(function(require, exports) {
             if (this._scrollFetching || window.innerHeight + body.scrollTop + offset < body.scrollHeight) return;
 
             var options = {
-                data {
+                data: {
                     max_id: this.model.last().id
                 },
                 success: function(model, resp) {
                     this._scrollFetching = false;
-                }
+                }.bind(this)
             };
 
             this._scrollFetching = true;
-            this.fetch(data);
+            this.fetch(options);
         },
         _handleUnread: function(count) {
             this.$unreadCount.text('有 ' + count + ' 条新微博，点击查看').show();
         },
-        addOne: function(status) {
+        addOne: function(status, coll, options) {
             var $status = new StreamItem({ model: status }).render().$el;
-            this.$el.find('.stream').prepend($status);
+            var position = options.position || 'append';
+            this.$el.find('.stream')[position]($status);
         },
 
         _renderUnread: function() {
-            this.fetch({ since_id: this.model.at(0).id });
+            this.fetch({
+                data: { since_id: this.model.first().id },
+                success: function(data, textStatus) {
+                    this.addOne(data);
+                }.bind(this),
+                silent: true,
+                position: 'prepend'
+            });
         },
-        fetch: function(data) {
+        fetch: function(options) {
             this.$unreadCount.hide();
 
-            var data = _.extend({}, this.options.data, data);
-            var options = {
-                data: data,
+            var mergedOptions = _.extend({}, options, {
                 add: true
-            };
-            this.model.fetch(options);
+            });
+
+            this.model.fetch(mergedOptions);
         },
         destroy: function() {
             Reminder.off('status', this._handleUnread);

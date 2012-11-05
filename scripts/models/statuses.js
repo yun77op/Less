@@ -21,8 +21,8 @@ define(function(require, exports) {
             return (this.sync || Backbone.sync).call(this, 'read', this, options);
         },
 
-        comparator: function( status ) {
-            return status.get('id');
+        comparator: function( statusA, statusB ) {
+            return statusB.get('id') - statusA.get('id');
         },
 
         sync: StreamModel.prototype.sync
