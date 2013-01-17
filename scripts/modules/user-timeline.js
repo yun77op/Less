@@ -12,11 +12,17 @@ define(function(require) {
         template: tpl,
         beforeEnter: function(uid) {
             this.options.data.uid = uid;
+        },
+        initialize: function() {
+            this.model = new UserStatuses();
+            UserTimelineModule.__super__['initialize'].apply(this, arguments);
         }
     });
 
-    return new UserTimelineModule({
-        model: new UserStatuses(),
-        data: {}
-    });
+    return {
+        main: UserTimelineModule,
+        args: {
+            data: {}
+        }
+    };
 });

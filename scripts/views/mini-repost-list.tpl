@@ -1,3 +1,4 @@
+{{#module this name="tweet-comment"}}{{/module}}
 <div class="body"></div>
 <nav class="hide">
     <ul>

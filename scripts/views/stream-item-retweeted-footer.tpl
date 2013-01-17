@@ -6,11 +6,6 @@
     </span>
     <ul class="actions">
         <li>
-            <a href="#" title="Favorite" class="action-favorite{{#if favorited}} favorited{{/if}}" i18n-values="title:favorite">
-                <span class="icon icon-16 icon-favorite"></span>
-            </a>
-        </li>
-        <li>
             <a href="#" title="Repost" class="action-repost" i18n-values="title:repost">
                 <span class="icon icon-16 icon-repost"></span>
                 {{ reposts_count }}

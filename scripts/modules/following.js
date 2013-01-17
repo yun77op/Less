@@ -12,11 +12,17 @@ define(function(require, exports) {
         template: tpl,
         beforeEnter: function(uid) {
             this.options.data.uid = uid;
+        },
+        initialize: function() {
+            this.model = new FriendsModel();
+            FollowingModule.__super__['initialize'].apply(this, arguments);
         }
     });
 
-    return new FollowingModule({
-        model: new FriendsModel(),
-        data: {}
-    });
+    return {
+        main: FollowingModule,
+        args: {
+            data: {}
+        }
+    };
 });

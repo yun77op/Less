@@ -3,7 +3,7 @@ define(function (require) {
     var tpl = require('../views/mini-stream-item.tpl');
 
     return Backbone.Module.extend({
-        name: 'mini-stream-item',
+        name: 'mini-repost-item',
 
         className:'stream-item',
 
@@ -12,7 +12,7 @@ define(function (require) {
         template: tpl,
 
         events: {
-            'click .action-reply': 'reply'
+            'click .action-repost': 'repost'
         },
 
         beforeEnter: function() {
@@ -21,7 +21,7 @@ define(function (require) {
             })
         },
 
-        reply: function() {
+        repost: function() {
 
         }
 

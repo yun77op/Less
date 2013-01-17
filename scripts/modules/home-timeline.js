@@ -16,12 +16,14 @@ define(function(require, exports) {
             var args = slice.call(arguments);
             Reminder.on('status', this._handleUnread, this);
 
+            this.model =  new Statuses();
+
             this.onReady(function() {
                 this.$unreadCount = this.$el.find('.status-unread-count');
+                document.onscroll = this._handleScroll.bind(this);
             });
 
             this.model.on( 'add', this.addOne, this );
-            document.onscroll = this._handleScroll.bind(this);
             HomeTimelineModule.__super__['initialize'].apply(this, args);
         },
         _handleScroll: function() {
@@ -71,7 +73,7 @@ define(function(require, exports) {
         }
     });
 
-    return new HomeTimelineModule({
-        model: new Statuses()
-    });
+    return {
+        main: HomeTimelineModule
+    };
 });

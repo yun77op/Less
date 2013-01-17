@@ -14,31 +14,52 @@ define(function (require) {
             'click .action-repost':'repost',
             'click .action-comment':'comment',
             'click .action-favorite':'favorite',
-            'click .action-del':'del',
-            'click .action-show-repostList':'toggleRepostList',
-            'click .action-show-commentList':'toggleCommentList'
+            'click .action-del':'del'
         },
 
         repost:function (e) {
             e.preventDefault();
-            var TweetRepostModule = require('./tweet-repost');
+            this._removeActiveCommentRepostList();
 
-            var tweetRepostModule = new TweetRepostModule({
-                model: this.model.clone()
-            });
+            if (this.activeListName == 'mini-repost-list') {
+                this.activeListName = null;
+                return;
+            }
 
-            tweetRepostModule.show();
+            var MiniRepostList = require('./mini-repost-list');
+            this._setupList(MiniRepostList);
         },
 
         comment:function (e) {
             e.preventDefault();
-            var TweetCommentModule = require('./tweet-comment');
+            this._removeActiveCommentRepostList();
 
-            var tweetCommentModule = new TweetCommentModule({
+            if (this.activeListName == 'mini-comment-list') {
+                this.activeListName = null;
+                return;
+            }
+
+            var MiniCommentList = require('./mini-comment-list');
+            this._setupList(MiniCommentList);
+        },
+
+        _setupList: function(List) {
+            var list = new List({
                 model: this.model.clone()
             });
 
-            tweetCommentModule.show();
+            this.append(list, '.stream-item-content > .tweet');
+            //list.fetch(1);
+
+            this.activeListName = list.name;
+            this.miniCommentRepostList = list;
+        },
+
+        _removeActiveCommentRepostList: function() {
+            if (this.miniCommentRepostList) {
+                this.miniCommentRepostList.remove();
+                this.miniCommentRepostList = null;
+            }
         },
 
         favorite:function (e) {
@@ -50,27 +71,22 @@ define(function (require) {
             // prevent race
             if (currentTarget.disabled) return;
 
-            var action = currentTarget.classList.contains('favorited') ? 'destroy' : 'create';
-            var model = this.model;
+            currentTarget.disabled = true;
 
-            if ($(currentTarget).parents('.retweet').length > 0) {
-                model = model[model.key];
-            }
+            var action = currentTarget.classList.contains('favorited') ? 'destroy' : 'create';
+            var id = this.model.get('id');
 
             weibo.request({
                 method:'POST',
                 path:'favorites/' + action + '.json',
-                params:{id:model.id}
+                params:{ id: id }
             }, function () {
                 currentTarget.disabled = false;
                 currentTarget.classList.toggle('favorited');
-                if (self.type == 'favorites') {
-                    $(self.el).slideUp(function () {
-                        self.remove();
-                    });
-                }
+//                    $(self.el).slideUp(function () {
+//                        self.remove();
+//                    });
             });
-            currentTarget.disabled = true;
         },
 
         del:function (e) {
@@ -85,58 +101,7 @@ define(function (require) {
                     self.remove();
                 });
             });
-        },
-
-        _setupListModule: function(key, target, model) {
-            var $target = $(target);
-            var MiniCommentRepostListModule = require('./mini-comment-repost-list');
-            var miniCommentRepostListModule = new MiniCommentRepostListModule({
-                model: model,
-                data: {
-                    id: this.model.get('id'),
-                    count: 10
-                },
-                key: key
-            });
-
-            miniCommentRepostListModule.render().$el.insertAfter($target.parents('.stream-item-footer'));
-            miniCommentRepostListModule.fetch(1);
-
-            return miniCommentRepostListModule;
-        },
-
-        _removeActiveCommentRepostList: function() {
-            if (this.miniCommentRepostListModule) {
-                this.miniCommentRepostListModule.remove();
-                this.miniCommentRepostListModule = null;
-            }
-        },
-
-        toggleCommentList:function (e) {
-            e.preventDefault();
-            this._removeActiveCommentRepostList();
-
-            var moduleName = 'mini-comment-list';
-            if (this.activeListModuleName == moduleName) return;
-
-            var Comments = require('../models/comments');
-            var miniCommentRepostListModule = this._setupListModule('comments', e.currentTarget, new Comments());
-            this.activeListModuleName = moduleName;
-            this.miniCommentRepostListModule = miniCommentRepostListModule;
-        },
-
-        toggleRepostList:function (e) {
-            e.preventDefault();
-            this._removeActiveCommentRepostList();
-
-            var moduleName = 'mini-repost-list';
-
-            if (this.activeListModuleName == moduleName) return;
-
-            var RepostsModel = require('../models/reposts');
-            var miniCommentRepostListModule = this._setupListModule('reposts', e.currentTarget, new RepostsModel());
-            this.activeListModuleName = moduleName;
-            this.miniCommentRepostListModule = miniCommentRepostListModule;
         }
+
     });
 });

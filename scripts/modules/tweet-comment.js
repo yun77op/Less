@@ -1,21 +1,17 @@
 define(function (require, exports) {
-    var TweetModalModule = require('./tweet-modal');
+    var TweetBase = require('./tweet');
 
-    var TweetCommentModule = TweetModalModule.extend({
+    var TweetComment = TweetBase.extend({
+        name: 'tweet-comment',
+
         url: 'comments/create.json',
 
-        initialize: function() {
-            this.model.set({
-                title: chrome.i18n.getMessage('statusCommentTitle', this.model.get('user').name)
-            });
-
+        beforeEnter: function() {
             if (this.model.get('retweeted_status')) {
                 this.model.set({
                     ori_username: chrome.i18n.getMessage('commentToOrigin', this.model.get('retweeted_status').user.name)
                 });
             }
-
-            TweetCommentModule.__super__['initialize'].apply(this, arguments);
         },
 
         getParameters: function() {
@@ -32,5 +28,5 @@ define(function (require, exports) {
         }
     });
 
-    return TweetCommentModule;
+    return TweetComment;
 });

@@ -1,9 +1,7 @@
 define(function (require) {
+    var Stream = require('../models/stream');
 
-    var StreamModel = require('../models/stream');
-    var RepostsModel = StreamModel.extend({
+    return Stream.extend({
         url: 'statuses/repost_timeline.json'
     });
-
-    return RepostsModel;
 });

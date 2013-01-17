@@ -1,11 +1,9 @@
 define(function (require) {
 
     var tpl = require('../views/tweet-modal.tpl');
-    var weibo = require('../weibo');
-    var Message = require('../Message')('top');
-    var util = require('../util');
+    var TweetBase = require('./tweet');
 
-    var TweetModalModule = Backbone.Module.extend({
+    var TweetModalModule = TweetBase.extend({
         name:'tweet-modal',
 
         className: 'modal hide',
@@ -22,12 +20,6 @@ define(function (require) {
             this.$el.on('hidden', function () {
                 self.remove();
             });
-        },
-
-        render: function () {
-            TweetModalModule.__super__['render'].apply(this, arguments);
-            this.submitBtn = this.el.querySelector('.status-submit-btn');
-            return this;
         },
 
         show:function () {
@@ -50,43 +42,14 @@ define(function (require) {
             return String(textarea.value).trim();
         },
 
-        connect:function () {
-            var text = this.getTextareaValue();
-            var textarea = this.el.querySelector('.status-editor');
-            var self = this;
-
-            if (text === '') {
-                textarea.focus();
-                return Message.show(chrome.i18n.getMessage('fieldEmpty'), true);
-            }
-
-            var parameters = this.getParameters();
-
-            Message.show(chrome.i18n.getMessage('loading'));
-            weibo.request({
-                method:'POST',
-                path: this.url,
-                params: parameters
-            }, function () {
-                self.$el.modal('hide');
-                Message.show('Success', true);
-            });
+        connectCallback: function() {
+            this.$el.modal('hide');
         },
 
-        indicateCounter:function () {
-            var text = this.getTextareaValue();
-            var textLen = text.length;
-            var counterEl = this.el.querySelector('.status-counter');
-            var submitBtn = this.submitBtn;
-
-            var result = text.match(/[^\x00-\xff]/g);
-            var counter = text.length + (result && result.length) || 0;
-            counter = Math.ceil(counter / 2);
-            var limit = 140;
+        counterCallback: function(counter, limit) {
             var diff = counter - limit;
-
+            var counterEl = this.el.querySelector('.status-counter');
             counterEl.textContent = String(-diff);
-            submitBtn.disabled = (counter > 0 && counter <= 140) ? false : true;
             counterEl.classList[diff > 0 ? 'add' : 'remove']('danger');
         }
     });

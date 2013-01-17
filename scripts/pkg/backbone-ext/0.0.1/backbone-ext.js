@@ -10,6 +10,105 @@
         return _.isFunction(object[prop]) ? object[prop]() : object[prop];
     };
 
+
+    /**
+     * A data structure which is a combination of an array and a set. Adding a new
+     * member is O(1), testing for membership is O(1), and finding the index of an
+     * element is O(1). Removing elements from the set is not supported. Only
+     * strings are supported for membership.
+     */
+    function ArraySet() {
+        this._array = [];
+        this._set = {};
+    }
+
+    /**
+     * Static method for creating ArraySet instances from an existing array.
+     */
+    ArraySet.fromArray = function ArraySet_fromArray(aArray) {
+        var set = new ArraySet();
+        for (var i = 0, len = aArray.length; i < len; i++) {
+            set.add(aArray[i]);
+        }
+        return set;
+    };
+
+    /**
+     * Add the given string to this set.
+     *
+     * @param {String} str
+     * @param {*} [obj]
+     */
+    ArraySet.prototype.add = function ArraySet_add(str, obj) {
+        if (this.has(str)) {
+            // Already a member; nothing to do.
+            return;
+        }
+        if (!obj) obj = str;
+        var idx = this._array.length;
+        this._array.push(obj);
+        this._set[str] = idx;
+    };
+
+    ArraySet.prototype.forEach = function ArraySet_each(callback, thisArg) {
+        this._array.forEach(callback, thisArg);
+    };
+
+    // Proxy to _'s chain
+    ArraySet.prototype.chain = function ArraySet_chain() {
+        return _(this._array).chain();
+    };
+
+    /**
+     * Is the given string a member of this set?
+     *
+     * @param String str
+     */
+    ArraySet.prototype.has = function ArraySet_has(aStr) {
+        return Object.prototype.hasOwnProperty.call(this._set, aStr);
+    };
+
+    /**
+     * What is the index of the given string in the array?
+     *
+     * @param {String} str
+     */
+    ArraySet.prototype.indexOf = function ArraySet_indexOf(aStr) {
+        if (this.has(aStr)) {
+            return this._set[aStr];
+        }
+		return null;
+        //throw new Error('"' + aStr + '" is not in the set.');
+    };
+
+    ArraySet.prototype.get = function ArraySet_get(str) {
+       return this.at(this.indexOf(str));
+    };
+
+    /**
+     * What is the element at the given index?
+     *
+     * @param Number idx
+     */
+    ArraySet.prototype.at = function ArraySet_at(aIdx) {
+        if (aIdx >= 0 && aIdx < this._array.length) {
+            return this._array[aIdx];
+        }
+		return null;
+        //throw new Error('No element indexed by ' + aIdx);
+    };
+
+    /**
+     * Returns the array representation of this set (which has the proper indices
+     * indicated by indexOf). Note that this is a copy of the internal array used
+     * for storing the members so that no one can mess with internal state.
+     */
+    ArraySet.prototype.toArray = function ArraySet_toArray() {
+        return this._array.slice();
+    };
+
+
+
     var defaultAvailables = {
         dom: function(selector) {
             return $(selector).length > 0;
@@ -175,17 +274,21 @@
         this.el = options.el;
         this.$el = $(this.el);
         this.modules = {};
+        this._caches = {};
     };
 
     Application.prototype.registerModule = function(module) {
-        var moduleName = _.isFunction(module) ? module.prototype.name : module.name;
-        this.modules[moduleName] = module;
+        if (_.isFunction(module)) {
+          module = { main: module };
+        }
+        this.modules[module.main.prototype.name] = module;
     };
 
     Application.prototype.getModuleByName = function(name) {
-        var module = this.modules[name];
+        var module = this.modules[name], instance;
         if (!module) throw Error('Can not find module ' + name);
-        return module;
+        if (!this._caches[name]) instance = new module.main(module.args);
+        return instance;
     };
 
     var Module = Backbone.View.extend({
@@ -200,6 +303,7 @@
 
             if (tpl) this.template = Handlebars.compile(tpl);
 
+            this.modules = new ArraySet();
             this.mid = this.el.id || _.uniqueId('m');
             this.active = false;
         },
@@ -222,7 +326,7 @@
         },
 
         _handleChildEnter: function(args) {
-            this.modules && _.chain(this.modules).filter(function(module) {
+            this.modules.chain().filter(function(module) {
                 return !module.active;
             }).each(function(module) {
                 module._handleEnter.apply(module, args);
@@ -231,9 +335,13 @@
 
         registerModule: function(moduleOrName) {
             var module = _.isString(moduleOrName) ? Backbone.application.getModuleByName(moduleOrName) : moduleOrName;
-            this.modules || (this.modules = []);
-            this.modules.push(module);
+            this.modules.add(module.mid, module);
+            module.parent = this;
             return this;
+        },
+
+        getChildModule: function(name) {
+            return this.modules.get(name);
         },
 
         render: function() {
@@ -254,7 +362,7 @@
             this.ready = false;
             this.off(); // remove all events
 
-            this.modules && this.modules.forEach(function(module) {
+            this.modules.forEach(function(module) {
                 module.destroy();
             });
 
@@ -304,7 +412,7 @@
 
             Backbone.application._currentModule = this;
 
-            if (getValue(model, 'url')) {
+            if (this.syncOnStart !== false && getValue(model, 'url')) {
                 changed = false;
                 var fetchOptions = {
                     data: this.options.data,
@@ -399,10 +507,6 @@
         var name = options.hash.name;
         var application = Backbone.application;
         var module = application.getModuleByName(name);
-
-        if (_.isFunction(module)) {
-            module = new module();
-        }
 
         if (!module.model) {
             var Model = Backbone.Model.extend({ url: null });

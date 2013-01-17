@@ -12,11 +12,17 @@ define(function(require, exports) {
         template: tpl,
         enter: function(uid) {
             this.options.data.uid = uid;
+        },
+        initialize: function() {
+            this.model = new UserTimelineModule();
+            UserTimelineModule.__super__['initialize'].apply(this, arguments);
         }
     });
 
-    return new UserTimelineModule({
-        model: new UserTimelineModel(),
-        data: {}
+    return {
+        main: UserTimelineModule,
+        args: {
+            data: {}
+        }
     });
 });

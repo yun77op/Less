@@ -8,14 +8,18 @@ define(function(require, exports) {
         template: tpl,
         beforeEnter: function(uid) {
             this.options.data.uid = uid;
+        },
+        initialize: function() {
+            this.model = new UserModel();
+            ProfileCardModule.__super__['initialize'].apply(this, arguments);
         }
     });
 
 
-    var profileCardModule = new ProfileCardModule({
-        model: new UserModel(),
+    return {
+      main: ProfileCardModule,
+      args: {
         data: {}
-    });
-
-    return profileCardModule;
+      }
+    };
 });
