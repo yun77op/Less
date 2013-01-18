@@ -9,9 +9,7 @@ define(function(require, exports) {
         template: tpl,
         placeholder: 'Loading..',
         initialize: function() {
-            this.model = new UserModel({
-              store: {}
-            });
+            this.model = new UserModel();
             MiniProfileModule.__super__['initialize'].apply(this, arguments);
         }
     });

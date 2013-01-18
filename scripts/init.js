@@ -1,6 +1,6 @@
 define(function(require, exports) {
 
-    var oauth2 = require('./oauth2').getInstance();
+    var oauth2 = require('./lib/oauth2').getInstance();
     var util = require('./util.js');
     var TweetPlugins = require('./tweet_plugin');
 

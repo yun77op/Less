@@ -1,5 +1,5 @@
 define(function(require, exports) {
-    var oauth2 = require('./oauth2').getInstance();
+    var oauth2 = require('./lib/oauth2').getInstance();
 
 	const API_SHORTHANDS = {
 		'timeline': 'statuses/home_timeline.json',
@@ -136,7 +136,7 @@ define(function(require, exports) {
 
 		// relationsSection.changeNavText();
 		// relationsSection.el.querySelector('.rtRelations').setAttribute('href',
-		// 		'#follows/' + app.util.toRfc3986(app.weibo.user.id)); 
+		// 		'#follows/' + app.util.toRfc3986(app.weibo.user.id));
 
 		// routeManager.register(relationsSection);
 
@@ -154,7 +154,7 @@ define(function(require, exports) {
 
 		// routeManager.registerSubViewState(followsSection, relationsSection);
 		// routeManager.registerSubViewState(followersSection, relationsSection);
-	
+
 		// commentsSection = CommentsSection.getInstance();
 		// routeManager.register(commentsSection);
 
@@ -169,7 +169,7 @@ define(function(require, exports) {
 		// 	parent.updateIndicator();
 		// };
 		// routeManager.registerSubViewState(commentsTomeSection, commentsSection);
-		
+
 		// routeManager.registerSubViewState(new CommentsSubSection({
 		// 		name: 'comments-byme',
 		// 		elementID: 'comments-byme'
@@ -299,7 +299,7 @@ define(function(require, exports) {
 				var hasItems = !!items.length;
 				loadMoreButton.disabled = false;
 				loadMoreButton.textContent = chrome.i18n.getMessage('loadMore');
-				if (hasItems) {	
+				if (hasItems) {
 					this.containerEl.querySelector('ul').appendChild(this.makeTweets(data));
 				} else {
 					$(loadMoreButton).fadeOut();
@@ -378,7 +378,7 @@ define(function(require, exports) {
 			// 	navEl = document.getElementById('nav-' + id);
 			// 	el = document.getElementById(id);
 			// }
-			
+
 
 			if (this.selected) return;
 
@@ -510,7 +510,7 @@ define(function(require, exports) {
 	function CommentsSubSection(options) {
 		Section.call(this, 'comments', options);
 	}
-	
+
 	CommentsSubSection.prototype = {
 		constructor: CommentsSubSection,
 		__proto__: Section.prototype,
@@ -637,13 +637,13 @@ define(function(require, exports) {
 				text = chrome.i18n.getMessage('relations', screenName);
 			}
 			var rootSection = this.getRootSection();
-			rootSection.navEl.querySelector('a').textContent = text;	
+			rootSection.navEl.querySelector('a').textContent = text;
 		}
 	};
 
 
 	function FollowsSection(options) {
-		options = $.extend({key: 'users'}, options); 
+		options = $.extend({key: 'users'}, options);
 		RelationsSection.call(this, options);
 		this.cursor = 0;
 		this.params.loadMore = {

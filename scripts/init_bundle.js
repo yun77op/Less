@@ -3,7 +3,7 @@
   seajs.config({
     base: '/scripts',
     preload: ['seajs/plugin-text']
-  }).use('init', function() {
+  }).use('init.js', function() {
 
     var settings = app.settings;
 

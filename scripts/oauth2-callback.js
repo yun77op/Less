@@ -1,25 +1,21 @@
-(function() {
-		'use strict';
+seajs.config({
+    base: '/scripts'
+}).use(['util', 'lib/oauth2'], function(util, OAuth2) {
 
-		window.onload = function() {
-			var params = parseQuery();
-			localStorage.uid = params.uid;
-            localStorage.oauth2_token = params.access_token;
-            if (window.opener) window.opener.oauth2Callback(params.access_token);
-            window.close();
-		};
+    'use strict';
 
-    function parseQuery() {
-        var hash = window.location.hash;
-        var params = {};
+		var oauth2 = new OAuth2('3271047289',
+                            'https://api.weibo.com/oauth2/authorize',
+                            'http://mystaff.heroku.com/static/less.html');
 
-        if (hash) {
-            hash.slice(1).split('&').forEach(function (pairStr, i) {
-                var pair = pairStr.split('=');
-                params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
-            });
-        }
+    window.onload = function() {
+        var params = util.parseHashString();
+        var token = params.access_token;
 
-        return params;
-    }
-})();
+        localStorage.uid = params.uid;
+        localStorage.oauth2_token = token;
+
+        oauth2.setToken(token);
+        location.href = chrome.extension.getURL('main.html');
+    };
+});

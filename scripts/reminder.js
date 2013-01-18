@@ -4,15 +4,16 @@ define(function (require) {
 
 //    var pollingInterval = app.settings.get('general', 'pollingInterval') * 1000;
     var pollingInterval = 120 * 1000;
-    var tabSelected = true;
     var weibo = require('./weibo');
 
+    /*
+    var tabSelected = true;
     chrome.tabs.getCurrent(function (tab) {
         var currentTabId = tab.id;
         chrome.tabs.onSelectionChanged.addListener(function (tabId, selectInfo) {
             tabSelected = currentTabId == tabId;
         });
-    });
+    });*/
 
     function fetchUnread() {
 
@@ -37,8 +38,8 @@ define(function (require) {
     setInterval(function () {
         //Idle threshold in seconds
         chrome.idle.queryState(30, function (newState) {
-            var idle = newState != 'active';
-            if (idle || !tabSelected) return;
+            var isActive = newState == 'active';
+            if (!isActive || document.webkitHidden) return;
             fetchUnread();
         });
     }, pollingInterval);

@@ -1,6 +1,6 @@
 define(function(require, exports) {
 
-    var util = require('./util');
+    var util = require('../util');
 
     function OAuth2(client_id, request_url, redirect_url) {
 		this.client_id = client_id;
@@ -70,7 +70,7 @@ define(function(require, exports) {
 		var args = ['POST'].concat(arguments);
 		this.request.apply(this, args);
 	};
-	
+
 	p.sendRequest = function(method, url, headers, body, callback) {
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
@@ -150,7 +150,7 @@ define(function(require, exports) {
 			var boundary = this.boundary,
 					crlf = '\r\n',
 					dashdash = '--';
-			
+
 			builder = dashdash + boundary + crlf;
 			for (var i in this.params) {
 				builder += 'Content-Disposition: form-data; name="' + i + '"' + crlf + crlf;
