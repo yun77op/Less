@@ -9,7 +9,7 @@ define(function(require, exports) {
     }
 
     Backbone.install({
-        el: '#page-container'
+        el: '#main'
     }, function(application, routeManager) {
         var render_tmp  = Backbone.Module.prototype.render;
 

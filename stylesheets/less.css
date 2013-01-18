@@ -381,3 +381,22 @@ i {
 input {
     display: inline-block;
 }
+
+#elevator {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  margin-left: 480px;
+	font-size: 30px;
+	opacity: .8;
+	color: #222;
+	-webkit-box-shadow: 0 -1px 3px rgba(34,25,25,.5);
+	border-radius: .1em;
+	border: none;
+	line-height: 1.8;
+	background: #FFF;
+}
+
+#elevator:active {
+	opacity: .9;
+}

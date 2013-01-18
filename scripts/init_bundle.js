@@ -19,9 +19,9 @@
       return lang;
     }
 
-    document.querySelector('.navbar .signout-button').onclick = function() {
+    document.querySelector('.navbar .signout-btn').onclick = function() {
       localStorage.clear();
-      app.Settings.cancelPersist = true;
+      //app.Settings.cancelPersist = true;
       window.location.href = chrome.extension.getURL('main.html');
     };
 
