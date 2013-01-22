@@ -1,5 +1,5 @@
-{{#if this.length}}
-    {{#each this}}
+{{#if comments.length}}
+    {{#each comments}}
         {{#module this name="mini-stream-item"}} {{/module}}
     {{/each}}
 {{else}}

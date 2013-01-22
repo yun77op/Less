@@ -164,3 +164,7 @@ pip-log.txt
 
 # JetBrains
 .idea
+
+# vim
+*.vim
+*.viminfo

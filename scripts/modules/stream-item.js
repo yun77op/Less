@@ -11,10 +11,10 @@ define(function (require) {
         template: tpl,
 
         events:{
-            'click .action-repost':'repost',
-            'click .action-comment':'comment',
-            'click .action-favorite':'favorite',
-            'click .action-del':'del'
+            'click .stream-item-footer .action-repost':'repost',
+            'click .stream-item-footer .action-comment':'comment',
+            'click .stream-item-footer .action-favorite':'favorite',
+            'click .stream-item-footer .action-del':'del'
         },
 
         repost:function (e) {
@@ -26,8 +26,7 @@ define(function (require) {
                 return;
             }
 
-            var MiniRepostList = require('./mini-repost-list');
-            this._setupList(MiniRepostList);
+            this._setupList('mini-repost-list');
         },
 
         comment:function (e) {
@@ -39,20 +38,17 @@ define(function (require) {
                 return;
             }
 
-            var MiniCommentList = require('./mini-comment-list');
-            this._setupList(MiniCommentList);
+            this._setupList('mini-comment-list');
         },
 
-        _setupList: function(List) {
-            var list = new List({
+        _setupList: function(moduleName) {
+            var module = Backbone.application.getModuleInstance(moduleName, {
                 model: this.model.clone()
             });
+            this.append(module, '.stream-item-content > .tweet');
 
-            this.append(list, '.stream-item-content > .tweet');
-            //list.fetch(1);
-
-            this.activeListName = list.name;
-            this.miniCommentRepostList = list;
+            this.activeListName = module.name;
+            this.miniCommentRepostList = module;
         },
 
         _removeActiveCommentRepostList: function() {

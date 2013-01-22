@@ -1,9 +1,13 @@
 define(function(require) {
     var tpl = require('../views/mini-comment-body.tpl');
+    var MiniRepostBody = require('./mini-repost-body');
 
-    return Backbone.Module.extend({
+    return MiniRepostBody.extend({
         name: 'mini-comment-body',
-        tagName: 'ul',
-        template: tpl
+        template: tpl,
+        fetch: function(page) {
+            this.options.data.page = page;
+            this.refresh('reply');
+        }
     });
 });

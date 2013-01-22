@@ -1,20 +1,25 @@
 define(function (require) {
-    var TweetModalModule = require('./tweet-modal');
+    var TweetBase = require('./tweet');
+    var tpl = require('../views/tweet-comment.tpl');
 
-    var TweetRepostModule = TweetModalModule.extend({
+    var TweetRepostModule = TweetBase.extend({
+        name: 'tweet-repost',
+
         url: 'statuses/repost.json',
 
-        initialize: function() {
-            var comment = [chrome.i18n.getMessage('commentTo', this.model.get('user').name)];
+        template: tpl,
+
+        beforeEnter: function() {
             if (this.model.get('retweeted_status')) {
-                comment.push(chrome.i18n.getMessage('commentTo', this.model.get('retweeted_status').user.name));
+                this.model.set({
+                    comment_ori: true,
+                    ori_username: chrome.i18n.getMessage('commentToOrigin', this.model.get('retweeted_status').user.name)
+                });
             }
 
             this.model.set({
-                title: chrome.i18n.getMessage('statusRepostTitle'),
-                comment: comment
-            });
-            TweetRepostModule.__super__['initialize'].apply(this, arguments);
+                comment: chrome.i18n.getMessage('commentTo', this.model.get('user').name)
+            })
         },
 
         getTextareaQuote: function() {
@@ -28,9 +33,9 @@ define(function (require) {
             };
 
             var is_comment = 0;
-            is_comment += this.el.querySelector('.comment-control').checked ? 1 : 0;
-            is_comment += this.el.querySelector('.commentOrigin-control') &&
-                          this.el.querySelector('.commentOrigin-control').checked ? 2 : 0;
+            is_comment += this.el.querySelector('.js-comment').checked ? 1 : 0;
+            is_comment += this.el.querySelector('.js-commentOrigin') &&
+                          this.el.querySelector('.js-commentOrigin').checked ? 2 : 0;
             params.is_comment = is_comment;
 
             return params;

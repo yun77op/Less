@@ -12,6 +12,10 @@ define(function(require) {
                 this.parent.trigger('fetch', this.options.data.page, this.model.get('total_number'));
             });
             MiniRepostBody.__super__.initialize.apply(this, arguments);
+        },
+        fetch: function(page) {
+            this.options.data.page = page;
+            this.refresh('repost');
         }
     });
 

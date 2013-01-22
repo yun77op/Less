@@ -12,38 +12,29 @@ define(function (require) {
 
         template: tpl,
 
-        initialize:function () {
+        initialize: function() {
             TweetModalModule.__super__['initialize'].apply(this, arguments);
 
             var self = this;
 
             this.$el.on('hidden', function () {
-                self.remove();
+                self.destroy();
             });
+
+            this.on('connected', function() {
+                self.$el.modal('hide');
+            });
+
+
+            this.$el.appendTo('body');
         },
 
-        show:function () {
-            this.render().$el.appendTo('body');
-            var textareaValue = this.getTextareaQuote && this.getTextareaQuote() || '';
-            var textarea = this.el.querySelector('.status-editor');
-            textarea.value = textareaValue;
-            this.$el.modal('show');
-            textarea.focus();
-            this.indicateCounter();
-        },
+        show: function() {
+            this.on('load', function () {
+                this.$el.modal('show');
+            }, this);
 
-        events:{
-            'click .status-submit-btn':'connect',
-            'keyup .status-editor':'indicateCounter'
-        },
-
-        getTextareaValue: function() {
-            var textarea = this.el.querySelector('.status-editor');
-            return String(textarea.value).trim();
-        },
-
-        connectCallback: function() {
-            this.$el.modal('hide');
+            this.load();
         },
 
         counterCallback: function(counter, limit) {

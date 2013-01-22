@@ -374,6 +374,10 @@ i {
     background: #FFFDE0;
 }
 
+#status-modal .status-editor {
+    height: 100px;
+}
+
 
 /*=================
   TYPO

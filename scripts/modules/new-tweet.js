@@ -77,7 +77,7 @@ define(function (require) {
             this.model.set({
                 title: chrome.i18n.getMessage('statusDefaultTitle'),
                 actions_list: {
-                    picture: true,
+                    pic: true,
                     geo: true,
                     topic: true
                 }

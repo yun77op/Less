@@ -1,6 +1,5 @@
 define(function (require) {
 
-    var tpl = require('../views/tweet-comment.tpl');
     var weibo = require('../weibo');
     var Message = require('../Message')('top');
     var util = require('../util');
@@ -8,19 +7,29 @@ define(function (require) {
     var TweetBase = Backbone.Module.extend({
         name:'tweet-base',
 
-        template: tpl,
-
         initialize: function() {
-            this.onReady(function() {
+            this.on('load', function() {
                 this.submitBtn = this.el.querySelector('.status-submit-btn');
-            });
+                var text = this.getTextareaQuote && this.getTextareaQuote() || '';
+                this.trigger('repost', text);
+                this.indicateCounter();
+            }, this);
+
+            this.on('repost', function(text) {
+                var textarea = this.el.querySelector('.status-editor');
+                textarea.value = text;
+                setTimeout(function() {
+                    textarea.focus();
+                }, 0);
+            }, this);
 
             TweetBase.__super__['initialize'].apply(this, arguments);
         },
 
         events:{
             'click .status-submit-btn': 'connect',
-            'keyup .status-editor':'indicateCounter'
+            'keyup .status-editor':'indicateCounter',
+            'focus .status-editor':'indicateCounter'
         },
 
         getTextareaValue: function() {
@@ -46,9 +55,11 @@ define(function (require) {
                 path: this.url,
                 params: parameters
             }, function () {
-                self.connectCallback && self.connectCallback();
+                self.trigger('connected');
                 Message.show('Success', true);
             });
+
+            return false;
         },
 
         indicateCounter: function () {

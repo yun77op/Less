@@ -59,6 +59,17 @@
         return _(this._array).chain();
     };
 
+
+    var undersocreMethods = ['filter'];
+
+    undersocreMethods.forEach(function(method) {
+        ArraySet.prototype[method] = function() {
+            args = slice.call(arguments);
+            args.unshift(this._array);
+            return _[method].apply(_, args);
+        }
+    });
+
     /**
      * Is the given string a member of this set?
      *
@@ -212,7 +223,8 @@
 
             if (previousViewState && previousViewState.isParentOf(targetViewState)) {
                 previousViewState.transition();
-            } else if (targetViewState == previousViewState || targetViewState.isParentOf(previousViewState)) {
+            } else if (targetViewState == previousViewState
+                    || targetViewState.isParentOf(previousViewState)) {
                 while (previousViewState) {
                     if (previousViewState != targetViewState) {
                         previousViewState.destroy();
@@ -284,11 +296,10 @@
         this.modules[module.main.prototype.name] = module;
     };
 
-    Application.prototype.getModuleByName = function(name) {
+    Application.prototype.getModuleInstance = function(name, options) {
         var module = this.modules[name], instance;
         if (!module) throw Error('Can not find module ' + name);
-        if (!this._caches[name]) instance = new module.main(module.args);
-        return instance;
+        return new module.main(_.extend({}, module.args, options));
     };
 
     var Module = Backbone.View.extend({
@@ -304,28 +315,35 @@
             if (tpl) this.template = Handlebars.compile(tpl);
 
             this.modules = new ArraySet();
-            this.mid = this.el.id || _.uniqueId('m');
             this.active = false;
         },
 
+
+        /**
+         * Enter this module and trigger events
+         */
         _handleEnter: function() {
             if (this.active) return;
 
             var args = slice.call(arguments);
-
             this.beforeEnter.apply(this, args);
 
-            if (!this.ready) {
-                this._render({
-                    success: this._handleChildEnter.bind(this, args)
+            if (this.status != 'ready') {
+                this._prepareRender().done(function(module) {
+                    Backbone.application._currentModule = module;
+                    module.render()
+                        ._handleChildEnter.apply(module, args);
                 });
             }
+
             this.enter.apply(this, args);
             this.active = true;
             return this;
         },
 
-        _handleChildEnter: function(args) {
+        _handleChildEnter: function() {
+            var args = slice.call(arguments);
+
             this.modules.chain().filter(function(module) {
                 return !module.active;
             }).each(function(module) {
@@ -334,44 +352,83 @@
         },
 
         registerModule: function(moduleOrName) {
-            var module = _.isString(moduleOrName) ? Backbone.application.getModuleByName(moduleOrName) : moduleOrName;
-            this.modules.add(module.mid, module);
+            var module = _.isString(moduleOrName)
+                        ? Backbone.application.getModuleByName(moduleOrName)
+                        : moduleOrName;
+            this.modules.add(module.id, module);
             module.parent = this;
             return this;
         },
 
-        getChildModule: function(name) {
-            return this.modules.get(name);
+        getChildModuleById: function(id) {
+            return this.modules.get(id);
         },
 
+        getChildModuleByName: function(name) {
+            var result = [];
+
+            this.modules.chain().each(function(module) {
+                if (module.name == name) {
+                    result.push(module);
+                }
+            });
+
+            return result;
+        },
+
+        refresh: function() {
+            this.active = false;
+            this.status = '';
+            this.modules = new ArraySet();
+            this._handleEnter.apply(this, arguments);
+            return this;
+        },
+
+        load: function() {
+            this._handleEnter.apply(this, arguments);
+            return this;
+        },
+
+        /**
+         * Render template with data
+         */
         render: function() {
+            if (this.renderByTemplate) {
+                var el = document.getElementById(this.id);
+                this.setElement(el, false);
+            }
+
             var data = this.model ? this.model.toJSON() : {};
             var html = typeof this.template == 'function' ? this.template(data) : this.template;
 
             this.$el.html(html);
+            this.delegateEvents();
+            this.trigger('ready').status = 'ready';
+            this._checkStatus(this);
+
             return this;
         },
 
-        // events
-        beforeEnter: function() {},
+        _checkStatus: function(module) {
+            if (!module) return;
 
-        enter: function() {},
-
-        destroy: function() {
-            this.active = false;
-            this.ready = false;
-            this.off(); // remove all events
-
-            this.modules.forEach(function(module) {
-                module.destroy();
-            });
-
-            if (!(this instanceof ViewState)) {
-                this.$el.remove();
+            var total = module.modules.toArray().length;
+            if (total == 0 || module.modules.filter(function(module) {
+                return module.status == 'loaded';
+            }).length == total) {
+                module.status = 'loaded';
+                module.trigger('load');
+                module._checkStatus(module.parent);
             }
-            this.modules = null;
         },
 
+        /**
+         * Append one module to another module with an optional dom selector
+         *
+         * @param module {Backbone.Module}
+         * @param selector [String]
+         * @param args Array
+         */
         append: function(module, selector, args) {
             if (Array.isArray(selector)) {
                 args = selector;
@@ -381,36 +438,62 @@
             args = args || [];
 
             var container = selector ? this.el.querySelector(selector) : this.el;
-            var el = module.prepareEl();
-            container.appendChild(el);
+            container.appendChild(module.el);
 
             this.registerModule(module);
             module._handleEnter.apply(module, args);
             return this;
         },
 
+        delegate: function(moduleName, eventName, func) {
+            this.modules.chain().each(function(module) {
+                if (module.name == moduleName) {
+                    module.on(eventName, func);
+                }
+                module.delegate(moduleName, eventName, func);
+            });
+        },
+
+        // Events
+        beforeEnter: function() {},
+
+        enter: function() {},
+
+        destroy: function() {
+            this.active = false;
+            this.status = '';
+            this.off(); // Remove all events
+
+            this.modules.forEach(function(module) {
+                module.destroy();
+            });
+
+            this.remove();
+            this.modules = null;
+        },
+
         onReady: function(func) {
-            if (this.ready) return func.call(this);
+            if (this.status == 'ready') return func.call(this);
             this.on('ready', func, this);
         },
 
-        prepareEl: function(type) {
-            var attrs = {
-                class: this.name + (this.className ? ' ' + this.className : ''),
-                id: this.mid
-            };
-
+        _ensureElement: function() {
+          if (!this.el) {
+            var attrs = getValue(this, 'attributes') || {};
+            this.id = this.id || _.uniqueId('m');
+            attrs.id = this.id;
+            if (this.className) attrs['class'] = this.className;
             var content = typeof this.placeholder == 'string' ? this.placeholder : '';
-            var el = this.make(this.tagName, attrs, content);
-            return type && type.toLowerCase() == 'html' ? el.outerHTML : el;
+            this.setElement(this.make(this.tagName, attrs, content), false);
+          } else {
+            this.setElement(this.el, false);
+          }
         },
 
-        _render: function(options) {
+        _prepareRender: function(options) {
             var model = this.model;
             var changed = true;
             options = options || {};
-
-            Backbone.application._currentModule = this;
 
             if (this.syncOnStart !== false && getValue(model, 'url')) {
                 changed = false;
@@ -423,22 +506,25 @@
                 model.fetch(fetchOptions);
             }
 
-            var tests = [{
-                type: 'dom',
-                value: '#' + this.mid
-            }, function() {
-                return changed;
-            }];
+            var tests = [
+                function() {
+                    return changed;
+                }];
+
+            if (this.renderByTemplate) {
+                tests.push({
+                    type: 'dom',
+                    value: '#' + this.id
+                });
+            }
+
+            var dtd = $.Deferred();
 
             new Available(tests, function() {
-                var el = document.getElementById(this.mid);
-                this.setElement(el, true)
-                    .render();
-                this.trigger('ready').ready = true;
-                options.success && options.success.call(this);
+                dtd.resolve(this);
             }.bind(this));
 
-            return this;
+            return dtd;
         }
     });
 
@@ -454,7 +540,7 @@
         _handleEnter: function() {
             if (this.parent) {
                 this.parent._handleEnter.apply(this.parent, arguments);
-                this.ready = true;
+                this.status = 'ready';
             }
 
             ViewState.__super__['_handleEnter'].apply(this, arguments);
@@ -506,7 +592,7 @@
 
         var name = options.hash.name;
         var application = Backbone.application;
-        var module = application.getModuleByName(name);
+        var module = application.getModuleInstance(name);
 
         if (!module.model) {
             var Model = Backbone.Model.extend({ url: null });
@@ -514,8 +600,8 @@
         }
 
         application._currentModule.registerModule(module);
-
-        return module.prepareEl('html');
+        module.renderByTemplate = true;
+        return module.el.outerHTML;
     });
 
 

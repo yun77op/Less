@@ -45,6 +45,8 @@ define(function (require) {
                     self.initializeUI();
                 }
             });
+
+            return this;
         },
 
         initializeUI: function() {

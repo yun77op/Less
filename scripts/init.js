@@ -44,13 +44,13 @@ define(function(require, exports) {
         application.registerModule(require('./modules/connect-nav.js'));
         application.registerModule(require('./modules/new-tweet.js'));
         application.registerModule(require('./modules/following.js'));
-//        application.registerModule(require('./modules/mini-repost-list.js'));
-//        application.registerModule(require('./modules/mini-comment-list.js'));
+        application.registerModule(require('./modules/mini-repost-list.js'));
+        application.registerModule(require('./modules/mini-comment-list.js'));
 
         application.registerModule(require('./modules/mini-stream-item.js'));
-        application.registerModule(require('./modules/mini-repost-item.js'));
 
         application.registerModule(require('./modules/tweet-comment.js'));
+        application.registerModule(require('./modules/tweet-repost.js'));
 
 
         require('./view_states/index.js')(application, routeManager);
@@ -61,8 +61,9 @@ define(function(require, exports) {
             e.stopPropagation();
 
             var NewTweetModule = require('./modules/new-tweet');
+            var Model = Backbone.Model.extend({ url: null });
             var newTweetModule = new NewTweetModule({
-                model: new Backbone.Model()
+                model: new Model()
             });
             newTweetModule.show();
         });

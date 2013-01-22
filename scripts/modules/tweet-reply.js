@@ -6,8 +6,10 @@ define(function (require, exports) {
 
         initialize: function() {
             this.model.set({
-                title: chrome.i18n.getMessage('statusReplyTitle', this.model.get('user').name)
+                title: chrome.i18n.getMessage('statusReplyTitle', this.model.get('user').name),
+                actions_list: {}
             });
+
             TweetReplyModule.__super__['initialize'].apply(this, arguments);
         },
 
@@ -16,13 +18,11 @@ define(function (require, exports) {
         },
 
         getParameters: function() {
-            var parameters = {
+            return {
                 comment: this.getTextareaValue(),
                 cid: this.model.get('cid'),
                 id: this.model.get('id')
-            };
-
-            return parameters;
+            }
         }
     });
 

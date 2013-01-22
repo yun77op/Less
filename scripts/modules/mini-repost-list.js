@@ -22,12 +22,27 @@ define(function(require) {
 
             this.on('fetch', function(page, totalNumber) {
                 this.currentPage = page;
-                this.checkNav();
-                if (this.currentPage == 1) {
-                    this.el.querySelector('nav').classList.remove('hide');
+                var totalPage = this.totalPage = Math.ceil(totalNumber / this.options.data.count);
+
+                if (totalPage > 1) {
+                    this.navEl.hidden = false;
+                    this.checkNav();
                 }
-                this.totalPage = Math.ceil(totalNumber / this.options.data.count);
             });
+
+            this.onReady(function() {
+                this.navEl = this.el.querySelector('footer .nav');
+                this.initTweetModule();
+                this.initBody();
+            });
+
+
+            this.on('load', function() {
+                this.delegate('mini-stream-item', 'repost', function(text) {
+                    var tweetModuleName = this.options.tweetModuleName;
+                    this.getChildModuleByName(tweetModuleName)[0].trigger('repost', text);
+                }.bind(this));
+            }, this);
         },
 
         navPrev: function() {
@@ -39,40 +54,59 @@ define(function(require) {
         },
 
         checkNav: function() {
-            this.el.querySelector('.nav-prev').disabled = !!(this.currentPage == 1);
-            this.el.querySelector('.nav-next').disabled = !!(this.currentPage == this.totalPage);
+            this.navEl.querySelector('.nav-prev').disabled = !!(this.currentPage == 1);
+            this.navEl.querySelector('.nav-next').disabled = !!(this.currentPage == this.totalPage);
         },
 
         _disableNav: function() {
-            this.el.querySelector('.nav-prev').disabled = true;
-            this.el.querySelector('.nav-next').disabled = true;
+            _.each(this.navEl.querySelectorAll('button'), function(el) {
+                el.disabled = true;
+            });
         },
 
-        _setBody: function(html) {
-            this.$el.find('.body').html(html);
-            return this;
+        getBodyModule: function() {
+            var data = _.extend({}, this.options.data, {
+				page: 1,
+                id: this.model.get('id')
+            });
+            var Reposts = require('../models/reposts');
+            var module =  new (require('./mini-repost-body'))({
+                model: new Reposts(),
+                data: data
+            });
+
+            return {
+                main: module,
+                args: ['repost']
+            }
+        },
+
+        initBody: function() {
+            var bodyModule = this.getBodyModule();
+            var module = bodyModule.main;
+            this._bodyModuleId = module.id;
+            this.append(module, '.body', bodyModule.args);
+        },
+
+        initTweetModule: function() {
+            var module = Backbone.application.getModuleInstance(this.options.tweetModuleName, {
+                model: this.model.clone()
+            });
+            this.append(module, '.header');
         },
 
         fetch: function(page) {
             this._disableNav();
-
-			var previousMiniReposts = this.getChildModule('mini-repost-body');
-			previousMiniReposts && previousMiniReposts.destroy();
-
-            var data = _.extend({}, this.options.data, {
-				page: page,
-                id: this.model.get('id')
-            });
-
-            var MiniReposts = new require('./mini-repost-body');
-            var Reposts = require('../models/reposts');
-            var miniReposts = new MiniReposts({
-                model: new Reposts(),
-                data: data
-            });
-            this.append(miniReposts, '.body');
+            var bodyModule = this.getChildModuleById(this._bodyModuleId);
+            bodyModule.fetch(page);
         }
     });
 
-    return MiniRepostList;
+    return {
+        main: MiniRepostList,
+        args: {
+            tweetModuleName: 'tweet-repost'
+        }
+    }
+
 });

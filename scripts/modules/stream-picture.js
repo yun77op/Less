@@ -10,14 +10,14 @@ define(function (require, exports) {
 
         template: tpl,
 
-        initialize:function (options) {
+        initialize: function(options) {
             StreamPictureModule.__super__['initialize'].apply(this, arguments);
 
             this.widthLimit = 420;
             this.deg = 0;
         },
 
-        events:{
+        events: {
             'click .tweet-pic-thumb img':'show',
             'click .action-collapse':'collapse',
             'click .action-rotate-left':'rotateLeft',
