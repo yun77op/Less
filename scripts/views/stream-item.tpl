@@ -8,7 +8,7 @@
             {{#with retweeted_status}}
                 <div class="tweet">
                     {{> stream-item-tweet-content}}
-                    {{> stream-item-retweeted-footer}}
+                    {{> stream-item-footer}}
                 </div>
             {{/with}}
         {{/if}}

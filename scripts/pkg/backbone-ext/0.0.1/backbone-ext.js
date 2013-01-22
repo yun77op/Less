@@ -592,12 +592,10 @@
 
         var name = options.hash.name;
         var application = Backbone.application;
-        var module = application.getModuleInstance(name);
-
-        if (!module.model) {
-            var Model = Backbone.Model.extend({ url: null });
-            module.model = new Model(context);
-        }
+        var Model = Backbone.Model.extend({ url: null });
+        var module = application.getModuleInstance(name, {
+          model: new Model(context)
+        });
 
         application._currentModule.registerModule(module);
         module.renderByTemplate = true;

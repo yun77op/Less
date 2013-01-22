@@ -25,7 +25,6 @@ define(function(require, exports) {
         Handlebars.registerPartial('stream-item-vcard', require('./views/stream_item_vcard.tpl'));
         Handlebars.registerPartial('stream-item-tweet-content', require('./views/stream-item-content.tpl'));
         Handlebars.registerPartial('stream-item-footer', require('./views/stream-item-footer.tpl'));
-        Handlebars.registerPartial('stream-item-retweeted-footer', require('./views/stream-item-retweeted-footer.tpl'));
         Handlebars.registerPartial('profile-stats', require('./views/profile-stats.tpl'));
         Handlebars.registerPartial('stream-item-profile-content', require('./views/stream-item-profile-content.tpl'));
 

@@ -265,7 +265,7 @@ i {
 .icons-favorite:hover {
   background-position: 0 -235px;
 }
-.icon-favorite.favorited, .favorited .icon-favorited {
+.icon-favorite.favorited, .favorited .icon-favorite {
   background-position: 0 -117px;
 }
 .icon-del {

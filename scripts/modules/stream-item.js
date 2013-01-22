@@ -3,7 +3,7 @@ define(function (require) {
     var weibo = require('../weibo');
     var tpl = require('../views/stream-item.tpl');
 
-    return Backbone.Module.extend({
+    var StreamItem = Backbone.Module.extend({
         name: 'stream-item',
 
         className:'stream-item',
@@ -15,6 +15,17 @@ define(function (require) {
             'click .stream-item-footer .action-comment':'comment',
             'click .stream-item-footer .action-favorite':'favorite',
             'click .stream-item-footer .action-del':'del'
+        },
+
+        initialize: function() {
+          var user = JSON.parse(localStorage.getItem('user'));
+          if (user.id == this.model.get('user').id) {
+            this.model.set({ action_del: true });
+          }
+
+          this.model.set({ fav_del: true});
+
+          StreamItem.__super__['initialize'].apply(this, arguments);
         },
 
         repost:function (e) {
@@ -100,4 +111,6 @@ define(function (require) {
         }
 
     });
+
+    return StreamItem;
 });

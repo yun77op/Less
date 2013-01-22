@@ -45,7 +45,7 @@ define(function(require, exports) {
 	function addURLParam(url, key, value) {
 		if (typeof key == 'object') {
 			var obj = key;
-			if (!isEmptyObject(obj)) {	
+			if (!isEmptyObject(obj)) {
 				return url + '?' + stringify(obj);
 			}
 		} else {
@@ -107,7 +107,7 @@ define(function(require, exports) {
 
 	/**
 	 * Returns the current window's querystring decoded into key/value pairs.
-	 * 
+	 *
 	 * @return {Object} A object representing any key/value pairs found in the
 	 *         current window's querystring.
 	 */
@@ -238,13 +238,15 @@ define(function(require, exports) {
 
 		parseQueryString: parseQueryString,
 		parseHashString: parseHashString,
-		
+
 		htmlDecode: htmlDecode,
 		htmlEncode: htmlEncode,
 		html: htmlEncode,
 
 		loadStyle: loadStyle,
-		scale: scale
+		scale: scale,
+
+    dateFormat: dateFormat
 	};
 
 });
