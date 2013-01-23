@@ -587,16 +587,19 @@
     Handlebars.registerHelper('module', function(context, options) {
         if (_.isUndefined(options)) {
             options = context;
-            context = {};
+            context = null;
         }
 
         var name = options.hash.name;
         var application = Backbone.application;
-        var Model = Backbone.Model.extend({ url: null });
-        var module = application.getModuleInstance(name, {
-          model: new Model(context)
-        });
+        var options = {};
 
+        if (context) {
+            var Model = Backbone.Model.extend({ url: null });
+            options.model = new Model(context);
+        }
+
+        var module = application.getModuleInstance(name, options);
         application._currentModule.registerModule(module);
         module.renderByTemplate = true;
         return module.el.outerHTML;

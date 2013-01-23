@@ -16,14 +16,16 @@ define(function(require, exports) {
             var args = slice.call(arguments);
             Reminder.on('status', this._handleUnread, this);
 
-            this.model =  new Statuses();
+            this.model = new Statuses();
 
             this.onReady(function() {
                 this.$unreadCount = this.$el.find('.status-unread-count');
                 document.onscroll = this._handleScroll.bind(this);
             });
 
-            this.model.on( 'add', this.addOne, this );
+            this.model.on( 'add', this.queueUnread, this );
+            this.unreadQueue = [];
+            _.bindAll(this, 'addUnread');
             HomeTimelineModule.__super__['initialize'].apply(this, args);
         },
         _handleScroll: function() {
@@ -46,10 +48,27 @@ define(function(require, exports) {
         _handleUnread: function(count) {
             this.$unreadCount.text('有 ' + count + ' 条新微博，点击查看').show();
         },
-        addOne: function(status, coll, options) {
-            var $status = new StreamItem({ model: status }).render().$el;
-            var position = options.position || 'append';
-            this.$el.find('.stream')[position]($status);
+
+        queueUnread: function(status, coll, options) {
+            this.unreadQueue.push(status);
+            if (!this.unreadTimeout) {
+                setTimeout(this.addUnread, 0);
+                this.unreadQueueOptions = options;
+                this.unreadTimeout = true;
+            }
+        },
+
+        addUnread: function() {
+            var docFragment = document.createDocumentFragment();
+            this.unreadQueue.forEach(function(status) {
+                var el = new StreamItem({ model: status}).render().el;
+                docFragment.appendChild(el);
+            });
+            var position = this.unreadQueueOptions.position || 'append';
+            this.$el.find('.stream')[position](docFragment);
+            this.unreadQueue = [];
+            this.unreadQueueOptions = null;
+            this.unreadTimeout = false;
         },
 
         _renderUnread: function() {
