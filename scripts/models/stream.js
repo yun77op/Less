@@ -17,6 +17,24 @@ define(function(require, exports) {
                 params: options.data
             };
 
+            if (_.isString(model.storeID)) {
+                var success = options.success;
+
+                if (method == 'read') {
+                   var data = localStorage.getItem(model.storeID);
+
+                   if (data) {
+                      data = JSON.parse(data);
+                      return success(data);
+                   }
+                }
+
+                options.success = function(resp, status, xhr) {
+                    localStorage.setItem(model.storeID, JSON.stringify(resp));
+                    success(resp, status, xhr);
+                };
+            }
+
             weibo.request(params, {
                 success: options.success,
                 error: options.error

@@ -4,7 +4,8 @@ define(function (require) {
     var StreamModel = require('../models/stream.js');
 
     var EmotionsModel = StreamModel.extend({
-        url: 'emotions.json'
+        url: 'emotions.json',
+        storeID: 'emotions'
     });
 
     var EmoticonsModule = Backbone.Module.extend({
