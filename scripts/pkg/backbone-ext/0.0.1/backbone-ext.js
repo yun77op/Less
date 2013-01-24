@@ -54,6 +54,14 @@
         this._array.forEach(callback, thisArg);
     };
 
+    ArraySet.prototype.remove = function ArraySet_remove(str) {
+      if (!this.has(str)) return;
+
+      var idx = this._set[str];
+      delete this._set[str];
+      this._array.splice(idx, 1);
+    };
+
     // Proxy to _'s chain
     ArraySet.prototype.chain = function ArraySet_chain() {
         return _(this._array).chain();
@@ -220,8 +228,8 @@
             var args = slice.call(arguments).slice(1);
             this.activeViewState = targetViewState;
 
-
-            if (previousViewState && previousViewState.isParentOf(targetViewState)) {
+            if (previousViewState
+                && previousViewState.isParentOf(targetViewState)) {
                 previousViewState.transition();
             } else if (targetViewState == previousViewState
                     || targetViewState.isParentOf(previousViewState)) {
@@ -290,16 +298,34 @@
     };
 
     Application.prototype.registerModule = function(module) {
-        if (_.isFunction(module)) {
-          module = { main: module };
-        }
-        this.modules[module.main.prototype.name] = module;
+        var Module = this._getModule(module);
+        this.modules[Module.prototype.name] = module;
     };
 
     Application.prototype.getModuleInstance = function(name, options) {
-        var module = this.modules[name], instance;
+        var Module = this._getModule(name);
+        var moduleArgs = this._getModuleArgs(name);
+        return new Module(_.extend({}, moduleArgs, options));
+    };
+
+    Application.prototype._getModuleArgs = function(name) {
+        var module = this.modules[name];
+        return !module ? null : module.args;
+    };
+
+    Application.prototype._getModule = function(nameOrModule) {
+        var module = _.isString(nameOrModule) ? this.modules[nameOrModule] : nameOrModule;
         if (!module) throw Error('Can not find module ' + name);
-        return new module.main(_.extend({}, module.args, options));
+
+        if (!_.isFunction(module)) {
+            module = module.main;
+        }
+
+        return module;
+    };
+
+    Application.prototype.moduleHasModel = function(name) {
+      return this._getModule(name).prototype.model;
     };
 
     var Module = Backbone.View.extend({
@@ -445,6 +471,15 @@
             return this;
         },
 
+        delegateReady: function(moduleName, func) {
+            this.modules.chain().each(function(module) {
+                if (module.name == moduleName) {
+                    module.onReady(func);
+                }
+                module.delegateReady(moduleName, func);
+            });
+        },
+
         delegate: function(moduleName, eventName, func) {
             this.modules.chain().each(function(module) {
                 if (module.name == moduleName) {
@@ -468,12 +503,20 @@
                 module.destroy();
             });
 
-            this.remove();
-            this.modules = null;
+            if (this instanceof ViewState) {
+              this.$el.empty();
+            } else {
+              this.remove();
+            }
+
+            this.modules = new ArraySet();
+            if (this.parent) {
+              this.parent.modules.remove(this.id);
+            }
         },
 
         onReady: function(func) {
-            if (this.status == 'ready') return func.call(this);
+            if (this.status == 'loaded' || this.status == 'ready') return func.call(this);
             this.on('ready', func, this);
         },
 
@@ -482,7 +525,9 @@
             var attrs = getValue(this, 'attributes') || {};
             this.id = this.id || _.uniqueId('m');
             attrs.id = this.id;
-            if (this.className) attrs['class'] = this.className;
+            var className = this.name;
+            if (this.className) className += ' ' + this.className;
+            attrs['class'] = className;
             var content = typeof this.placeholder == 'string' ? this.placeholder : '';
             this.setElement(this.make(this.tagName, attrs, content), false);
           } else {
@@ -592,14 +637,14 @@
 
         var name = options.hash.name;
         var application = Backbone.application;
-        var options = {};
+        var moduleOptions = {};
 
-        if (context) {
+        if (!application.moduleHasModel(name)) {
             var Model = Backbone.Model.extend({ url: null });
-            options.model = new Model(context);
+            moduleOptions.model = new Model(context || {});
         }
 
-        var module = application.getModuleInstance(name, options);
+        var module = application.getModuleInstance(name, moduleOptions);
         application._currentModule.registerModule(module);
         module.renderByTemplate = true;
         return module.el.outerHTML;

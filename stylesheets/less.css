@@ -90,14 +90,10 @@ i {
   padding: 12px;
   line-height: 16px;
 }
-.profile-stats {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  *zoom: 1;
+.flex-module {
+  display: -webkit-box;
+  -webkit-pack: start;
+  -webkit-box-orient: horizontal;
 }
 .profile-stats:before,
 .profile-stats:after {
@@ -112,9 +108,9 @@ i {
   list-style-type: none;
   margin-left: 0;
   white-space: nowrap;
-  float: left;
   padding-left: 4px;
   padding-right: 4px;
+  float: left;
 }
 .profile-stats a strong {
   display: block;
@@ -185,16 +181,16 @@ i {
 .profile-card .profile-stats li:first-child {
   border-top: 0;
 }
+.standard-page-body {
+  margin-top: 20px;
+}
 .profile-card .profile-stats strong {
   margin-right: 2px;
   display: inline;
 }
 .profile-card-inner {
   margin-left: 12px;
-  float: left;
-}
-.profile-card-actions {
-  float: right;
+  -webkit-box-flex: 1;
 }
 .stream-item {
   display: -webkit-box;
