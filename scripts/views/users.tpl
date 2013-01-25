@@ -1,5 +1,5 @@
 <ul class="stream">
-    {{#each users}}
+    {{#each this}}
         {{#module this name="user"}}{{/module}}
     {{/each}}
 </ul>

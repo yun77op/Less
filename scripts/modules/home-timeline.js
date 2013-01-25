@@ -5,10 +5,12 @@ define(function(require, exports) {
     var slice = Array.prototype.slice;
     var StreamItem = require('./stream-item');
     var Statuses = require('../models/statuses');
+    var TimelineModule = require('./timeline.js');
 
-    var HomeTimelineModule = Backbone.Module.extend({
+    var HomeTimelineModule = TimelineModule.extend({
         name: 'home-timeline',
         template: tpl,
+        StreamItem: StreamItem,
         events: {
             'click .status-unread-count': '_renderUnread'
         },
@@ -20,72 +22,24 @@ define(function(require, exports) {
 
             this.onReady(function() {
                 this.$unreadCount = this.$el.find('.status-unread-count');
-                document.onscroll = this._handleScroll.bind(this);
             });
 
-            this.model.on( 'add', this.queueUnread, this );
-            this.unreadQueue = [];
-            _.bindAll(this, 'addUnread');
             HomeTimelineModule.__super__['initialize'].apply(this, args);
         },
-        _handleScroll: function() {
-            var body = document.body;
-            var offset = 100;
-            if (this._scrollFetching || window.innerHeight + body.scrollTop + offset < body.scrollHeight) return;
 
-            var options = {
-                data: {
-                    max_id: this.model.last().id
-                },
-                success: function() {
-                    this._scrollFetching = false;
-                }.bind(this)
-            };
-
-            this._scrollFetching = true;
-            this.fetch(options);
-        },
         _handleUnread: function(count) {
             this.$unreadCount.text('有 ' + count + ' 条新微博，点击查看').show();
         },
 
-        queueUnread: function(status, coll, options) {
-            this.unreadQueue.push(status);
-            if (!this.unreadTimeout) {
-                setTimeout(this.addUnread, 0);
-                this.unreadQueueOptions = options;
-                this.unreadTimeout = true;
-            }
-        },
-
-        addUnread: function() {
-            var docFragment = document.createDocumentFragment();
-            this.unreadQueue.forEach(function(status) {
-                var el = new StreamItem({ model: status}).render().el;
-                docFragment.appendChild(el);
-            });
-            var position = this.unreadQueueOptions.position || 'append';
-            this.$el.find('.stream')[position](docFragment);
-            this.unreadQueue = [];
-            this.unreadQueueOptions = null;
-            this.unreadTimeout = false;
-        },
-
         _renderUnread: function() {
+            this.$unreadCount.hide();
+
             this.fetch({
                 data: { since_id: this.model.first().id },
                 position: 'prepend'
             });
         },
-        fetch: function(options) {
-            this.$unreadCount.hide();
 
-            var mergedOptions = _.extend({}, options, {
-                add: true
-            });
-
-            this.model.fetch(mergedOptions);
-        },
         destroy: function() {
             Reminder.off('status', this._handleUnread, this);
             HomeTimelineModule.__super__['destroy'].apply(this, arguments);

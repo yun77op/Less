@@ -7,7 +7,7 @@ define(function(require, exports) {
 
         tagName: 'li',
 
-        className: 'stream-item user',
+        className: 'stream-item',
 
         template: tpl,
 
