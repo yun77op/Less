@@ -23,8 +23,8 @@ define(function(require, exports) {
                     uid: this.model.attributes.id
                 }
             }, function() {
-                var $btn = $(e.currentTarget).parent();
-                $btn.removeClass('following');
+                var $container = $(e.currentTarget).parents('.relationship-container');
+                $container.removeClass('following');
             });
         },
 
@@ -38,8 +38,8 @@ define(function(require, exports) {
                     uid: this.model.attributes.id
                 }
             }, function() {
-                var $btn = $(e.currentTarget).parent();
-                $btn.addClass('following');
+                var $container = $(e.currentTarget).parents('.relationship-container');
+                $container.addClass('following');
             });
         }
     });

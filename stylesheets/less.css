@@ -124,40 +124,42 @@ i {
 .relationship-btn .action-follow {
   display: block;
 }
-.relationship-btn.following .action-follow {
+.following .action-follow {
   display: none;
 }
-.relationship-btn.following .action-following {
+.following .action-following {
   display: block;
 }
-.relationship-btn.following:hover {
-  background-color: #da4f49;
+.following .relationship-btn:hover {
   background-image: -moz-linear-gradient(top, #ee5f5b, #bd362f);
   background-image: -ms-linear-gradient(top, #ee5f5b, #bd362f);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ee5f5b), to(#bd362f));
   background-image: -webkit-linear-gradient(top, #ee5f5b, #bd362f);
   background-image: -o-linear-gradient(top, #ee5f5b, #bd362f);
   background-image: linear-gradient(top, #ee5f5b, #bd362f);
-  background-repeat: repeat-x;border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-}
-.relationship-btn.following:hover:hover,
-.relationship-btn.following:hover:active,
-.relationship-btn.following:hover.active,
-.relationship-btn.following:hover.disabled,
-.relationship-btn.following:hover[disabled] {
+  background-repeat: repeat-x;
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
   background-color: #bd362f;
-  *background-color: #a9302a;
 }
-.relationship-btn.following:hover:active,
-.relationship-btn.following:hover.active {
-  background-color: #942a25 \9;
-}
-.relationship-btn.following:hover .action-following {
+
+.following .relationship-btn:hover .action-following {
   display: none;
 }
-.relationship-btn.following:hover .action-unfollow {
+
+.following .relationship-btn:hover .action-unfollow {
   display: block;
 }
+
+.relationship-mutual {
+  display: none;
+  text-align: center;
+  color: #999;
+}
+
+.following.follow-me .relationship-mutual {
+  display: block;
+}
+
 .mini-profile .fullname {
   display: block;
 }
