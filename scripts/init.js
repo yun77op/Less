@@ -43,6 +43,7 @@ define(function(require, exports) {
         application.registerModule(require('./modules/connect-nav.js'));
         application.registerModule(require('./modules/new-tweet.js'));
         application.registerModule(require('./modules/following.js'));
+        application.registerModule(require('./modules/followers.js'));
         application.registerModule(require('./modules/mini-repost-list.js'));
         application.registerModule(require('./modules/mini-comment-list.js'));
 
@@ -53,7 +54,7 @@ define(function(require, exports) {
 
 
         require('./view_states/index.js')(application, routeManager);
-        //require('./view_states/profile.js')(application, routeManager);
+        require('./view_states/profile.js')(application, routeManager);
         //require('./view_states/connect.js')(application, routeManager);
 
         $('#global-new-tweet-button').click(function(e) {

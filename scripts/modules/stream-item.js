@@ -2,6 +2,7 @@ define(function (require) {
 
     var weibo = require('../weibo');
     var tpl = require('../views/stream-item.tpl');
+    var userID = JSON.parse(localStorage.getItem('uid'));
 
     var StreamItem = Backbone.Module.extend({
         name: 'stream-item',
@@ -18,8 +19,7 @@ define(function (require) {
         },
 
         initialize: function() {
-          var user = JSON.parse(localStorage.getItem('user'));
-          if (user.id == this.model.get('user').id) {
+          if (userID == this.model.get('user').id) {
             this.model.set({ action_del: true });
           }
 

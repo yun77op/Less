@@ -1,5 +1,5 @@
 <div class="flex-module clearfix">
-    <img src="{{avatar_large}}" class="pull-left avator" alt="{{screen_name}}">
+    <img src="{{avatar_large}}" width="180" height="180" class="avator" alt="{{screen_name}}">
     <div class="profile-card-inner">
         <h1>{{screen_name}}</h1>
         {{#if description}}

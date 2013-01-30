@@ -1,15 +1,18 @@
 define(function(require, exports) {
 
-    var StreamModel = require('../models/stream.js');
+    var UsersModel = require('../models/users.js');
     var tpl = require('../views/users.tpl');
+    var TimelineModule = require('./timeline.js');
+    var StreamItem = require('./user.js');
 
-    var FriendsModel = StreamModel.extend({
+    var FriendsModel = UsersModel.extend({
         url: 'friendships/friends.json'
     });
 
-    var FollowingModule = Backbone.Module.extend({
+    var FollowingModule = TimelineModule.extend({
         name: 'following',
         template: tpl,
+        StreamItem: StreamItem,
         beforeEnter: function(uid) {
             this.options.data.uid = uid;
         },
@@ -22,7 +25,8 @@ define(function(require, exports) {
     return {
         main: FollowingModule,
         args: {
-            data: {}
+            data: {},
+            cursor: 'cursor'
         }
     };
 });

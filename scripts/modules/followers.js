@@ -1,28 +1,32 @@
 define(function(require, exports) {
 
-    var StreamModel = require('../models/stream.js');
+    var UsersModel = require('../models/users.js');
     var tpl = require('../views/users.tpl');
+    var TimelineModule = require('./timeline.js');
+    var StreamItem = require('./user.js');
 
-    var UserTimelineModel = StreamModel.extend({
-        url: 'statuses/user_timeline.json'
+    var Followers = UsersModel.extend({
+        url: 'friendships/followers.json'
     });
 
-    var UserTimelineModule = Backbone.Module.extend({
+    var FollowersModule = TimelineModule.extend({
         name: 'followers',
         template: tpl,
-        enter: function(uid) {
+        StreamItem: StreamItem,
+        beforeEnter: function(uid) {
             this.options.data.uid = uid;
         },
         initialize: function() {
-            this.model = new UserTimelineModule();
-            UserTimelineModule.__super__['initialize'].apply(this, arguments);
+            this.model = new Followers();
+            FollowersModule.__super__['initialize'].apply(this, arguments);
         }
     });
 
     return {
-        main: UserTimelineModule,
+        main: FollowersModule,
         args: {
-            data: {}
+            data: {},
+            cursor: 'cursor'
         }
-    });
+    };
 });

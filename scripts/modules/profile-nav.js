@@ -2,13 +2,17 @@ define(function(require) {
 
     var tpl = require('../views/profile-nav.tpl');
 
-    return Backbone.Module.extend({
+    var ProfileNav = Backbone.Module.extend({
         name: 'profile-nav',
 
         template: tpl,
 
-        beforeEnter: function(uid) {
+        initialize: function() {
             this.on('nav', this._changeNavStatus, this);
+            ProfileNav.__super__['initialize'].apply(this, arguments);
+        },
+
+        beforeEnter: function(uid) {
             this.model.set({ id: uid });
         },
 
@@ -18,4 +22,6 @@ define(function(require) {
             $target.siblings().removeClass(activeClassName);
         }
     });
+
+    return ProfileNav;
 });
