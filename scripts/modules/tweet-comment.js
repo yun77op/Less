@@ -1,13 +1,10 @@
-define(function (require, exports) {
-    var TweetBase = require('./tweet');
-    var tpl = require('../views/tweet-comment.tpl');
+define(function (require) {
+    var TweetPublisherInline = require('./tweet-publisher-inline');
 
-    var TweetComment = TweetBase.extend({
+    var TweetComment = TweetPublisherInline.extend({
         name: 'tweet-comment',
 
         url: 'comments/create.json',
-
-        template: tpl,
 
         beforeEnter: function() {
             this.model.set({

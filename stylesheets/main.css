@@ -12,7 +12,7 @@
 }
 
 
-/***
+/**
  * tweet listView
  */
 
@@ -58,7 +58,7 @@
 	display: none;
 }
 
-/***
+/**
  * tweet pic
  */
 
@@ -201,3 +201,5 @@
 #elevator:active {
 	opacity: .9;
 }
+
+

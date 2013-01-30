@@ -64,7 +64,8 @@ define(function (require) {
 
         _removeActiveCommentRepostList: function() {
             if (this.miniCommentRepostList) {
-                this.miniCommentRepostList.remove();
+              console.log(this.miniCommentRepostList);
+                this.miniCommentRepostList.destroy();
                 this.miniCommentRepostList = null;
             }
         },

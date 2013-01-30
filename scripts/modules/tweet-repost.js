@@ -1,13 +1,10 @@
 define(function (require) {
-    var TweetBase = require('./tweet');
-    var tpl = require('../views/tweet-comment.tpl');
+    var TweetPublisherInline = require('./tweet-publisher-inline');
 
-    var TweetRepostModule = TweetBase.extend({
+    var TweetRepostModule = TweetPublisherInline.extend({
         name: 'tweet-repost',
 
         url: 'statuses/repost.json',
-
-        template: tpl,
 
         beforeEnter: function() {
             if (this.model.get('retweeted_status')) {

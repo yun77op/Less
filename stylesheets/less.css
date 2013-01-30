@@ -404,3 +404,9 @@ input {
 #elevator:active {
 	opacity: .9;
 }
+
+
+.tweet-publisher-inline textarea {
+  height: 18px;
+  width: 454px;
+}

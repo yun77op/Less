@@ -1,5 +1,5 @@
 <form class="form-inline">
-    <input name="status" class="status-editor">
+    <textarea name="status" class="status-editor"></textarea>
     <input type="submit" value="Submit" class="status-submit-btn btn btn-primary" disabled>
 </form>
 <div class="status-actions clearfix">
