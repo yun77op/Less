@@ -15,6 +15,20 @@ define(function (require, exports) {
 
             this.widthLimit = 420;
             this.deg = 0;
+            this.onReady(function() {
+              this.originalEl = this.el.querySelector('.tweet-pic-origin');
+              this.originalSrc = this.el.querySelector('.tweet-pic-thumb').getAttribute('data-original');
+              this.thumbEl = this.el.querySelector('.tweet-pic-thumb');
+
+              if (this.options.expand) {
+                  this.show();
+                  this.el.querySelector('.action-collapse').style.display = 'none';
+              } else {
+                  _.bindAll(this, 'collapse');
+                  this.$el.on('click', '.tweet-pic-origin img', this.collapse);
+                  this.$el.on('click', '.tweet-pic-origin canvas', this.collapse);
+              }
+            })
         },
 
         events: {
@@ -24,24 +38,6 @@ define(function (require, exports) {
             'click .action-rotate-right':'rotateRight'
         },
 
-        render: function() {
-            StreamPictureModule.__super__['render'].apply(this, arguments);
-
-            this.originalEl = this.el.querySelector('.tweet-pic-origin');
-            this.originalSrc = this.el.querySelector('.tweet-pic-thumb').getAttribute('data-original');
-            this.thumbEl = this.el.querySelector('.tweet-pic-thumb');
-
-            if (this.options.expand) {
-                this.show();
-                this.el.querySelector('.action-collapse').style.display = 'none';
-            } else {
-                _.bindAll(this, 'collapse');
-                this.$el.on('click', '.tweet-pic-origin img', this.collapse);
-                this.$el.on('click', '.tweet-pic-origin canvas', this.collapse);
-            }
-
-            return this;
-        },
 
         show:function () {
             if (this.inited) {

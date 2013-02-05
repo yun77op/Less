@@ -357,7 +357,7 @@
             if (this.status != 'ready') {
                 this._prepareRender().done(function(module) {
                     Backbone.application._currentModule = module;
-                    module.render()
+                    module._render()
                         ._handleChildEnter.apply(module, args);
                 });
             }
@@ -410,7 +410,7 @@
             return this;
         },
 
-        load: function() {
+        render: function() {
             this._handleEnter.apply(this, arguments);
             return this;
         },
@@ -418,16 +418,23 @@
         /**
          * Render template with data
          */
-        render: function() {
-            if (this.renderByTemplate) {
-                var el = document.getElementById(this.id);
-                this.setElement(el, false);
-            }
-
+        _render: function() {
             var data = this.model ? this.model.toJSON() : {};
             var html = typeof this.template == 'function' ? this.template(data) : this.template;
 
             this.$el.html(html);
+
+            var placeholderID = this.id + '-placeholder'
+              , placeholderEl = document.getElementById(placeholderID);
+            //Already in html
+            if (!placeholderEl && this.parent) {
+              placeholderEl = this.parent.el.querySelector('#' + placeholderID)
+            }
+
+            if (placeholderEl) {
+              $(placeholderEl).replaceWith(this.$el);
+            }
+
             this.delegateEvents();
             this.trigger('ready').status = 'ready';
             this._checkStatus(this);
@@ -535,39 +542,22 @@
           }
         },
 
-        _prepareRender: function(options) {
-            var model = this.model;
-            var changed = true;
-            options = options || {};
+        _prepareRender: function() {
+            var model = this.model
+              , self = this
+              , dtd = $.Deferred();
 
-            if (this.syncOnStart !== false && getValue(model, 'url')) {
-                changed = false;
+            if (this.options.syncOnStart !== false && getValue(model, 'url')) {
                 var fetchOptions = {
                     data: this.options.data,
                     success: function() {
-                        changed = true;
+                      dtd.resolve(self);
                     }
                 };
                 model.fetch(fetchOptions);
+            } else {
+              dtd.resolve(this);
             }
-
-            var tests = [
-                function() {
-                    return changed;
-                }];
-
-            if (this.renderByTemplate) {
-                tests.push({
-                    type: 'dom',
-                    value: '#' + this.id
-                });
-            }
-
-            var dtd = $.Deferred();
-
-            new Available(tests, function() {
-                dtd.resolve(this);
-            }.bind(this));
 
             return dtd;
         }
@@ -647,7 +637,11 @@
         var module = application.getModuleInstance(name, moduleOptions);
         application._currentModule.registerModule(module);
         module.renderByTemplate = true;
-        return module.el.outerHTML;
+        var placeHolderHtml = '<div id="' + module.id + '-placeholder">'
+            + (module.placeholder || 'Loading..')
+            + '</div>';
+
+        return placeHolderHtml
     });
 
 

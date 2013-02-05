@@ -69,7 +69,7 @@ define(function(require, exports) {
             var docFragment = document.createDocumentFragment();
             var StreamItem = this.StreamItem;
             this.unreadQueue.forEach(function(status) {
-                var el = new StreamItem({ model: status}).render().el;
+                var el = new StreamItem({ model: status, syncOnStart: false }).render().el;
                 docFragment.appendChild(el);
             });
             var position = this.unreadQueueOptions.position || 'append';

@@ -24,6 +24,20 @@ define(function (require) {
             this.initialized = false;
             this.pageNum = 5;
             this.currentPage = 1;
+
+            this.onReady(function() {
+                var self = this;
+
+                if (this.initialized) return;
+
+                this.model.fetch({
+                    success: function() {
+                        self.initialized = true;
+                        self.initializeUI();
+                    }
+                });
+            })
+
         },
 
         events: {
@@ -31,23 +45,6 @@ define(function (require) {
             'click .nav-prev': 'navPrev',
             'click .nav-next': 'navNext',
             'click .emoticons-category-list a': 'showEmoticonsByCategory'
-        },
-
-        render: function() {
-            var self = this;
-
-            EmoticonsModule.__super__['render'].apply(this, arguments);
-
-            if (this.initialized) return;
-
-            this.model.fetch({
-                success: function() {
-                    self.initialized = true;
-                    self.initializeUI();
-                }
-            });
-
-            return this;
         },
 
         initializeUI: function() {

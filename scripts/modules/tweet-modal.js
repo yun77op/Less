@@ -24,9 +24,6 @@ define(function (require) {
             this.on('connected', function() {
                 self.$el.modal('hide');
             });
-
-
-            this.$el.appendTo('body');
         },
 
         show: function() {
@@ -34,7 +31,9 @@ define(function (require) {
                 this.$el.modal('show');
             }, this);
 
-            this.load();
+            this
+              .render()
+              .$el.appendTo('body')
         },
 
         counterCallback: function(counter, limit) {
