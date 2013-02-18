@@ -241,8 +241,8 @@ i {
 .tweet-pic .tweet-pic-thumb img {
   cursor: url(../images/big.cur), auto;
 }
-.stream-item .tweet-pic-origin canvas,
-.stream-item .tweet-pic-origin img {
+.tweet-pic-origin canvas,
+.tweet-pic-origin img {
   cursor: url(../images/small.cur), auto;
 }
 .tweet-pic .actions {

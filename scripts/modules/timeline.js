@@ -57,7 +57,7 @@ define(function(require, exports) {
         },
 
         queueUnread: function(status, coll, options) {
-            status.url = null
+            status.url = null;
             this.unreadQueue.push(status);
             if (!this.unreadTimeout) {
                 setTimeout(this.addUnread, 0);

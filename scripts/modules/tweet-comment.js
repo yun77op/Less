@@ -1,5 +1,7 @@
 define(function (require) {
+
     var TweetPublisherInline = require('./tweet-publisher-inline');
+    var weibo = require('../weibo');
 
     var TweetComment = TweetPublisherInline.extend({
         name: 'tweet-comment',
@@ -8,7 +10,7 @@ define(function (require) {
 
         beforeEnter: function() {
             this.model.set({
-                repost: 'ksdkf'
+                repost: chrome.i18n.getMessage('repostToMyTimeline')
             });
 
             if (this.model.get('retweeted_status')) {
@@ -20,13 +22,24 @@ define(function (require) {
         },
 
         getParameters: function() {
+            var commentOri = this.el.querySelector('.js-commentOrigin').checked
+              , status = this.getTextareaValue();
+
             var params = {
-                id: this.model.get('id'),
-                comment: this.getTextareaValue()
+              id: this.model.get('id')
             };
 
-            if (this.model.retweeted_status) {
-                params.comment_ori = el.querySelector('.js-commentOrigin').checked ? 1 : 0;
+            if (this.el.querySelector('.js-repost').checked) {
+              this.url = 'statuses/repost.json';
+              params.status = status;
+              params.is_comment = commentOri ? 2 : 1;
+            } else {
+              this.url = 'comments/create.json';
+              params.comment = status;
+
+              if (commentOri) {
+                params.comment_ori = commentOri ? 1 : 0;
+              }
             }
 
             return params;

@@ -10,20 +10,20 @@ define(function (require, exports) {
 
         template: tpl,
 
-        initialize: function(options) {
+        initialize: function() {
             StreamPictureModule.__super__['initialize'].apply(this, arguments);
 
             this.widthLimit = 420;
             this.deg = 0;
+
+            if (this.options.expand) {
+              this.model.set({ expand: true });
+            }
+
             this.onReady(function() {
               this.originalEl = this.el.querySelector('.tweet-pic-origin');
-              this.originalSrc = this.el.querySelector('.tweet-pic-thumb').getAttribute('data-original');
-              this.thumbEl = this.el.querySelector('.tweet-pic-thumb');
-
-              if (this.options.expand) {
-                  this.show();
-                  this.el.querySelector('.action-collapse').style.display = 'none';
-              } else {
+              if (!this.options.expand) {
+                  this.thumbEl = this.el.querySelector('.tweet-pic-thumb');
                   _.bindAll(this, 'collapse');
                   this.$el.on('click', '.tweet-pic-origin img', this.collapse);
                   this.$el.on('click', '.tweet-pic-origin canvas', this.collapse);
@@ -47,22 +47,24 @@ define(function (require, exports) {
             }
         },
 
+        throbber: function() {
+            var throbberEl = this.el.querySelector('.throbber')
+            this.$el.find('.tweet-pic-thumb img').load(function() {
+                throbberEl.style.left = (this.width / 2 - 8) + 'px';
+                throbberEl.style.top = (this.height / 2 - 8) + 'px';
+                throbberEl.style.display = 'block';
+            })
+        },
+
         load:function () {
-            var throbberEl = this.el.querySelector('.throbber'),
-                rect = this.el.querySelector('.tweet-pic-thumb img').getBoundingClientRect();
-
-            throbberEl.style.left = (rect.width / 2 - 8) + 'px';
-            throbberEl.style.top = (rect.height / 2 - 8) + 'px';
-            throbberEl.style.display = 'block';
-
+            this.throbber();
             var img = new Image();
             img.onload = this.onLoad.bind(this, img);
-            img.src = this.originalSrc;
+            img.src = this.model.get('original_pic');
         },
 
         onLoad:function (img) {
             this.$el.find('.throbber').remove();
-            this.el.querySelector('.action-view-origin').href = this.originalSrc;
 
             this.inited = true;
             this.expand();
@@ -71,7 +73,7 @@ define(function (require, exports) {
         _show:function () {
             var img = document.createElement('img'), rect;
 
-            img.src = this.originalSrc;
+            img.src = this.model.get('original_pic');
             rect = util.scale(img.width, img.height, this.widthLimit);
             img.width = rect.width;
             img.height = rect.height;
@@ -111,7 +113,7 @@ define(function (require, exports) {
                 img = document.createElement('img'),
                 canvas;
 
-            img.src = this.originalSrc;
+            img.src = this.model.get('original_pic');
 
             if (!canvas) {
                 canvas = document.createElement('canvas');

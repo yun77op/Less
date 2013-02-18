@@ -58,7 +58,7 @@ define(function(require, exports) {
         require('./view_states/index.js')(application, routeManager);
         require('./view_states/status.js')(application, routeManager);
         require('./view_states/profile.js')(application, routeManager);
-        //require('./view_states/connect.js')(application, routeManager);
+        require('./view_states/connect.js')(application, routeManager);
 
         $('#global-new-tweet-button').click(function(e) {
             e.stopPropagation();

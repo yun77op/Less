@@ -57,6 +57,9 @@ define(function(require, exports) {
         },
         'mini-comment-list': {
           render: false
+        },
+        'stream-picture': {
+          expand: true
         }
       }
     }

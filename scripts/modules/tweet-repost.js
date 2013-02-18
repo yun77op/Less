@@ -30,9 +30,9 @@ define(function (require) {
             };
 
             var is_comment = 0;
-            is_comment += this.el.querySelector('.js-comment').checked ? 1 : 0;
-            is_comment += this.el.querySelector('.js-commentOrigin') &&
-                          this.el.querySelector('.js-commentOrigin').checked ? 2 : 0;
+            if (this.el.querySelector('.js-comment').checked) is_comment++;
+            if (this.el.querySelector('.js-commentOrigin') &&
+                this.el.querySelector('.js-commentOrigin').checked) is_comment++;
             params.is_comment = is_comment;
 
             return params;

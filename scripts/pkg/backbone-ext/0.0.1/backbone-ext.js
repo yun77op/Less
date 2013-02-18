@@ -403,16 +403,7 @@
         },
 
         refresh: function() {
-            //this.cleanup();
-            this.active = false;
-            this.status = '';
-            //this.off(); // Remove all events
-            this.options.render = true;
-
-            this.modules.forEach(function(module) {
-                module.destroy();
-            });
-            this.modules = new ArraySet();
+            this.cleanup();
             this._handleEnter.apply(this, arguments);
             return this;
         },
@@ -511,6 +502,7 @@
 
         destroy: function() {
           this.cleanup();
+          this.off(); // Remove all events
 
           if (this instanceof ViewState) {
             this.$el.empty();
@@ -526,7 +518,7 @@
         cleanup: function() {
           this.active = false;
           this.status = '';
-          this.off(); // Remove all events
+          this.undelegateEvents();
 
           this.modules.forEach(function(module) {
               module.destroy();
