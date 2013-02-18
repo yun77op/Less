@@ -5,15 +5,17 @@ define(function(require) {
         name: 'mini-comment-list',
         getBodyModule: function() {
             var data = _.extend({}, this.options.data, {
-				page: 1,
+                page: 1,
                 id: this.model.get('id')
             });
             var Comments = require('../models/comments');
             var MiniCommentBody = require('./mini-comment-body');
-            var module = new MiniCommentBody({
+            var options = {
                 model: new Comments(),
                 data: data
-            });
+            }
+
+            var module = new MiniCommentBody(options);
 
             return {
                 main: module,

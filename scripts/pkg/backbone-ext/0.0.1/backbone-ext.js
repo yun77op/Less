@@ -257,6 +257,7 @@
         register: function(ViewState) {
             var viewState = this._getInstance(ViewState);
             this.route(viewState);
+            Backbone.application.registerModule(ViewState);
             return this;
         },
 
@@ -298,34 +299,27 @@
     };
 
     Application.prototype.registerModule = function(module) {
-        var Module = this._getModule(module);
-        this.modules[Module.prototype.name] = module;
-    };
+        var formattedModule = _.isFunction(module) ? { main: module } : module
+        this.modules[formattedModule.main.prototype.name] = formattedModule
+    }
 
     Application.prototype.getModuleInstance = function(name, options) {
-        var Module = this._getModule(name);
-        var moduleArgs = this._getModuleArgs(name);
-        return new Module(_.extend({}, moduleArgs, options));
-    };
+        var module = this.getModule(name)
+          , result = new module.main(_.extend({}, module.args, options));
 
-    Application.prototype._getModuleArgs = function(name) {
-        var module = this.modules[name];
-        return !module ? null : module.args;
-    };
+        if (module.childConfig) result.childConfig = _.extend({}, module.childConfig)
+        return result;
+    }
 
-    Application.prototype._getModule = function(nameOrModule) {
-        var module = _.isString(nameOrModule) ? this.modules[nameOrModule] : nameOrModule;
-        if (!module) throw Error('Can not find module ' + name);
-
-        if (!_.isFunction(module)) {
-            module = module.main;
-        }
-
-        return module;
-    };
+    Application.prototype.getModule = function(nameOrModule, main) {
+      var name =  _.isString(nameOrModule) ? nameOrModule : nameOrModule.name
+        , module = this.modules[name];
+      if (!module) throw Error('Can not find module ' + name);
+      return main ? module.main : module;
+    }
 
     Application.prototype.moduleHasModel = function(name) {
-      return this._getModule(name).prototype.model;
+      return this.getModule(name, true).prototype.model;
     };
 
     var Module = Backbone.View.extend({
@@ -349,7 +343,7 @@
          * Enter this module and trigger events
          */
         _handleEnter: function() {
-            if (this.active) return;
+            if (this.active || this.options.render === false) return;
 
             var args = slice.call(arguments);
             this.beforeEnter.apply(this, args);
@@ -357,7 +351,8 @@
             if (this.status != 'ready') {
                 this._prepareRender().done(function(module) {
                     Backbone.application._currentModule = module;
-                    module._render()
+                    module
+                        ._render()
                         ._handleChildEnter.apply(module, args);
                 });
             }
@@ -402,9 +397,21 @@
             return result;
         },
 
+        setChildConfig: function(name, config) {
+          this.childConfig = this.childConfig || {};
+          this.childConfig[name] = $.extend({}, this.childConfig[name], config);
+        },
+
         refresh: function() {
+            //this.cleanup();
             this.active = false;
             this.status = '';
+            //this.off(); // Remove all events
+            this.options.render = true;
+
+            this.modules.forEach(function(module) {
+                module.destroy();
+            });
             this.modules = new ArraySet();
             this._handleEnter.apply(this, arguments);
             return this;
@@ -501,25 +508,30 @@
 
         enter: function() {},
 
+
         destroy: function() {
-            this.active = false;
-            this.status = '';
-            this.off(); // Remove all events
+          this.cleanup();
 
-            this.modules.forEach(function(module) {
-                module.destroy();
-            });
+          if (this instanceof ViewState) {
+            this.$el.empty();
+          } else {
+            this.remove();
+          }
 
-            if (this instanceof ViewState) {
-              this.$el.empty();
-            } else {
-              this.remove();
-            }
+          if (this.parent) {
+            this.parent.modules.remove(this.id);
+          }
+        },
 
-            this.modules = new ArraySet();
-            if (this.parent) {
-              this.parent.modules.remove(this.id);
-            }
+        cleanup: function() {
+          this.active = false;
+          this.status = '';
+          this.off(); // Remove all events
+
+          this.modules.forEach(function(module) {
+              module.destroy();
+          });
+          this.modules = new ArraySet();
         },
 
         onReady: function(func) {
@@ -547,13 +559,13 @@
               , self = this
               , dtd = $.Deferred();
 
-            if (this.options.syncOnStart !== false && getValue(model, 'url')) {
+            if (getValue(model, 'url')) {
                 var fetchOptions = {
                     data: this.options.data,
                     success: function() {
                       dtd.resolve(self);
                     }
-                };
+                }
                 model.fetch(fetchOptions);
             } else {
               dtd.resolve(this);
@@ -625,17 +637,19 @@
             context = null;
         }
 
-        var name = options.hash.name;
-        var application = Backbone.application;
-        var moduleOptions = {};
+        var name = options.hash.name
+          , application = Backbone.application
+          , currentModule = application._currentModule
+          , moduleOptions = _.extend({}, currentModule.childConfig
+                                          && currentModule.childConfig[name])
 
-        if (!application.moduleHasModel(name)) {
+        if (!application.moduleHasModel(name) && !moduleOptions.module) {
             var Model = Backbone.Model.extend({ url: null });
             moduleOptions.model = new Model(context || {});
         }
 
-        var module = application.getModuleInstance(name, moduleOptions);
-        application._currentModule.registerModule(module);
+        var module = application.getModuleInstance(name, moduleOptions)
+        currentModule.registerModule(module);
         module.renderByTemplate = true;
         var placeHolderHtml = '<div id="' + module.id + '-placeholder">'
             + (module.placeholder || 'Loading..')

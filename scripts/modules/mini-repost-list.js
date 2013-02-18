@@ -66,14 +66,17 @@ define(function(require) {
 
         getBodyModule: function() {
             var data = _.extend({}, this.options.data, {
-				page: 1,
+                page: 1,
                 id: this.model.get('id')
             });
+
             var Reposts = require('../models/reposts');
-            var module =  new (require('./mini-repost-body'))({
+            var options = {
                 model: new Reposts(),
                 data: data
-            });
+            }
+
+            var module = new (require('./mini-repost-body'))(options);
 
             return {
                 main: module,
@@ -82,10 +85,11 @@ define(function(require) {
         },
 
         initBody: function() {
-            var bodyModule = this.getBodyModule();
-            var module = bodyModule.main;
+            var bodyModule = this.getBodyModule()
+              , module = bodyModule.main
+              , args = _.extend({}, bodyModule.args)
             this._bodyModuleId = module.id;
-            this.append(module, '.body', bodyModule.args);
+            this.append(module, '.body', args);
         },
 
         initTweetModule: function() {

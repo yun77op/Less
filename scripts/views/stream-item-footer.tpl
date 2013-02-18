@@ -1,4 +1,4 @@
-<div class="stream-item-footer">
+<div class="stream-item-footer{{#if action_fav}} stream-item-primary-footer{{/if}}">
     <span class="metadata">
         <a href="#!/{{user.id}}/{{id}}">{{date_format created_at}}</a>
         <span i18n-content="from">from</span> {{{ source }}}
@@ -9,7 +9,7 @@
                 <span class="icon icon-16 icon-del"></span>
             </a>
 				{{/if}}
-				{{#if fav_del}}
+				{{#if action_fav}}
 					<li>{{! FIXME: favorited is aways false }}
 							<a href="#" title="Favorite" class="action-favorite{{#if favorited}} favorited{{/if}}" i18n-values="title:favorite">
 									<span class="icon icon-16 icon-favorite"></span>

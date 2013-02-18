@@ -23,17 +23,21 @@ define(function (require, exports, module) {
       attrs.forEach(function(attr) {
         $flex.css(attr, $el.css(attr));
       })
+
+      setTimeout(function() {
+        respond($el.val())
+      }, 0)
     }
 
-    function respond() {
-      $flex.text(this.value)
-      $el.height($flex.height())
+    function respond(val) {
+      $flex.height('auto').text('')
+      $flex.text(val || this.value)
+      $el.height(Math.max($flex.height(), parseInt($el.css('line-height'))))
     }
 
     return {
       destroy: function() {
         $el.off(eventName)
-        $flex.text('')
       }
     }
   }

@@ -12,10 +12,10 @@ define(function (require) {
         template: tpl,
 
         events:{
-            'click .stream-item-footer .action-repost':'repost',
-            'click .stream-item-footer .action-comment':'comment',
-            'click .stream-item-footer .action-favorite':'favorite',
-            'click .stream-item-footer .action-del':'del'
+            'click .stream-item-primary-footer .action-repost':'repost',
+            'click .stream-item-primary-footer .action-comment':'comment',
+            'click .stream-item-primary-footer .action-favorite':'favorite',
+            'click .stream-item-primary-footer .action-del':'del'
         },
 
         initialize: function() {
@@ -23,7 +23,7 @@ define(function (require) {
             this.model.set({ action_del: true });
           }
 
-          this.model.set({ fav_del: true});
+          this.model.set({ action_fav: true });
 
           StreamItem.__super__['initialize'].apply(this, arguments);
         },
@@ -64,7 +64,6 @@ define(function (require) {
 
         _removeActiveCommentRepostList: function() {
             if (this.miniCommentRepostList) {
-              console.log(this.miniCommentRepostList);
                 this.miniCommentRepostList.destroy();
                 this.miniCommentRepostList = null;
             }

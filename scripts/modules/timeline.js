@@ -57,6 +57,7 @@ define(function(require, exports) {
         },
 
         queueUnread: function(status, coll, options) {
+            status.url = null
             this.unreadQueue.push(status);
             if (!this.unreadTimeout) {
                 setTimeout(this.addUnread, 0);
@@ -69,7 +70,7 @@ define(function(require, exports) {
             var docFragment = document.createDocumentFragment();
             var StreamItem = this.StreamItem;
             this.unreadQueue.forEach(function(status) {
-                var el = new StreamItem({ model: status, syncOnStart: false }).render().el;
+                var el = new StreamItem({ model: status }).render().el;
                 docFragment.appendChild(el);
             });
             var position = this.unreadQueueOptions.position || 'append';

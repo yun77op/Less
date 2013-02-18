@@ -46,6 +46,8 @@ define(function(require, exports) {
         application.registerModule(require('./modules/followers.js'));
         application.registerModule(require('./modules/mini-repost-list.js'));
         application.registerModule(require('./modules/mini-comment-list.js'));
+        application.registerModule(require('./modules/mini-repost-body.js'));
+        application.registerModule(require('./modules/mini-comment-body.js'));
 
         application.registerModule(require('./modules/mini-stream-item.js'));
 
@@ -54,6 +56,7 @@ define(function(require, exports) {
 
 
         require('./view_states/index.js')(application, routeManager);
+        require('./view_states/status.js')(application, routeManager);
         require('./view_states/profile.js')(application, routeManager);
         //require('./view_states/connect.js')(application, routeManager);
 

@@ -1,48 +1,63 @@
 define(function(require, exports) {
 
     var tpl = require('../views/status_module.tpl');
-    var StreamModuleModel = require('../models/stream.js');
+    var StreamModel = require('../models/stream.js');
+    var StatusModel = StreamModel.extend({
+        url: 'statuses/show.json'
+    })
 
     var StatusModule = Backbone.Module.extend({
         name: 'status',
 
         template: tpl,
 
-        model: new StreamModuleModel({
-            _url: 'statuses/show.json'
-        }),
+        initialize: function() {
+          StatusModule.__super__.initialize.apply(this, arguments)
 
-        enter: function(id) {
-            this.model.set('urlParams', {
-                id: id
-            });
+          this.model = new StatusModel();
+
+          this.onReady(function() {
+              var self = this
+                , picEl = this.el.querySelector('.tweet-pic');
+
+              if (picEl) {
+                  new app.weibo.ImageView({
+                      el: picEl,
+                      expand: true
+                  });
+              }
+
+              $('a[data-toggle="tab"]').on('show', function() {
+                var type = $(this).data('type')
+                  , listModule = self.getChildModuleByName('mini-' + type + '-list')[0]
+                listModule.refresh()
+              });
+
+              $('a[href="#' + self.type + 's"]').tab('show');
+          })
         },
 
-        render: function() {
-            StatusModule.__super__['render'].call(this);
-            var picEl = this.el.querySelector('.tweet-pic');
-            var self = this;
-
-            if (picEl) {
-                new app.weibo.ImageView({
-                    el: picEl,
-                    expand: true
-                });
+        beforeEnter: function(userId, statusId, type) {
+            this.options.data = {
+              id: statusId
             }
 
-            $('a[data-toggle="tab"]').on('show', function() {
-                self.model.fetch();
+            this.type = type ? type.slice(1) : 'repost';
+            this.setChildConfig('mini-' + this.type + '-list', {
+              render: true
             });
-        },
-
-        events: {
-            'click .action-show-commentList': 'showCommentList'
-        },
-
-        showCommentList: function(e) {
-
         }
     });
 
-    return StatusModule;
+    return {
+      main: StatusModule,
+      childConfig: {
+        'mini-repost-list': {
+          render: false
+        },
+        'mini-comment-list': {
+          render: false
+        }
+      }
+    }
 });
