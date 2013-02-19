@@ -29,7 +29,7 @@ define(function (require) {
 
             if (err) return callback(err);
 
-            this.imageFile = file;
+            this.pic = file;
 
             readImage(file, function(img) {
                 var canvas = self.el.querySelector('.status-pic-canvas');
@@ -56,7 +56,7 @@ define(function (require) {
         del: function () {
             $(document).trigger('picture:del');
             this.$el.hide();
-            this.imageFile = null;
+            this.pic = null;
             this.active = false;
         }
     });
@@ -196,7 +196,7 @@ define(function (require) {
             }, this.geo);
 
             if (this.type == 'upload') {
-                parameters.imageFile = this.picView.imageFile
+                parameters.pic = this.picView.pic
             }
 
             return parameters;

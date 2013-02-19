@@ -37,7 +37,8 @@ define(function (require) {
             return String(textarea.value).trim();
         },
 
-        connect:function () {
+        connect:function (e) {
+            e.preventDefault();
             var text = this.getTextareaValue();
             var textarea = this.el.querySelector('.status-editor');
             var self = this;
@@ -50,11 +51,13 @@ define(function (require) {
             var parameters = this.getParameters();
 
             Message.show(chrome.i18n.getMessage('loading'));
-            weibo.request({
+            var options = {
                 method:'POST',
                 path: this.url,
                 params: parameters
-            }, function () {
+            };
+            if (parameters.pic) options.multi = true;
+            weibo.request(options, function () {
                 self.trigger('connected');
                 Message.show('Success', true);
             });

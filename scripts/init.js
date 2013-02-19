@@ -63,6 +63,25 @@ define(function(require, exports) {
         require('./view_states/profile.js')(application, routeManager);
         require('./view_states/connect.js')(application, routeManager);
 
+        var Message = $('<div class="notifications bottom-right"></div>').appendTo('body');
+        var Reminder = require('./reminder.js');
+        var userID = JSON.parse(localStorage.getItem('uid'));
+        var pathMap = {
+          follower: userID + '/followers',
+          cmt: 'connect',
+          mention_status: 'mentions',
+          mention_cmt: 'mentions'
+        };
+
+        Reminder.on('all', function(eventName, count) {
+          if (eventName == 'status') return;
+          var path = pathMap[eventName];
+          path = path ? '#!/' + path : '#';
+          Message.notify({
+            message: '<a href="' + path + '">' + count + ' ' + eventName + '</a>'
+          }).show();
+        });
+
         $('#global-new-tweet-button').click(function(e) {
             e.stopPropagation();
 

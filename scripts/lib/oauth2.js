@@ -141,36 +141,33 @@ define(function(require, exports) {
 		var data;
 
 		if (this.multi) {
-			var blob = new WebKitBlobBuilder(),
-					builder,
-					pic = this.pic;
-
 			this.getUniqueBoundary();
 
 			var boundary = this.boundary,
 					crlf = '\r\n',
-					dashdash = '--';
+					dashdash = '--',
+					pic = this.pic;
 
-			builder = dashdash + boundary + crlf;
+      var blobHead = ''
+        , blobFooter = '';
+
+			blobHead = dashdash + boundary + crlf;
 			for (var i in this.params) {
-				builder += 'Content-Disposition: form-data; name="' + i + '"' + crlf + crlf;
-				builder += this.params[i] + crlf;
-				builder += dashdash;
-				builder += boundary;
-				builder += crlf;
+				blobHead += 'Content-Disposition: form-data; name="' + i + '"' + crlf + crlf;
+				blobHead += this.params[i] + crlf;
+				blobHead += dashdash;
+				blobHead += boundary;
+				blobHead += crlf;
 			}
 
-			builder += 'Content-Disposition: form-data; name="pic"; filename="' + pic.fileName + '"' + crlf;
-			builder += 'Content-Type: ' + pic.fileType + crlf + crlf;
-			blob.append(builder);
-			blob.append(pic);
-			builder = crlf;
-			builder += dashdash;
-			builder += boundary;
-			builder += dashdash;
-			builder += crlf;
-			blob.append(builder);
-			data = blob.getBlob();
+			blobHead += 'Content-Disposition: form-data; name="pic"; filename="' + pic.fileName + '"' + crlf;
+			blobHead += 'Content-Type: ' + pic.fileType + crlf + crlf;
+			blobFooter = crlf;
+			blobFooter += dashdash;
+			blobFooter += boundary;
+			blobFooter += dashdash;
+			blobFooter += crlf;
+      data = new Blob([blobHead, pic, blobFooter], {type: "application/octet-binary"})
 
 			// var data = new FormData();
 			// for (var i in this.params) {

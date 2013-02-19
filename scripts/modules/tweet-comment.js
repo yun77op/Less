@@ -22,7 +22,8 @@ define(function (require) {
         },
 
         getParameters: function() {
-            var commentOri = this.el.querySelector('.js-commentOrigin').checked
+            var commentOriEl = this.el.querySelector('.js-commentOrigin')
+              , commentOri = commentOriEl && commentOriEl.checked
               , status = this.getTextareaValue();
 
             var params = {
