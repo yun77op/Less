@@ -3,7 +3,6 @@ define(function(require, exports) {
     return function config(application, routeManager) {
 
         var tpl = require('../views/profile.tpl');
-
         var slice = Array.prototype.slice;
         var profileNav;
 
@@ -13,9 +12,7 @@ define(function(require, exports) {
             template: tpl,
             el: application.el,
             enter: function() {
-                var isCurrentModule = routeManager.activeViewState == this;
-
-                if (!isCurrentModule) return;
+                if (!this.isActive()) return;
 
                 profileNav = this.getChildModuleByName('profile-nav')[0];
                 profileNav.onReady(function() {
@@ -34,9 +31,10 @@ define(function(require, exports) {
         routeManager.register(ProfileViewState);
 
 
-        var ProfileFollowingViewState = ProfileViewState.extend({
+        var ProfileFollowingViewState = Backbone.ViewState.extend({
             name: 'profile-following',
-            path: 'following',
+            path: '!/:uid/following',
+            el: application.el,
             enter: function() {
                 this.parent.delegateReady('profile-nav', function() {
                     this.trigger('nav', 'following');
@@ -52,9 +50,10 @@ define(function(require, exports) {
 
         routeManager.registerSubViewState(ProfileFollowingViewState, ProfileViewState);
 
-        var ProfileFollowersViewState = ProfileViewState.extend({
+        var ProfileFollowersViewState = Backbone.ViewState.extend({
             name: 'profile-followers',
-            path: 'followers',
+            path: '!/:uid/followers',
+            el: application.el,
             enter: function() {
                 this.parent.delegateReady('profile-nav', function() {
                     this.trigger('nav', 'followers');

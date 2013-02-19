@@ -37,6 +37,9 @@ define(function(require, exports) {
         application.registerModule(require('./modules/status.js'));
         application.registerModule(require('./modules/stream.js'));
         application.registerModule(require('./modules/user-timeline.js'));
+        application.registerModule(require('./modules/comments.js'));
+        application.registerModule(require('./modules/comment.js'));
+        application.registerModule(require('./modules/mentions.js'));
         application.registerModule(require('./modules/relationship-action.js'));
         application.registerModule(require('./modules/profile-card.js'));
         application.registerModule(require('./modules/profile-nav.js'));

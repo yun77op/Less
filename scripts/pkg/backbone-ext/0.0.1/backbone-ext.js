@@ -128,86 +128,6 @@
 
 
 
-    var defaultAvailables = {
-        dom: function(selector) {
-            return $(selector).length > 0;
-        }
-    };
-
-    var Available = function(tests, func) {
-        this.tests = tests;
-        this._timer = null;
-        this.ready = false;
-        this.callbacks = [];
-
-        if (func) {
-            this.push(func);
-        }
-
-        _.bindAll(this, '_poll');
-        this.startInterval();
-        this._poll();
-    };
-
-    Available.prototype.startInterval = function() {
-        this._timer = setInterval(this._poll, 1000);
-    };
-
-    Available.prototype.push = function(fn) {
-        if (!Array.isArray(fn)) {
-            fn = [fn];
-        }
-
-        this.callbacks = this.callbacks.concat(fn);
-
-        if (this.ready) {
-            this._excute();
-        }
-    };
-
-    Available.prototype._poll = function() {
-        if (this._test()) {
-            clearInterval(this._timer);
-            this._excute()
-        }
-    };
-
-    Available.prototype._test = function() {
-        var item, test, args;
-        var passed = 0;
-        var count = this.tests.length;
-
-        for (var i = 0, l = this.tests.length; i < l; ++i) {
-            item = this.tests[i];
-
-            if (typeof item == 'function') {
-                test = item;
-            } else if (test = defaultAvailables[item.type]) {
-                args = item.value;
-            } else {
-                throw new Error('Available test item ' + item + 'not found.');
-            }
-
-            if (!Array.isArray(args)) {
-                args = [args];
-            }
-
-            passed += test.apply(null, args);
-        }
-
-        return passed == count;
-    };
-
-    Available.prototype._excute = function() {
-        this.callbacks.forEach(function(fn) {
-            fn();
-        });
-        this.callbacks = [];
-        this.ready = true;
-    };
-
-
-
     // RouteManager
 
     var RouteManager = function() {
@@ -224,35 +144,51 @@
         },
 
         _handleRoute: function(targetViewState) {
-            var previousViewState = this.activeViewState;
-            var args = slice.call(arguments).slice(1);
+            var previousViewState = this.activeViewState
+              , args = slice.call(arguments).slice(1)
+              , viewState;
+
             this.activeViewState = targetViewState;
 
-            if (previousViewState
-                && previousViewState.isParentOf(targetViewState)) {
+            if (previousViewState) {
+              if (targetViewState.isSibling(previousViewState) ||
+                  previousViewState.isParentOf(targetViewState) ||
+                  targetViewState.isParentOf(previousViewState) &&
+                  this._isValidParent(args)) {
                 previousViewState.transition();
-            } else if (targetViewState == previousViewState
-                    || targetViewState.isParentOf(previousViewState)) {
-                while (previousViewState) {
-                    if (previousViewState != targetViewState) {
-                        previousViewState.destroy();
-                        previousViewState = previousViewState.parent;
-                    } else {
-                        targetViewState.destroy();
-                        break;
-                    }
+
+                if (!previousViewState.isParentOf(targetViewState)) {
+                  targetViewState.beforeEnter.apply(targetViewState, args);
+                  targetViewState.enter.apply(targetViewState, args);
+                  previousViewState.cleanup();
                 }
-            } else {
+              } else {
                 // different view state
-                while (previousViewState) {
-                    previousViewState.destroy();
-                    previousViewState = previousViewState.parent;
+                viewState = previousViewState;
+                while (viewState) {
+                    viewState.destroy();
+                    viewState = viewState.parent;
                 }
+              }
             }
 
+            this._routeParams = args.concat();
             targetViewState._handleEnter.apply(targetViewState, args);
         },
 
+        _isValidParent: function(args) {
+          if (!this._routeParams) return false;
+          var result = true;
+
+          for (var i = 0, l = args.length; i < l; ++i) {
+            if (args[i] != this._routeParams[i]) {
+              result = false;
+              break;
+            }
+          }
+
+          return result;
+        },
 
         register: function(ViewState) {
             var viewState = this._getInstance(ViewState);
@@ -268,9 +204,7 @@
         },
 
         route: function(viewState) {
-            var fullPath = viewState.getFullPath();
-
-            this.router.route(fullPath, viewState.name, this._handleRoute.bind(this, viewState));
+            this.router.route(viewState.path, viewState.name, this._handleRoute.bind(this, viewState));
         }
     };
 
@@ -499,7 +433,6 @@
 
         enter: function() {},
 
-
         destroy: function() {
           this.cleanup();
           this.off(); // Remove all events
@@ -508,10 +441,9 @@
             this.$el.empty();
           } else {
             this.remove();
-          }
-
-          if (this.parent) {
-            this.parent.modules.remove(this.id);
+            if (this.parent) {
+              this.parent.modules.remove(this.id);
+            }
           }
         },
 
@@ -579,7 +511,6 @@
         _handleEnter: function() {
             if (this.parent) {
                 this.parent._handleEnter.apply(this.parent, arguments);
-                this.status = 'ready';
             }
 
             ViewState.__super__['_handleEnter'].apply(this, arguments);
@@ -591,7 +522,7 @@
             do {
                 tmp = tmp && tmp.parent;
                 if (tmp == this) {
-                    result =  true;
+                    result = true;
                     break;
                 }
             } while(tmp);
@@ -599,24 +530,12 @@
             return result;
         },
 
-        getFullPath: function() {
-            var path = this.path;
+        isSibling: function(viewState) {
+          return this.parent && (this.parent === viewState.parent);
+        },
 
-            // Don't expand
-            if (typeof path == 'string' && path[0] == '#') {
-                return path.slice(1);
-            }
-
-            if (path instanceof RegExp) return path;
-
-            var pathAry = [path];
-            var slash = '/';
-
-            if (this.parent && this.parent.path) {
-                pathAry.unshift(this.parent.path);
-            }
-
-            return pathAry.join(slash);
+        isActive: function() {
+          return this === Backbone.routerManager.activeViewState;
         }
     });
 

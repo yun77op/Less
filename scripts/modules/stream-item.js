@@ -70,8 +70,6 @@ define(function (require) {
         },
 
         favorite:function (e) {
-            e.preventDefault();
-
             var self = this;
             var currentTarget = e.currentTarget;
 
@@ -90,9 +88,9 @@ define(function (require) {
             }, function () {
                 currentTarget.disabled = false;
                 currentTarget.classList.toggle('favorited');
-//                    $(self.el).slideUp(function () {
-//                        self.remove();
-//                    });
+                self.$el.slideUp(function () {
+                    self.destroy();
+                });
             });
         },
 
@@ -104,8 +102,8 @@ define(function (require) {
                 path:this.type + '/destroy.json',
                 params:{id:this.model.id}
             }, function () {
-                $(self.el).slideUp(function () {
-                    self.remove();
+                self.$el.slideUp(function () {
+                    self.destroy();
                 });
             });
         }
