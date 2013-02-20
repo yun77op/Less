@@ -1,7 +1,7 @@
 define(function (require) {
 
     var weibo = require('../weibo');
-    var Message = require('../Message')('top');
+    var message = require('../message');
     var util = require('../util');
 
     var TweetBase = Backbone.Module.extend({
@@ -45,12 +45,18 @@ define(function (require) {
 
             if (text === '') {
                 textarea.focus();
-                return Message.show(chrome.i18n.getMessage('fieldEmpty'), true);
+                return message.createMessage({
+                  text: chrome.i18n.getMessage('fieldEmpty')
+                });
             }
 
             var parameters = this.getParameters();
 
-            Message.show(chrome.i18n.getMessage('loading'));
+            var loadingMessage = message.createMessage({
+              text: chrome.i18n.getMessage('loading'),
+              autoHide: false
+            });
+
             var options = {
                 method:'POST',
                 path: this.url,
@@ -58,8 +64,12 @@ define(function (require) {
             };
             if (parameters.pic) options.multi = true;
             weibo.request(options, function () {
+                textarea.value = '';
                 self.trigger('connected');
-                Message.show('Success', true);
+                loadingMessage.hide();
+                message.createMessage({
+                  text: 'Success'
+                });
             });
 
             return false;

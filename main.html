@@ -5,7 +5,6 @@
 	<title i18n-content="siteTitle">Less, a google chrome app for sina weibo</title>
 	<link rel="stylesheet" href="stylesheets/base.css">
 	<link rel="stylesheet" href="stylesheets/less.css">
-  <link rel="stylesheet" href="scripts/pkg/bootstrap-notify/css/bootstrap-notify.css">
 </head>
 <body>
 	<div id="loading-mask"></div>
@@ -14,12 +13,12 @@
 		<div class="navbar-inner">
 			<div class="container">
 				<ul class="nav js-global-actions" id="global-actions">
-					<li id="global-nav-home" class="home active" data-global-action="home">
-						<a class="js-hover" href="#" data-component-term="home_nav" data-nav="home"> Home </a>
+					<li id="global-nav-home" data-global-action="home" data-nav="index">
+						<a class="js-hover" href="#" data-component-term="home_nav"> Home </a>
 					</li>
-                    <li>
-                        <a href="#!/connect" data-nav="connect">Connect</a>
-                    </li>
+          <li data-nav="connect">
+              <a href="#!/connect">Connect</a>
+          </li>
 				</ul>
 
 				<div class="pull-right">
@@ -161,6 +160,7 @@
 	<!-- <a href="#" class="button3 customize-button" i18n-content="customize">Customize</a> -->
 
   <button id="elevator">&#x25b2</button>
+
 	<div id="customize-container" hidden>
 		<nav>
 			<ul>
@@ -219,39 +219,6 @@
 		<button class="close-button-2 close-button"></button>
 	</div>
 
-	<script id="repost-template" type="text/template">
-		<div class="stream-item-vcard">
-			<a class="vcard" title="{{ user.screen_name }}" href="#!/{{ id }}">
-				<img width="30" height="30" src="{{ user.profile_image_url }}" class="avator">
-			</a>
-		</div>
-		<div class="stream-item-content">
-			<a href="#!/{{user.id}}" class="username">{{user.screen_name}}</a>:
-			<p>
-				{{ text }}<span>({{#date_format created_at}}{{/date_format}})</span>
-			</p>
-			<div class="stream-item-footer">
-				<a class="repost-action" href="#">Repost</a>
-			</div>
-		</div>
-	</script>
-
-	<script id="comment-template" type="text/template">
-		<div class="stream-item-vcard">
-			<a class="vcard" title="{{ user.screen_name }}" href="#!/{{ id }}">
-				<img width="30" height="30" src="{{ user.profile_image_url }}" class="avator">
-			</a>
-		</div>
-		<div class="stream-item-content">
-			<a href="#!/{{user.id}}" class="username">{{user.screen_name}}</a>:
-			<p>
-				{{ text }}<span>({{#date_format created_at}}{{/date_format}})</span>
-			</p>
-			<div class="stream-item-footer">
-				<a class="comment-action" href="#">Comment</a>
-			</div>
-		</div>
-	</script>
 
     <script src="scripts/pkg/seajs/1.3.0-dev/sea-debug.js"></script>
 	<script src="scripts/pkg/jquery/1.8.2/jquery.js"></script>
@@ -263,14 +230,11 @@
     <script src="scripts/i18n_template.js"></script>
 	<script src="scripts/app.js"></script>
 	<script src="scripts/options.js"></script>
-	<script src="scripts/jquery.alert.js"></script>
-	<script src="scripts/message.js"></script>
 	<script src="scripts/jquery.elevator.js"></script>
 	<script src="scripts/tweet_plugin.js"></script>
 	<!-- <script src="scripts/lib/settings.js"></script>
 	<script src="scripts/lib/options_bundle.js"></script>
 	<script src="scripts/settings_bundle.js"></script>-->
-  <script src="scripts/pkg/bootstrap-notify/js/bootstrap-notify.js"></script>
 	<script src="scripts/init_bundle.js"></script>
 </body>
 </html>

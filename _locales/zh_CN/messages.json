@@ -1,6 +1,6 @@
 {
 	"siteTitle": {
-		"message": "Less，一个新浪微博的客戶端的Google chrome的扩展"
+		"message": "Less，一个新浪微博的Web应用"
 	},
 
 	"logout": {
@@ -67,9 +67,9 @@
 		"message": "启用地理位置"
 	},
 
-    "disableGeolocation": {
-        "message": "删除地理位置"
-    },
+	"disableGeolocation": {
+			"message": "删除地理位置"
+	},
 
 	"topicMessage": {
 		"message": "在这里输入你想要说的话题"
@@ -104,7 +104,7 @@
 	},
 
 	"unreadMessage": {
-		"message": "$COUNT$条新$TYPE$",
+		"message": "$COUNT$ $TYPE$",
 		"placeholders": {
 			"count": {
 				"content": "$1",
@@ -395,5 +395,49 @@
 
 	"scrollToTop": {
 		"message": "回到顶部"
+	},
+
+	"remind_follower": {
+		"message": "新粉丝数"
+	},
+
+	"remind_cmt": {
+		"message": "新评论数"
+	},
+
+	"remind_dm": {
+		"message": "新私信数"
+	},
+
+	"remind_mention_status": {
+		"message": "新提及我的微博数"
+	},
+
+	"remind_mention_cmt": {
+		"message": "新提及我的评论数"
+	},
+
+	"remind_group": {
+		"message": "微群消息未读数"
+	},
+
+	"remind_private_group": {
+		"message": "私有微群消息未读数"
+	},
+
+	"remind_notice": {
+		"message": "新通知未读数"
+	},
+
+	"remind_invite": {
+		"message": "新邀请未读数"
+	},
+
+	"remind_badge": {
+		"message": "新勋章数"
+	},
+
+	"remind_photo": {
+		"message": "相册消息未读数"
 	}
 }

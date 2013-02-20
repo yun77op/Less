@@ -174,6 +174,7 @@
 
             this._routeParams = args.concat();
             targetViewState._handleEnter.apply(targetViewState, args);
+            this.trigger('nav', targetViewState.name);
         },
 
         _isValidParent: function(args) {
@@ -286,8 +287,8 @@
                 this._prepareRender().done(function(module) {
                     Backbone.application._currentModule = module;
                     module
-                        ._render()
-                        ._handleChildEnter.apply(module, args);
+                      ._render()
+                      ._handleChildEnter.apply(module, args);
                 });
             }
 
@@ -338,6 +339,7 @@
 
         refresh: function() {
             this.cleanup();
+            this.options.render = true;
             this._handleEnter.apply(this, arguments);
             return this;
         },

@@ -1,6 +1,6 @@
 {
 	"siteTitle": {
-		"message": "Less, a google chrome app for sina weibo"
+		"message": "Less, a full realtime sina weibo client"
 	},
 
 	"logout": {
@@ -67,6 +67,10 @@
 		"message": "Enable geolocation"
 	},
 
+	"disableGeolocation": {
+			"message": "Disable geolocaltion"
+	},
+
 	"topicMessage": {
 		"message": "Here enter the topic you want to say"
 	},
@@ -100,7 +104,7 @@
 	},
 	
 	"unreadMessage": {
-		"message": "$COUNT$ new $TYPE$",
+		"message": "$COUNT$ $TYPE$",
 		"placeholders": {
 			"count": {
 				"content": "$1",
@@ -391,5 +395,49 @@
 
 	"scrollToTop": {
 		"message": "Scroll to top"
+	},
+
+	"remind_follower": {
+		"message": "new follower"
+	},
+
+	"remind_cmt": {
+		"message": "new comments"
+	},
+
+	"remind_dm": {
+		"message": "new direct messages"
+	},
+
+	"remind_mention_status": {
+		"message": "new mentions status"
+	},
+
+	"remind_mention_cmt": {
+		"message": "new mention comment"
+	},
+
+	"remind_group": {
+		"message": "new group message"
+	},
+
+	"remind_private_group": {
+		"message": "new private group message"
+	},
+
+	"remind_notice": {
+		"message": "new notice"
+	},
+
+	"remind_invite": {
+		"message": "new invite"
+	},
+
+	"remind_badge": {
+		"message": "new badge"
+	},
+
+	"remind_photo": {
+		"message": "new photo message"
 	}
 }

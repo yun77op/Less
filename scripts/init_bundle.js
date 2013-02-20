@@ -25,11 +25,6 @@
       window.location.href = chrome.extension.getURL('main.html');
     };
 
-    $('#global-actions').on('click', 'li', function() {
-          var $li = $(this).addClass('active');
-          $li.siblings().removeClass('active');
-      });
-
     $('#elevator').elevator({
       min: 400,
       fadeSpeed: 500

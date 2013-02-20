@@ -38,14 +38,11 @@ define(function(require, exports) {
         },
 
         beforeEnter: function(userId, statusId, type) {
-            this.options.data = {
-              id: statusId
-            }
+          this.options.data = {
+            id: statusId
+          }
 
-            this.type = type ? type.slice(1) : 'repost';
-            this.setChildConfig('mini-' + this.type + '-list', {
-              render: true
-            });
+          this.type = type ? type.slice(1) : 'repost';
         }
     });
 

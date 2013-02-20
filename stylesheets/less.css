@@ -297,15 +297,27 @@ i {
   padding: 0px;
   display: inline;
 }
-#message-top {
+
+.message {
+  position: fixed;
+  overflow: hidden;
+  z-index: 3000;
   top: 0;
   width: 100%;
   text-align: center;
 }
-#message-top .message-inner {
+.message-inner {
   padding: 2px 10px;
   background: #f9edbe;
   display: inline-block;
+}
+
+.message-actions {
+  display: inline-block;
+}
+
+.message.error .message-inner {
+  background: red;
 }
 
 /*=================
@@ -407,4 +419,8 @@ input {
 .tweet-publisher-inline textarea {
   height: 18px;
   width: 454px;
+}
+
+.page-login #content {
+  text-align: center;
 }

@@ -5679,12 +5679,6 @@ ol {
 .modal-footer .btn-group .btn + .btn {
   margin-left: -1px;
 }
-.message {
-  position: fixed;
-  display: none;
-  overflow: hidden;
-  z-index: 3000;
-}
 .visuallyhidden {
   position: absolute !important;
   clip: rect(1px 1px 1px 1px);

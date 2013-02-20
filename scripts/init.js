@@ -51,9 +51,7 @@ define(function(require, exports) {
         application.registerModule(require('./modules/mini-comment-list.js'));
         application.registerModule(require('./modules/mini-repost-body.js'));
         application.registerModule(require('./modules/mini-comment-body.js'));
-
         application.registerModule(require('./modules/mini-stream-item.js'));
-
         application.registerModule(require('./modules/tweet-comment.js'));
         application.registerModule(require('./modules/tweet-repost.js'));
 
@@ -63,23 +61,36 @@ define(function(require, exports) {
         require('./view_states/profile.js')(application, routeManager);
         require('./view_states/connect.js')(application, routeManager);
 
-        var Message = $('<div class="notifications bottom-right"></div>').appendTo('body');
         var Reminder = require('./reminder.js');
-        var userID = JSON.parse(localStorage.getItem('uid'));
-        var pathMap = {
-          follower: userID + '/followers',
-          cmt: 'connect',
-          mention_status: 'mentions',
-          mention_cmt: 'mentions'
-        };
+        var user;
 
-        Reminder.on('all', function(eventName, count) {
+        Reminder.on('all', function reminder_listener(eventName, count) {
           if (eventName == 'status') return;
+
+          if (!user) {
+            user = JSON.parse(localStorage.getItem('user'));
+            if (!user) return;
+          }
+
+          var pathMap = {
+            follower: user.id + '/followers',
+            cmt: 'connect',
+            mention_status: 'mentions',
+            mention_cmt: 'mentions'
+          };
           var path = pathMap[eventName];
           path = path ? '#!/' + path : '#';
-          Message.notify({
-            message: '<a href="' + path + '">' + count + ' ' + eventName + '</a>'
-          }).show();
+          var type = chrome.i18n.getMessage('remind_' + eventName);
+
+          var notification = webkitNotifications.createNotification(
+            user.profile_image_url,
+            user.name,
+            chrome.i18n.getMessage('unreadMessage', [count, type])
+          );
+          notification.onclick = function() {
+            window.location.hash = path;
+          };
+          notification.show();
         });
 
         $('#global-new-tweet-button').click(function(e) {
@@ -92,6 +103,19 @@ define(function(require, exports) {
             });
             newTweetModule.show();
         });
+
+        routeManager.on('nav', function(val) {
+          var $globalActions = $('#global-actions')
+            , $lis = $('li', $globalActions)
+            , $li = $lis.filter('[data-nav="' + val + '"]')
+
+          $lis.removeClass('active');
+
+          if ($li.length > 0) {
+            $li.addClass('active');
+          }
+        });
+
 
         Backbone.history.start();
         Backbone.history.checkUrl();

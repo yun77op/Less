@@ -1,7 +1,7 @@
 define(function (require) {
 
     var TweetModalModule = require('./tweet-modal');
-    var Message = require('../Message')('top');
+    var Message = require('../message');
     var util = require('../util');
 
     function readImage(file, callback) {
@@ -138,12 +138,15 @@ define(function (require) {
             if (!file) return;
 
             this.submitBtn.disabled = true;
-            Message.show(chrome.i18n.getMessage('generatePreview'));
+            var message = Message.createMessage({
+              text: chrome.i18n.getMessage('generatePreview'),
+              autoHide: false
+            });
             this._setType('upload');
             this.picView.loadFile(file, function (err) {
                 self.picView.show();
                 self.indicateCounter();
-                Message.hide();
+                message.hide();
             });
         },
 

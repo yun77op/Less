@@ -7,49 +7,47 @@ define(function (require, exports) {
 	Message.prototype = {
 		constructor: Message,
 
-		initialize: function(name, options) {
-			var $el = $('<div id="message-' + name + '" class="message"><div class="message-inner"><span class="message-text"></span></div></div>');
+		initialize: function(options) {
+			var options = $.extend({}, Message.defaults, options)
+        , self = this;
+			this.option(options);
 
-			this.$el = $el.appendTo('body');
-			this.options = $.extend({}, Message.defaults);
-			options && this.option(options);
-			if (this.options.animation != null) {
-				$el.addClass(this.options.animation);
+			var $el = this.$el = $('<div class="message"><div class="message-inner">' +
+        '<span class="message-text">' +
+        options.text + '</span></div></div>');
+
+      if (options.actions) {
+        var $actions = $('<div class="message-actions" />');
+        options.actions.forEach(function(item) {
+          var $action = $('<button class="btn-link">' + item.label + '</button>');
+          $action.click(_.bind(item.click, self));
+          $actions.append($action);
+        });
+        $el.find('.message-inner').append($actions);
+      }
+
+			if (typeof options.className == 'string') {
+				$el.addClass(this.options.className);
 			}
 
 			_.bindAll(this, 'hide');
-
-			var self = this,
-				hide = function() {
-					if (!self.$el.hasClass('in')) self.$el.hide();
-				};
-
-			$.support.transition && this.options.animation
-				? this.$el.on($.support.transition.end, hide)
-				: hide;
 
 			if (this.option('autoOpen')) {
 				this.show();
 			}
 		},
 
-		show: function(text, autoHide) {
-			var self = this;
+		show: function() {
+			this.$el.appendTo('body');
 
-			autoHide = autoHide || this.option('autoHide');
-			if (text) this.$el.find('.message-text').html(text);
-			this.$el.show();
-			//setTimeout(function() {
-				self.$el.addClass('in');
-				if (autoHide) {
-					self.addTimer();
-				}
-			//}, 0);
+      if (this.option('autoHide')) {
+        this.addTimer();
+      }
 		},
 
 
 		hide: function() {
-			this.$el.removeClass('in');
+			this.$el.remove();
 		},
 
 		addTimer: function() {
@@ -66,16 +64,15 @@ define(function (require, exports) {
 	_.extend(Message.prototype, app.Options);
 
 	Message.defaults = {
-		hideTimeout: 2000,
-		animation: 'collapse',
-		autoOpen: false,
-		autoHide: false
+		hideTimeout: 4000,
+		autoOpen: true,
+		autoHide: true
 	};
 
-    var instances = {};
+  return {
+    createMessage: function(options) {
+      return new Message(options);
+    }
+  };
 
-	return function(id) {
-        var instance = instances[id] || (instances[id] = new Message(id));
-        return instance;
-    };
 });

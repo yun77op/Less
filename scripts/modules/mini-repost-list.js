@@ -87,15 +87,20 @@ define(function(require) {
         initBody: function() {
             var bodyModule = this.getBodyModule()
               , module = bodyModule.main
-              , args = _.extend({}, bodyModule.args)
             this._bodyModuleId = module.id;
-            this.append(module, '.body', args);
+            this.append(module, '.body', bodyModule.args);
         },
 
         initTweetModule: function() {
             var module = Backbone.application.getModuleInstance(this.options.tweetModuleName, {
                 model: this.model.clone()
             });
+
+            module.on('connected', function() {
+              var bodyModule = this.getChildModuleById(this._bodyModuleId);
+              bodyModule.fetch(1);
+            }, this);
+
             this.append(module, '.header');
         },
 

@@ -47,17 +47,16 @@ define(function (require, exports) {
             }
         },
 
-        throbber: function() {
+        showThrobber: function() {
             var throbberEl = this.el.querySelector('.throbber')
-            this.$el.find('.tweet-pic-thumb img').load(function() {
-                throbberEl.style.left = (this.width / 2 - 8) + 'px';
-                throbberEl.style.top = (this.height / 2 - 8) + 'px';
-                throbberEl.style.display = 'block';
-            })
+              , img = this.el.querySelector('.tweet-pic-thumb img')
+            throbberEl.style.left = (img.width / 2 - 8) + 'px';
+            throbberEl.style.top = (img.height / 2 - 8) + 'px';
+            throbberEl.style.display = 'block';
         },
 
         load:function () {
-            this.throbber();
+            this.showThrobber();
             var img = new Image();
             img.onload = this.onLoad.bind(this, img);
             img.src = this.model.get('original_pic');
