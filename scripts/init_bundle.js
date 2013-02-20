@@ -1,10 +1,9 @@
 (function() {
 
   seajs.config({
-    base: '/scripts',
-    preload: ['seajs/plugin-text']
-  }).use('init.js', function() {
-
+    plugins: ['text']
+  }).use('app/dist/init.js', function() {
+    seajs.use('less/app/0.0.1/init')
     var settings = app.settings;
 
     function detectLanguage() {

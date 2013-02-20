@@ -1,0 +1,6 @@
+{
+	"name" :"app",
+	"output": {"init.js": "."},
+	"version": "0.0.1",
+	"root": "less"
+}

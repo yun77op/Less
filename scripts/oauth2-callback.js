@@ -1,6 +1,4 @@
-seajs.config({
-    base: '/scripts'
-}).use(['util', 'lib/oauth2'], function(util, OAuth2) {
+seajs.use(['app/src/util', 'app/src/lib/oauth2'], function(util, OAuth2) {
 
     'use strict';
 
