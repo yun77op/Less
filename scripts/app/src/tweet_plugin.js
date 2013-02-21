@@ -43,8 +43,8 @@ define(function(require) {
 
         function mention(content) {
             return content.replace(/@([\u4e00-\u9fa5\w-]+)/g, function(s0, user) {
-                return '<a class="name" href="#user/' +
-                        util.toRfc3986(user) + '">@' +
+                return '<a class="name" href="#!/' +
+                    user + '">@' +
                         user + '</a>';
             });
         }

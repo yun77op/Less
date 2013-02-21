@@ -401,7 +401,7 @@ input {
   bottom: 0;
   left: 50%;
   margin-left: 480px;
-	font-size: 30px;
+    font-size: 30px;
 	opacity: .8;
 	color: #222;
 	-webkit-box-shadow: 0 -1px 3px rgba(34,25,25,.5);
@@ -415,6 +415,15 @@ input {
 	opacity: .9;
 }
 
+#loading-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.5) url(../images/loading_bg.gif) center center no-repeat;
+}
 
 .tweet-publisher-inline textarea {
   height: 18px;

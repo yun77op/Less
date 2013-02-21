@@ -4,6 +4,7 @@
     plugins: ['text']
   }).use('app/dist/init.js', function() {
     seajs.use('less/app/0.0.1/init')
+//  }).use('app/src/init.js', function() {
     var settings = app.settings;
 
     function detectLanguage() {

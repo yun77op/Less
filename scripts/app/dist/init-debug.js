@@ -495,8 +495,8 @@ define("less/app/0.0.1/tweet_plugin-debug", ["./util-debug"], function(require) 
 
         function mention(content) {
             return content.replace(/@([\u4e00-\u9fa5\w-]+)/g, function(s0, user) {
-                return '<a class="name" href="#user/' +
-                        util.toRfc3986(user) + '">@' +
+                return '<a class="name" href="#!/' +
+                    user + '">@' +
                         user + '</a>';
             });
         }
@@ -1567,8 +1567,9 @@ define("less/app/0.0.1/modules/user-timeline-debug", ["../models/statuses-debug"
         name: 'user-timeline',
         template: tpl,
         StreamItem: StreamItem,
-        beforeEnter: function(uid) {
-            this.options.data.uid = uid;
+        beforeEnter: function(uidOrName) {
+            var type = parseInt(uidOrName) == uidOrName ? 'uid' : 'screen_name';
+            this.options.data[type] = uidOrName;
         },
         initialize: function() {
             this.model = new UserStatuses();
@@ -1936,8 +1937,9 @@ define("less/app/0.0.1/modules/profile-card-debug", ["../models/user-debug", "..
     var ProfileCardModule = Backbone.Module.extend({
         name: 'profile-card',
         template: tpl,
-        beforeEnter: function(uid) {
-            this.options.data.uid = uid;
+        beforeEnter: function(uidOrName) {
+            var type = parseInt(uidOrName) == uidOrName ? 'uid' : 'screen_name';
+            this.options.data[type] = uidOrName;
         },
         initialize: function() {
             this.model = new UserModel();
@@ -2218,8 +2220,9 @@ define("less/app/0.0.1/modules/following-debug", ["../models/users-debug", "../m
         name: 'following',
         template: tpl,
         StreamItem: StreamItem,
-        beforeEnter: function(uid) {
-            this.options.data.uid = uid;
+        beforeEnter: function(uidOrName) {
+            var type = parseInt(uidOrName) == uidOrName ? 'uid' : 'screen_name';
+            this.options.data[type] = uidOrName;
         },
         initialize: function() {
             this.model = new FriendsModel();
@@ -2269,8 +2272,9 @@ define("less/app/0.0.1/modules/followers-debug", ["../models/users-debug", "../m
         name: 'followers',
         template: tpl,
         StreamItem: StreamItem,
-        beforeEnter: function(uid) {
-            this.options.data.uid = uid;
+        beforeEnter: function(uidOrName) {
+            var type = parseInt(uidOrName) == uidOrName ? 'uid' : 'screen_name';
+            this.options.data[type] = uidOrName;
         },
         initialize: function() {
             this.model = new Followers();

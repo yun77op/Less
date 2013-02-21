@@ -13,8 +13,9 @@ define(function(require, exports) {
         name: 'following',
         template: tpl,
         StreamItem: StreamItem,
-        beforeEnter: function(uid) {
-            this.options.data.uid = uid;
+        beforeEnter: function(uidOrName) {
+            var type = parseInt(uidOrName) == uidOrName ? 'uid' : 'screen_name';
+            this.options.data[type] = uidOrName;
         },
         initialize: function() {
             this.model = new FriendsModel();

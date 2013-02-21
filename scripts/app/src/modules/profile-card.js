@@ -6,8 +6,9 @@ define(function(require, exports) {
     var ProfileCardModule = Backbone.Module.extend({
         name: 'profile-card',
         template: tpl,
-        beforeEnter: function(uid) {
-            this.options.data.uid = uid;
+        beforeEnter: function(uidOrName) {
+            var type = parseInt(uidOrName) == uidOrName ? 'uid' : 'screen_name';
+            this.options.data[type] = uidOrName;
         },
         initialize: function() {
             this.model = new UserModel();

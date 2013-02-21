@@ -19,7 +19,7 @@
 				<div class="pull-right">
 					<ul class="nav">
 						<li>
-							<a href="#about-modal" class="global-nav-about" data-toggle="modal">关于</a>
+							<a href="#about-modal" class="global-nav-about" data-toggle="modal">帮助</a>
 						</li>
 					</ul>
 				</div>
@@ -29,9 +29,7 @@
 	<div class="container">
 		<div id="content">
       <p><img src="icon-128.png"></p>
-			<p>
-				Less是一个Web应用形式的新浪微博客户端
-			</p>
+			<p>Less是一个实时的全功能的Chrome应用形式的新浪微博客户端</p>
 			<h2>开始吧 / 用微博账号登陆</h2>
 			<p>
 				<a id="signin" href="#" title="用微博账号登陆">
@@ -43,15 +41,31 @@
 	<div class="modal hide" id="about-modal">
 		<div class="modal-header">
 			<button type="button" i18n-values="title:close" class="close" data-dismiss="modal">x</button>
-			<h3>关于</h3>
+			<h3>帮助</h3>
 		</div>
 		<div class="modal-body">
-			<dl>
-				<dt>作者：</dt>
-				<dd><img src="http://tp4.sinaimg.cn/1322582527/50/5616688038/1" width="50" height="50" alt="thisloveless"><a href="http://weibo.com/holohuhu" target="_blank">@thislovess</a></dd>
-				<dt>Respository(git)：</dt>
-				<dd><a href="https://github.com/yun77op/Less" target="_blank">https://github.com/yun77op/Less</a></dd>
-			</dl>
+            <ul class="nav nav-tabs" id="less-help-tab">
+                <li class="active"><a href="#about" data-toggle="tab">关于</a></li>
+                <li><a href="#credits" data-toggle="tab">致谢</a></li>
+            </ul>
+
+            <div class="tab-content">
+                <div class="tab-pane active" id="about">
+                    <dl>
+                        <dt>作者：</dt>
+                        <dd><img src="http://tp4.sinaimg.cn/1322582527/50/5616688038/1" width="50" height="50" alt="thisloveless"><a href="http://weibo.com/holohuhu" target="_blank">@thislovess</a></dd>
+                        <dt>Respository(git)：</dt>
+                        <dd><a href="https://github.com/yun77op/Less" target="_blank">https://github.com/yun77op/Less</a></dd>
+                    </dl>
+                </div>
+                <div class="tab-pane" id="credits">
+                   <ul>
+                       <li><a href="http://backbonejs.org/" target="_blank">Backbone.js</a>, mvc</li>
+                       <li><a href="https://github.com/cramforce/streamie" target="_blank">Streamie</a> , stream item action icons</li>
+                       <li>Twitter, <a href="http://twitter.github.com/bootstrap" target="_blank">Bootstrap</a> and some structural layouts and the new tweet icon</li>
+                   </ul>
+                </div>
+            </div>
 		</div>
 	</div>
 
