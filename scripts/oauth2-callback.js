@@ -4,7 +4,7 @@ seajs.use(['app/src/util', 'app/src/lib/oauth2'], function(util, OAuth2) {
 
 		var oauth2 = new OAuth2('3271047289',
                             'https://api.weibo.com/oauth2/authorize',
-                            'http://mystaff.heroku.com/static/less.html');
+                            'http://mystaff.herokuapp.com/static/less.html');
 
     window.onload = function() {
         var params = util.parseHashString();

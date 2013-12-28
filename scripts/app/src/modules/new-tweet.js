@@ -72,6 +72,8 @@ define(function (require) {
         initialize: function() {
             var self = this;
 
+            this.model = new Backbone.Model();
+            this.model.url = null;
             _.extend(this.events, NewTweetModule.__super__['events']);
 
             this.model.set({

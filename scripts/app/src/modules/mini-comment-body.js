@@ -1,13 +1,17 @@
 define(function(require) {
     var tpl = require('../views/mini-comment-body.tpl');
     var MiniRepostBody = require('./mini-repost-body');
+    var Comments = require('../models/comments');
 
-    return MiniRepostBody.extend({
+    var MiniCommentBody = MiniRepostBody.extend({
         name: 'mini-comment-body',
         template: tpl,
-        fetch: function(page) {
-            this.options.data.page = page;
-            this.refresh('reply');
+        collection: new Comments(),
+        initialize: function() {
+            MiniCommentBody.__super__.initialize.apply(this, arguments);
+            this.__action = 'reply';
         }
     });
+
+    return MiniCommentBody;
 });

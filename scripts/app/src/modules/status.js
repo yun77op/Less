@@ -4,7 +4,7 @@ define(function(require, exports) {
     var StreamModel = require('../models/stream.js');
     var StatusModel = StreamModel.extend({
         url: 'statuses/show.json'
-    })
+    });
 
     var StatusModule = Backbone.Module.extend({
         name: 'status',
@@ -40,24 +40,13 @@ define(function(require, exports) {
         beforeEnter: function(userId, statusId, type) {
           this.options.data = {
             id: statusId
-          }
+          };
 
           this.type = type ? type.slice(1) : 'repost';
         }
     });
 
-    return {
-      main: StatusModule,
-      childConfig: {
-        'mini-repost-list': {
-          render: false
-        },
-        'mini-comment-list': {
-          render: false
-        },
-        'stream-picture': {
-          expand: true
-        }
-      }
-    }
+
+    return StatusModule;
+
 });

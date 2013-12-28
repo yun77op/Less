@@ -13,14 +13,20 @@ define(function(require, exports) {
             'click .action-follow': 'follow'
         },
 
+        initialize: function(options) {
+            this.model = new Backbone.Model(options);
+            this.model.url = null;
+            RelationshipActionModule.__super__.initialize.apply(this, arguments);
+        },
+
         unfollow: function(e) {
             e.preventDefault();
 
             weibo.request({
                 method: 'POST',
-                path: 'friendships/destory.json',
+                path: 'friendships/destroy.json',
                 params: {
-                    uid: this.model.attributes.id
+                    uid: this.model.get('user_id')
                 }
             }, function() {
                 var $container = $(e.currentTarget).parents('.relationship-container');
@@ -35,7 +41,7 @@ define(function(require, exports) {
                 method: 'POST',
                 path: 'friendships/create.json',
                 params: {
-                    uid: this.model.attributes.id
+                    uid: this.model.get('user_id')
                 }
             }, function() {
                 var $container = $(e.currentTarget).parents('.relationship-container');

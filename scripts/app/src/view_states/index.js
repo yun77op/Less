@@ -1,15 +1,25 @@
 define(function(require, exports) {
 
     var tpl = require('../views/index.tpl');
+    var MiniProfileMod = require('../modules/mini_profile');
+    var HomeTimelineMod = require('../modules/home-timeline');
 
-    return function config(application, routeManager) {
-        var IndexViewState = Backbone.ViewState.extend({
+    return function config(application) {
+        var IndexViewState = Backbone.Module.extend({
             name: 'index',
-            path: '',
-            template: tpl,
-            el: application.el
+            __parseParent: function() {
+                return application.el;
+            },
+            render: function() {
+                this.$el.html(tpl);
+
+                this.append(MiniProfileMod, '.dashboard', [{ uid: localStorage.uid }]);
+
+                this.append(HomeTimelineMod, '.content-main');
+                return this;
+            }
         });
 
-        routeManager.register(IndexViewState);
+        application.register('', IndexViewState);
     };
 });

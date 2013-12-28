@@ -6,7 +6,7 @@ define(function (require) {
 
         url: 'statuses/repost.json',
 
-        beforeEnter: function() {
+        __onRefresh: function() {
             if (this.model.get('retweeted_status')) {
                 this.model.set({
                     comment_ori: true,

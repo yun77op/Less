@@ -1,25 +1,34 @@
 define(function(require, exports) {
+    var tpl = require('../views/timeline.tpl');
 
     var TimelineModule = Backbone.Module.extend({
-        initialize: function() {
-          this.onReady(function() {
-              document.addEventListener('scroll', this._handleScroll, false);
-          });
-
-          this.unreadQueue = [];
-          this.model.on( 'add', this.queueUnread, this );
-          _.bindAll(this, 'addUnread', '_handleScroll');
-
-          this.options.cursor = this.options.cursor || 'maxid';
+        initialize: function(options) {
+          this.options = {};
+          this.options.cursor = options.cursor || 'maxid';
 
           var self = this;
-          if (this.options.cursor == 'cursor') {
-            var parse = this.model.parse;
-            this.model.parse = function(resp, xhr) {
-              self.next_cursor = resp.next_cursor;
-              return parse.apply(this, arguments);
-            };
-          }
+
+          _.bindAll(this, '_handleScroll');
+
+          document.addEventListener('scroll', this._handleScroll, false);
+
+            this.collection.on('reset', function(collection) {
+                var docFragment = document.createDocumentFragment();
+                collection.each(function(model) {
+                    model.url = null;
+                    var mod = self.append(self.__item, docFragment, {model: model});
+                    mod.__enter();
+                });
+                self.el.querySelector('.stream').appendChild(docFragment);
+            });
+
+            this.collection.on('add', function(model, collection, options) {
+                var docFragment = document.createDocumentFragment();
+                var position = options.position || 'append';
+                var mod = self.append(self.__item, docFragment, { model: model });
+                self.$el.find('.stream')[position](docFragment);
+                mod.__enter();
+            });
 
           TimelineModule.__super__.initialize.apply(this, arguments);
         },
@@ -30,12 +39,10 @@ define(function(require, exports) {
             if (this._scrollFetching
                 || window.innerHeight + body.scrollTop + offset < body.scrollHeight) return;
 
-            var cursorMap = {
-                'cursor': { cursor: this.next_cursor },
-                'maxid': { max_id: this.model.last().id }
-            };
+            var nextCursor = this.collection.getNextCursor();
 
-            var data = _.extend({}, this.options.data, cursorMap[this.options.cursor]);
+            if (!nextCursor) return;
+            var data = _.extend({}, this.options.data, nextCursor);
 
             var options = {
                 data: data,
@@ -53,31 +60,16 @@ define(function(require, exports) {
                 add: true
             });
 
-            this.model.fetch(mergedOptions);
+            this.collection.fetch(mergedOptions);
         },
 
-        queueUnread: function(status, coll, options) {
-            status.url = null;
-            this.unreadQueue.push(status);
-            if (!this.unreadTimeout) {
-                setTimeout(this.addUnread, 0);
-                this.unreadQueueOptions = options;
-                this.unreadTimeout = true;
-            }
-        },
-
-        addUnread: function() {
-            var docFragment = document.createDocumentFragment();
-            var StreamItem = this.StreamItem;
-            this.unreadQueue.forEach(function(status) {
-                var el = new StreamItem({ model: status }).render().el;
-                docFragment.appendChild(el);
+        render: function() {
+            var self = this;
+            this.$el.html(tpl);
+            this.collection.fetch({
+                data: this.options.data
             });
-            var position = this.unreadQueueOptions.position || 'append';
-            this.$el.find('.stream')[position](docFragment);
-            this.unreadQueue = [];
-            this.unreadQueueOptions = null;
-            this.unreadTimeout = false;
+            return this;
         },
 
         destroy: function() {

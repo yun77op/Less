@@ -3,8 +3,7 @@
   seajs.config({
     plugins: ['text']
   }).use('app/dist/init.js', function() {
-    seajs.use('less/app/0.0.1/init')
-//  }).use('app/src/init.js', function() {
+    seajs.use('less/app/1.0.0/init');
     var settings = app.settings;
 
     function detectLanguage() {

@@ -5,6 +5,16 @@ define(function(require) {
 
     return ProfileNavModule.extend({
         name: 'connect-nav',
-        template: tpl
+
+        template: tpl,
+
+        __onRefresh: function(options) {
+            var nav = options.path;
+            if (typeof this.__activeNav !== 'undefined') {
+                this.__setupNav(nav);
+            }
+
+            this.__activeNav = nav;
+        }
     });
 });

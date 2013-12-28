@@ -9,7 +9,7 @@ define(function(require, exports) {
         'read': 'GET'
     };
 
-    return Backbone.Collection.extend({
+    return Backbone.Model.extend({
         sync: function(method, model, options) {
             var params = {
                 path: model.url,
@@ -21,12 +21,12 @@ define(function(require, exports) {
                 var success = options.success;
 
                 if (method == 'read') {
-                   var data = localStorage.getItem(model.storeID);
+                    var data = localStorage.getItem(model.storeID);
 
-                   if (data) {
-                      data = JSON.parse(data);
-                      return success(data);
-                   }
+                    if (data) {
+                        data = JSON.parse(data);
+                        return success(data);
+                    }
                 }
 
                 options.success = function(resp, status, xhr) {

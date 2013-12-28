@@ -8,7 +8,7 @@ define(function (require) {
 
         url: 'comments/create.json',
 
-        beforeEnter: function() {
+        __onRefresh: function() {
             this.model.set({
                 repost: chrome.i18n.getMessage('repostToMyTimeline')
             });

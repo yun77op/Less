@@ -1,51 +1,60 @@
 define(function(require, exports) {
-
     var tpl = require('../views/connect.tpl');
     var slice = Array.prototype.slice;
+    var ConnectNavView = require('../modules/connect-nav.js');
+    var CommentsView = require('../modules/comments');
+    var MentionsView = require('../modules/mentions');
 
-    return function config(application, routeManager) {
-        var ConnectViewState = Backbone.ViewState.extend({
+    return function config(application) {
+        var Connect = Backbone.Module.extend({
             name: 'connect',
-            path: '!/connect',
-            template: tpl,
-            el: application.el,
-            enter: function() {
-              if (!this.isActive()) return;
-
-              profileNav = this.getChildModuleByName('connect-nav')[0];
-              profileNav.onReady(function() {
-                  this.trigger('nav', 'connect');
-              });
-
-              var userTimeline = application.getModuleInstance('comments-timeline');
-              var args = [JSON.parse(localStorage.getItem('uid'))];
-              this.append(userTimeline, '.content-main', args);
+            __parseParent: function() {
+                return application.el;
             },
-            transition: function() {
-                this.getChildModuleByName('comments-timeline')[0].destroy();
+            initialize: function() {
+                this.__exports = {
+                    'connect-comment': '.content-main',
+                    'mentions': '.content-main'
+                };
+
+                Connect.__super__['initialize'].apply(this, arguments);
+            },
+            render: function() {
+                this.$el.html(tpl);
+                this.append(ConnectNavView, '.dashboard');
+                return this;
+            },
+            __onRefresh: function() {
+
             }
         });
 
-        routeManager.register(ConnectViewState);
+        var ConnectComment = Backbone.Module.extend({
+            name: 'connect-comment',
+            render: function() {
 
-
-        var MentionsViewState = Backbone.ViewState.extend({
-            name: 'vs-mentions',
-            path: '!/mentions',
-            el: application.el,
-            enter: function() {
-                this.parent.delegateReady('connect-nav', function() {
-                    this.trigger('nav', 'mentions');
+                this.append(CommentsView, this.el, {
+                    uid: JSON.parse(localStorage.getItem('uid'))
                 });
-                var args = slice.call(arguments);
-                var mentionsModule = application.getModuleInstance('mentions');
-                this.append(mentionsModule, '.content-main', args);
-            },
-            transition: function() {
-                this.getChildModuleByName('mentions')[0].destroy();
+
+                return this;
             }
         });
 
-        routeManager.registerSubViewState(MentionsViewState, ConnectViewState);
+        var Mentions = Backbone.Module.extend({
+            name: 'mentions',
+            render: function() {
+
+                this.append(MentionsView, this.el, {
+                    uid: JSON.parse(localStorage.getItem('uid'))
+                });
+
+                return this;
+            }
+        });
+
+
+        application.register('connect', Connect, ConnectComment);
+        application.register('mentions', Connect, Mentions);
     }
 });

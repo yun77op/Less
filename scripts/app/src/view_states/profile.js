@@ -1,72 +1,76 @@
 define(function(require, exports) {
 
-    return function config(application, routeManager) {
+    return function config(application) {
 
         var tpl = require('../views/profile.tpl');
-        var slice = Array.prototype.slice;
-        var profileNav;
+        var profileNavView = require('../modules/profile-nav');
+        var profileCardView = require('../modules/profile-card');
 
-        var ProfileViewState = Backbone.ViewState.extend({
+        var profileFollowing = require('../modules/following');
+        var profileFollowers = require('../modules/followers');
+        var UserTimeline = require('../modules/user-timeline');
+
+        var ProfileViewState = Backbone.Module.extend({
             name: 'profile',
-            path: '!/:uid',
-            template: tpl,
-            el: application.el,
-            enter: function() {
-                if (!this.isActive()) return;
-
-                profileNav = this.getChildModuleByName('profile-nav')[0];
-                profileNav.onReady(function() {
-                    this.trigger('nav', 'tweets');
-                });
-
-                var args = slice.call(arguments);
-                var userTimeline = application.getModuleInstance('user-timeline');
-                this.append(userTimeline, '.content-main', args);
+            __parseParent: function() {
+                return application.el;
             },
-            transition: function() {
-                this.getChildModuleByName('user-timeline')[0].destroy();
+
+            initialize: function() {
+                this.__exports = {
+                    'profile-timeline': '.content-main',
+                    'profile-following': '.content-main',
+                    'profile-followers': '.content-main'
+                };
+                ProfileViewState.__super__['initialize'].apply(this, arguments);
+            },
+
+            render: function() {
+                this.$el.html(tpl);
+                this.append(profileNavView, '.dashboard');
+                this.append(profileCardView, '.profile-card-container');
+                return this;
             }
         });
 
-        routeManager.register(ProfileViewState);
+        var ProfileTimeline = Backbone.Module.extend({
+            name: 'profile-timeline',
+
+            render: function() {
+                this.append(UserTimeline, this.el, {
+                    uid: JSON.parse(localStorage.getItem('uid'))
+                });
+                return this;
+            }
+        });
+
+        application.register('u/:uid', ProfileViewState, ProfileTimeline);
 
 
-        var ProfileFollowingViewState = Backbone.ViewState.extend({
+        var ProfileFollowingViewState = Backbone.Module.extend({
             name: 'profile-following',
-            path: '!/:uid/following',
-            el: application.el,
-            enter: function() {
-                this.parent.delegateReady('profile-nav', function() {
-                    this.trigger('nav', 'following');
+
+            render: function() {
+                this.append(profileFollowing, this.el, {
+                    uid: JSON.parse(localStorage.getItem('uid'))
                 });
-                var args = slice.call(arguments);
-                var Following = application.getModuleInstance('following');
-                this.append(Following, '.content-main', args);
-            },
-            transition: function() {
-                this.getChildModuleByName('following')[0].destroy();
+                return this;
             }
         });
 
-        routeManager.registerSubViewState(ProfileFollowingViewState, ProfileViewState);
+        application.register('u/:uid/following', ProfileViewState, ProfileFollowingViewState);
 
-        var ProfileFollowersViewState = Backbone.ViewState.extend({
+
+        var ProfileFollowersViewState = Backbone.Module.extend({
             name: 'profile-followers',
-            path: '!/:uid/followers',
-            el: application.el,
-            enter: function() {
-                this.parent.delegateReady('profile-nav', function() {
-                    this.trigger('nav', 'followers');
+            render: function() {
+                this.append(profileFollowers, this.el, {
+                    uid: JSON.parse(localStorage.getItem('uid'))
                 });
-                var args = slice.call(arguments);
-                var Following = application.getModuleInstance('followers');
-                this.append(Following, '.content-main', args);
-            },
-            transition: function() {
-                this.getChildModuleByName('followers')[0].destroy();
+                return this;
             }
         });
 
-        routeManager.registerSubViewState(ProfileFollowersViewState, ProfileViewState);
+        application.register('u/:uid/followers', ProfileViewState, ProfileFollowersViewState);
     };
 });

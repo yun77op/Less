@@ -1,6 +1,8 @@
 {
 	"name" :"app",
-	"output": {"init.js": "."},
-	"version": "0.0.1",
-	"root": "less"
+	"version": "1.0.0",
+    "family": "less",
+    "spm": {
+        "output": {"init.js": "."}
+    }
 }

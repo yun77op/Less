@@ -1,7 +1,7 @@
 define(function (require) {
 
     var tpl = require('../views/weibo-emoticons.tpl');
-    var StreamModel = require('../models/stream.js');
+    var StreamModel = require('../models/weibo.js');
 
     var EmotionsModel = StreamModel.extend({
         url: 'emotions.json',
@@ -17,27 +17,26 @@ define(function (require) {
 
         template: tpl,
 
-        model: new EmotionsModel(),
-
         initialize: function() {
             EmoticonsModule.__super__['initialize'].apply(this, arguments);
+
+            this.model = new EmotionsModel();
             this.initialized = false;
             this.pageNum = 5;
             this.currentPage = 1;
+        },
 
-            this.onReady(function() {
-                var self = this;
+        render: function() {
+            var self = this;
 
-                if (this.initialized) return;
+            if (this.initialized) return;
 
-                this.model.fetch({
-                    success: function() {
-                        self.initialized = true;
-                        self.initializeUI();
-                    }
-                });
-            })
-
+            this.model.fetch({
+                success: function() {
+                    self.initialized = true;
+                    self.initializeUI();
+                }
+            });
         },
 
         events: {
@@ -48,6 +47,7 @@ define(function (require) {
         },
 
         initializeUI: function() {
+            this.$el.html(tpl);
             var emoticons = {};
 
             _.each(this.model.attributes, function(elm, i) {

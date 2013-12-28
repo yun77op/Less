@@ -1,6 +1,5 @@
 define(function(require) {
 
-    var tpl = require('../views/user-timeline.tpl');
     var Statuses = require('../models/statuses');
     var StreamItem = require('./stream-item');
     var TimelineModule = require('./timeline.js');
@@ -10,19 +9,14 @@ define(function(require) {
     });
 
     var MentionsModule = TimelineModule.extend({
-        name: 'mentions',
-        template: tpl,
-        StreamItem: StreamItem,
+        name: 'mentions-timeline',
+
         initialize: function() {
-            this.model = new Mentions();
+            this.collection = new Mentions();
+            this.__item = StreamItem;
             MentionsModule.__super__['initialize'].apply(this, arguments);
         }
     });
 
-    return {
-        main: MentionsModule,
-        args: {
-            data: {}
-        }
-    };
+    return MentionsModule;
 });

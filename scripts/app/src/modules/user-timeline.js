@@ -12,21 +12,19 @@ define(function(require) {
     var UserTimelineModule = TimelineModule.extend({
         name: 'user-timeline',
         template: tpl,
-        StreamItem: StreamItem,
-        beforeEnter: function(uidOrName) {
+        __onRefresh: function(options) {
+            var uidOrName = options.params[0];
             var type = parseInt(uidOrName) == uidOrName ? 'uid' : 'screen_name';
+            this.options.data = {};
             this.options.data[type] = uidOrName;
         },
         initialize: function() {
-            this.model = new UserStatuses();
+            this.collection = new UserStatuses();
+            this.options = {};
+            this.__item = StreamItem;
             UserTimelineModule.__super__['initialize'].apply(this, arguments);
         }
     });
 
-    return {
-        main: UserTimelineModule,
-        args: {
-            data: {}
-        }
-    };
+    return UserTimelineModule;
 });

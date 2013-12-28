@@ -2,19 +2,11 @@ define(function (require) {
 
     var weibo = require('../weibo');
     var message = require('../message');
-    //var util = require('../util');
 
     var TweetBase = Backbone.Module.extend({
         name:'tweet-base',
 
         initialize: function() {
-            this.on('load', function() {
-                this.submitBtn = this.el.querySelector('.status-submit-btn');
-                var text = this.getTextareaQuote && this.getTextareaQuote() || '';
-                this.trigger('repost', text);
-                this.indicateCounter();
-            }, this);
-
             this.on('repost', function(text) {
                 var textarea = this.el.querySelector('.status-editor');
                 textarea.value = text;
@@ -24,6 +16,14 @@ define(function (require) {
             }, this);
 
             TweetBase.__super__['initialize'].apply(this, arguments);
+        },
+
+        render: function() {
+            TweetBase.__super__.render.apply(this, arguments);
+            this.submitBtn = this.el.querySelector('.status-submit-btn');
+            var text = this.getTextareaQuote && this.getTextareaQuote() || '';
+            this.trigger('repost', text);
+            this.indicateCounter();
         },
 
         events:{
@@ -84,7 +84,7 @@ define(function (require) {
             counter = Math.ceil(counter / 2);
             var limit = 140;
 
-            this.submitBtn.disabled = (counter > 0 && counter <= 140) ? false : true;
+            this.submitBtn.disabled = !(counter > 0 && counter <= 140);
             if (this.counterCallback) this.counterCallback(counter, limit);
         }
     });

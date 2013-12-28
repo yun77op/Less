@@ -1,5 +1,7 @@
 define(function(require) {
     var tpl = require('../views/mini-repost-list.tpl');
+    var TweetRepost = require('./tweet-repost');
+    var MiniRepostBody = require('./mini-repost-body');
 
     var MiniRepostList = Backbone.Module.extend({
         name: 'mini-repost-list',
@@ -14,35 +16,23 @@ define(function(require) {
         initialize: function() {
             MiniRepostList.__super__['initialize'].apply(this, arguments);
 
+            this.__textModule = TweetRepost;
+            this.__bodyModule = MiniRepostBody;
+
             this.options.data = _.defaults({}, this.options.data, {
                 count: 10
             });
             this.currentPage = 0;
             this.totalPage = 0;
+        },
 
-            this.on('fetch', function(page, totalNumber) {
-                this.currentPage = page;
-                var totalPage = this.totalPage = Math.ceil(totalNumber / this.options.data.count);
-
-                if (totalPage > 1) {
-                    this.navEl.hidden = false;
-                    this.checkNav();
-                }
-            });
-
-            this.onReady(function() {
-                this.navEl = this.el.querySelector('footer .nav');
-                this.initTweetModule();
-                this.initBody();
-            });
-
-
-            this.on('load', function() {
-                this.delegate('mini-stream-item', 'repost', function(text) {
-                    var tweetModuleName = this.options.tweetModuleName;
-                    this.getChildModuleByName(tweetModuleName)[0].trigger('repost', text);
-                }.bind(this));
-            }, this);
+        render: function() {
+            this.$el.html(tpl);
+            this.navEl = this.el.querySelector('footer .nav');
+            this.initBody();
+            var model = this.model.clone();
+            model.url = null;
+            this.append(this.__textModule, '.header', { model: model });
         },
 
         navPrev: function() {
@@ -54,8 +44,8 @@ define(function(require) {
         },
 
         checkNav: function() {
-            this.navEl.querySelector('.nav-prev').disabled = !!(this.currentPage == 1);
-            this.navEl.querySelector('.nav-next').disabled = !!(this.currentPage == this.totalPage);
+            this.navEl.querySelector('.nav-prev').disabled = this.currentPage == 1;
+            this.navEl.querySelector('.nav-next').disabled = this.currentPage == this.totalPage;
         },
 
         _disableNav: function() {
@@ -64,58 +54,38 @@ define(function(require) {
             });
         },
 
-        getBodyModule: function() {
+        getBodyModule: function(selector) {
             var data = _.extend({}, this.options.data, {
                 page: 1,
                 id: this.model.get('id')
             });
 
-            var Reposts = require('../models/reposts');
             var options = {
-                model: new Reposts(),
                 data: data
-            }
+            };
 
-            var module = new (require('./mini-repost-body'))(options);
-
-            return {
-                main: module,
-                args: ['repost']
-            }
+            return this.append(this.__bodyModule, selector, options);
         },
 
         initBody: function() {
-            var bodyModule = this.getBodyModule()
-              , module = bodyModule.main
-            this._bodyModuleId = module.id;
-            this.append(module, '.body', bodyModule.args);
-        },
+            var mod = this.getBodyModule('.body');
+            mod.on('fetch', function(page, totalNumber) {
+                this.currentPage = page;
+                var totalPage = this.totalPage = Math.ceil(totalNumber / this.options.data.count);
 
-        initTweetModule: function() {
-            var module = Backbone.application.getModuleInstance(this.options.tweetModuleName, {
-                model: this.model.clone()
-            });
-
-            module.on('connected', function() {
-              var bodyModule = this.getChildModuleById(this._bodyModuleId);
-              bodyModule.fetch(1);
-            }, this);
-
-            this.append(module, '.header');
+                if (totalPage > 1) {
+                    this.navEl.hidden = false;
+                    this.checkNav();
+                }
+            }.bind(this));
+            this.__bodyMod = mod;
         },
 
         fetch: function(page) {
             this._disableNav();
-            var bodyModule = this.getChildModuleById(this._bodyModuleId);
-            bodyModule.fetch(page);
+            this.__bodyMod.fetch(page);
         }
     });
 
-    return {
-        main: MiniRepostList,
-        args: {
-            tweetModuleName: 'tweet-repost'
-        }
-    }
-
+    return MiniRepostList;
 });

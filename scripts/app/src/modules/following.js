@@ -10,24 +10,21 @@ define(function(require, exports) {
     });
 
     var FollowingModule = TimelineModule.extend({
-        name: 'following',
+        name: 'followings',
         template: tpl,
-        StreamItem: StreamItem,
-        beforeEnter: function(uidOrName) {
+        __onRefresh: function(options) {
+            var uidOrName = options.params[0];
             var type = parseInt(uidOrName) == uidOrName ? 'uid' : 'screen_name';
+            this.options.data = {};
             this.options.data[type] = uidOrName;
         },
         initialize: function() {
-            this.model = new FriendsModel();
+            this.collection = new FriendsModel();
+            this.options = {};
+            this.__item = StreamItem;
             FollowingModule.__super__['initialize'].apply(this, arguments);
         }
     });
 
-    return {
-        main: FollowingModule,
-        args: {
-            data: {},
-            cursor: 'cursor'
-        }
-    };
+    return FollowingModule;
 });

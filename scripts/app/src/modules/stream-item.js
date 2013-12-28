@@ -3,6 +3,9 @@ define(function (require) {
     var weibo = require('../weibo');
     var tpl = require('../views/stream-item.tpl');
     var userID = JSON.parse(localStorage.getItem('uid'));
+    var RepostList = require('./mini-repost-list');
+    var CommentList = require('./mini-comment-list');
+    var StreamPicture = require('./stream-picture');
 
     var StreamItem = Backbone.Module.extend({
         name: 'stream-item',
@@ -15,7 +18,9 @@ define(function (require) {
             'click .stream-item-primary-footer .action-repost':'repost',
             'click .stream-item-primary-footer .action-comment':'comment',
             'click .stream-item-primary-footer .action-favorite':'favorite',
-            'click .stream-item-primary-footer .action-del':'del'
+            'click .stream-item-primary-footer .action-del':'del',
+            'click .stream-item-footer-retweet .action-repost': 'viewRetweetRepost',
+            'click .stream-item-footer-retweet .action-comment': 'viewRetweetComment'
         },
 
         initialize: function() {
@@ -23,9 +28,57 @@ define(function (require) {
             this.model.set({ action_del: true });
           }
 
-          this.model.set({ action_fav: true });
+          this.model.set({ primary: true });
 
           StreamItem.__super__['initialize'].apply(this, arguments);
+        },
+
+        __getRetweetMid: function() {
+            var dtd = $.Deferred();
+            var self = this;
+            weibo.request({
+                path: 'statuses/querymid.json',
+                params: {
+                    type: 1,
+                    id: this.model.get('retweeted_status').id
+                }
+            }, {
+                success: function(resp) {
+                    dtd.resolveWith(this, [resp.mid]);
+                }
+            });
+
+            return dtd;
+        },
+
+        __viewRetweet: function(e, type) {
+            var self = this;
+            if (typeof this.__retweetedMid != 'undefined') return;
+            e.preventDefault();
+            var node = e.target;
+            this.__getRetweetMid().
+                done(function(mid) {
+                    self.__retweetedMid = mid;
+                    node.href = 'http://weibo.com/' + self.model.get('retweeted_status').user.id + '/' + self.__retweetedMid;
+                    node.click();
+                });
+        },
+
+        viewRetweetComment: function(e) {
+            this.__viewRetweet(e, 'comment');
+        },
+
+        viewRetweetRepost: function(e) {
+            this.__viewRetweet(e, 'repost');
+        },
+
+        render: function() {
+            StreamItem.__super__.render.apply(this, arguments);
+            if (this.model.get('thumbnail_pic')) {
+                var model = this.model.clone();
+                model.url = null;
+                this.append(StreamPicture, '.thumbnail_pic-container', { model: model });
+            }
         },
 
         repost:function (e) {
@@ -37,7 +90,7 @@ define(function (require) {
                 return;
             }
 
-            this._setupList('mini-repost-list');
+            this._setupList(RepostList);
         },
 
         comment:function (e) {
@@ -49,17 +102,17 @@ define(function (require) {
                 return;
             }
 
-            this._setupList('mini-comment-list');
+            this._setupList(CommentList);
         },
 
-        _setupList: function(moduleName) {
-            var module = Backbone.application.getModuleInstance(moduleName, {
-                model: this.model.clone()
-            });
-            this.append(module, '.stream-item-content > .tweet');
+        _setupList: function(List) {
+            var model = this.model.clone();
+            model.url = null;
+            var mod = this.append(List, '.stream-item-content > .tweet', { model: model });
+            mod.__enter();
 
-            this.activeListName = module.name;
-            this.miniCommentRepostList = module;
+            this.activeListName = mod.name;
+            this.miniCommentRepostList = mod;
         },
 
         _removeActiveCommentRepostList: function() {

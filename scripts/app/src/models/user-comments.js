@@ -1,19 +1,13 @@
 define(function(require, exports) {
     var StreamModel = require('./stream.js');
+    var Statuses = require('./statuses');
 
-    var Comments = Backbone.Collection.extend({
-
-        // Reference to this collection's model.
-        model: Backbone.Model,
+    return Statuses.extend({
 
         url: 'comments/timeline.json',
 
         parse: function(resp, xhr) {
-          return resp['comments'];
-        },
-
-        sync: StreamModel.prototype.sync
+          return resp.comments;
+        }
     });
-
-    return Comments;
 });

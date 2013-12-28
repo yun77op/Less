@@ -16,16 +16,18 @@ define(function (require) {
             'click .action-repost': 'repost'
         },
 
-        beforeEnter: function(action) {
+        __onRefresh: function(options) {
             var data = {};
-            data[action] = true;
+            data[options.action] = true;
             this.model.set('action_list', data);
         },
 
         reply: function() {
             var TweetReply = require('./tweet-reply');
+            var model = this.model.clone();
+            model.url = null;
             var tweetReply = new TweetReply({
-                model: this.model.clone()
+                model: model
             });
             tweetReply.show();
         },

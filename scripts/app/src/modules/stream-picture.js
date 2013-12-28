@@ -20,15 +20,18 @@ define(function (require, exports) {
               this.model.set({ expand: true });
             }
 
-            this.onReady(function() {
-              this.originalEl = this.el.querySelector('.tweet-pic-origin');
-              if (!this.options.expand) {
-                  this.thumbEl = this.el.querySelector('.tweet-pic-thumb');
-                  _.bindAll(this, 'collapse');
-                  this.$el.on('click', '.tweet-pic-origin img', this.collapse);
-                  this.$el.on('click', '.tweet-pic-origin canvas', this.collapse);
-              }
-            })
+        },
+
+        render: function() {
+            StreamPictureModule.__super__.render.apply(this, arguments);
+
+            this.originalEl = this.el.querySelector('.tweet-pic-origin');
+            if (!this.options.expand) {
+                this.thumbEl = this.el.querySelector('.tweet-pic-thumb');
+                _.bindAll(this, 'collapse');
+                this.$el.on('click', '.tweet-pic-origin img', this.collapse);
+                this.$el.on('click', '.tweet-pic-origin canvas', this.collapse);
+            }
         },
 
         events: {
@@ -109,8 +112,7 @@ define(function (require, exports) {
 
         rotate:function () {
             var canvas = this.originalEl.querySelector('canvas'),
-                img = document.createElement('img'),
-                canvas;
+                img = document.createElement('img');
 
             img.src = this.model.get('original_pic');
 

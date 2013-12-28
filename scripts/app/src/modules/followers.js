@@ -12,22 +12,18 @@ define(function(require, exports) {
     var FollowersModule = TimelineModule.extend({
         name: 'followers',
         template: tpl,
-        StreamItem: StreamItem,
-        beforeEnter: function(uidOrName) {
+        __onRefresh: function(options) {
+            var uidOrName = options.params[0];
             var type = parseInt(uidOrName) == uidOrName ? 'uid' : 'screen_name';
+            this.options.data = {};
             this.options.data[type] = uidOrName;
         },
-        initialize: function() {
-            this.model = new Followers();
+        initialize: function(options) {
+            this.collection = new Followers();
+            this.__item = StreamItem;
             FollowersModule.__super__['initialize'].apply(this, arguments);
         }
     });
 
-    return {
-        main: FollowersModule,
-        args: {
-            data: {},
-            cursor: 'cursor'
-        }
-    };
+    return FollowersModule;
 });

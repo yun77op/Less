@@ -2,6 +2,7 @@ define(function (require) {
 
     var tpl = require('../views/tweet-modal.tpl');
     var TweetBase = require('./tweet');
+    var Emoticons = require('./weibo-emoticons');
 
     var TweetModalModule = TweetBase.extend({
         name:'tweet-modal',
@@ -26,14 +27,17 @@ define(function (require) {
             });
         },
 
-        show: function() {
-            this.on('load', function () {
-                this.$el.modal('show');
-            }, this);
+        render: function() {
+            TweetModalModule.__super__.render.apply(this, arguments);
+            this.append(Emoticons, '.tweet-emotion-container');
+        },
 
+        show: function() {
             this
-              .render()
-              .$el.appendTo('body')
+              .__enter()
+              .$el.appendTo('body');
+
+            this.$el.modal('show');
         },
 
         counterCallback: function(counter, limit) {

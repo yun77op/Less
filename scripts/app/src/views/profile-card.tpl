@@ -14,7 +14,7 @@
         </p>
     </div>
     <div class="profile-card-actions">
-        {{#module this name="relationship-action"}} {{/module}}
+
         {{> profile-stats}}
     </div>
 </div>

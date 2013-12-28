@@ -8,17 +8,38 @@ define(function(require) {
         template: tpl,
 
         initialize: function() {
-            this.on('nav', this._changeNavStatus, this);
+            this.model = new Backbone.Model();
+            this.model.url = null;
             ProfileNav.__super__['initialize'].apply(this, arguments);
         },
 
-        beforeEnter: function(uid) {
-            this.model.set({ id: uid });
+        __onRefresh: function(options) {
+            var uid = options.params[0];
+            var nav = options.path.split('/')[2] || 'timeline';
+
+            var prevId = this.model.get('id');
+
+            if (prevId && prevId !== uid) {
+                this.__activeNav = 'timeline';
+                this.render({force: true});
+                return;
+            } else if (typeof this.__activeNav !== 'undefined') {
+                this.__setupNav(nav);
+            }
+
+            this.model.set({id: uid});
+            this.__activeNav = nav;
+            this.__id = uid;
         },
 
-        _changeNavStatus: function(nav_val) {
+        render: function() {
+            ProfileNav.__super__.render.apply(this, arguments);
+            this.__setupNav(this.__activeNav);
+        },
+
+        __setupNav: function(nav) {
             var activeClassName = 'active';
-            var $target = $('li[data-nav=' + nav_val + ']', this.$el).addClass(activeClassName);
+            var $target = $('li[data-nav=' + nav + ']', this.$el).addClass(activeClassName);
             $target.siblings().removeClass(activeClassName);
         }
     });

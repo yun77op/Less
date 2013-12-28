@@ -20,8 +20,8 @@ define(function (require, exports) {
         getParameters: function() {
             return {
                 comment: this.getTextareaValue(),
-                cid: this.model.get('cid'),
-                id: this.model.get('id')
+                id: this.model.get('status').id,
+                cid: this.model.get('id')
             }
         }
     });

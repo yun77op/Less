@@ -1,6 +1,7 @@
 define(function(require, exports) {
 
     var tpl = require('../views/user.tpl');
+    var RelationshipButton = require('./relationship-action');
 
     var UserModule = Backbone.Module.extend({
         name: 'user',
@@ -10,6 +11,16 @@ define(function(require, exports) {
         className: 'stream-item',
 
         template: tpl,
+
+        render: function() {
+            UserModule.__super__['render'].apply(this, arguments);
+            this.append(RelationshipButton, '.relationship-button-container', {
+                following: this.model.get('following'),
+                follow_me: this.model.get('follow_me'),
+                user_id: this.model.get('id')
+            });
+            return this;
+        },
 
         follow: function(e) {
             e.preventDefault();

@@ -4,7 +4,7 @@
 </form>
 <div class="status-actions clearfix">
     <ul class="status-actions-list">
-        <li>{{#module name="weibo-emoticons"}}{{/module}}</li>
+        <li></li>
     </ul>
 </div>
 <ul class="status-aside">

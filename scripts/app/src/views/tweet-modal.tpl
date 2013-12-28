@@ -10,7 +10,7 @@
             <input type="submit" value="Submit" class="status-submit-btn btn btn-primary" disabled>
         </div>
         <ul class="status-actions-list">
-            <li>{{#module name="weibo-emoticons"}}{{/module}}</li>
+            <li class="tweet-emotion-container"></li>
             {{#if actions_list.pic}}
                 <li class="dropdown" id="status-pic-dropdown">
                     <a href="#status-pic-dropdown" class="pic-action" i18n-content="image">Image</a>

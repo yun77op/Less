@@ -128,96 +128,14 @@
 
 
 
-    // RouteManager
-
-    var RouteManager = function() {
-        this.router = new Backbone.Router();
-        this.viewStates = {};
-    };
-
-    RouteManager.prototype = {
-        constructor: RouteManager,
-
-        _getInstance: function(ViewState) {
-            var name = ViewState.prototype.name;
-            return this.viewStates[name] || (this.viewStates[name] = new ViewState());
-        },
-
-        _handleRoute: function(targetViewState) {
-            var previousViewState = this.activeViewState
-              , args = slice.call(arguments).slice(1)
-              , viewState;
-
-            this.activeViewState = targetViewState;
-
-            if (previousViewState) {
-              if (targetViewState.isSibling(previousViewState) ||
-                  previousViewState.isParentOf(targetViewState) ||
-                  targetViewState.isParentOf(previousViewState) &&
-                  this._isValidParent(args)) {
-                previousViewState.transition();
-
-                if (!previousViewState.isParentOf(targetViewState)) {
-                  targetViewState.beforeEnter.apply(targetViewState, args);
-                  targetViewState.enter.apply(targetViewState, args);
-                  previousViewState.cleanup();
-                }
-              } else {
-                // different view state
-                viewState = previousViewState;
-                while (viewState) {
-                    viewState.destroy();
-                    viewState = viewState.parent;
-                }
-              }
-            }
-
-            this._routeParams = args.concat();
-            targetViewState._handleEnter.apply(targetViewState, args);
-            this.trigger('nav', targetViewState.name);
-        },
-
-        _isValidParent: function(args) {
-          if (!this._routeParams) return false;
-          var result = true;
-
-          for (var i = 0, l = args.length; i < l; ++i) {
-            if (args[i] != this._routeParams[i]) {
-              result = false;
-              break;
-            }
-          }
-
-          return result;
-        },
-
-        register: function(ViewState) {
-            var viewState = this._getInstance(ViewState);
-            this.route(viewState);
-            Backbone.application.registerModule(ViewState);
-            return this;
-        },
-
-        registerSubViewState: function(ViewState, parentViewState) {
-            this._getInstance(ViewState).parent = this._getInstance(parentViewState);
-            this.register(ViewState);
-            return this;
-        },
-
-        route: function(viewState) {
-            this.router.route(viewState.path, viewState.name, this._handleRoute.bind(this, viewState));
-        }
-    };
-
-    _.extend(RouteManager.prototype, Backbone.Events);
-
 
     Backbone.install = function(options, callback) {
         var application = new Application(options);
-        var routerManager = new RouteManager();
         Backbone.application = application;
-        Backbone.routerManager = routerManager;
-        callback(application, routerManager);
+        callback(application);
+
+        Backbone.history.start();
+        Backbone.history.checkUrl();
     };
 
 
@@ -230,163 +148,146 @@
         this.el = options.el;
         this.$el = $(this.el);
         this.modules = {};
-        this._caches = {};
+        this.__umi = {};
+        this.__activePath = [];
+
+        this.__router = options.router;
+
+        if (!this.__router) {
+            this.__router = new Backbone.Router();
+        }
     };
 
-    Application.prototype.registerModule = function(module) {
-        var formattedModule = _.isFunction(module) ? { main: module } : module
-        this.modules[formattedModule.main.prototype.name] = formattedModule
-    }
+    Application.prototype.registerModule = function(Module) {
+        this.modules[Module.prototype.name] = Module;
+    };
 
-    Application.prototype.getModuleInstance = function(name, options) {
-        var module = this.getModule(name)
-          , result = new module.main(_.extend({}, module.args, options));
+    Application.prototype.__findCommonRoot = function(ary1, ary2) {
+        var commonRoot = -1, item;
 
-        if (module.childConfig) result.childConfig = _.extend({}, module.childConfig)
-        return result;
-    }
+        for (var i = 0, l = Math.min(ary1.length, ary2.length); i < l; ++i) {
+            if (ary2[i] == ary1[i]) {
+                commonRoot = i;
+            } else {
+                return commonRoot;
+            }
+        }
 
-    Application.prototype.getModule = function(nameOrModule, main) {
-      var name =  _.isString(nameOrModule) ? nameOrModule : nameOrModule.name
-        , module = this.modules[name];
-      if (!module) throw Error('Can not find module ' + name);
-      return main ? module.main : module;
-    }
+        return commonRoot;
+    };
 
-    Application.prototype.moduleHasModel = function(name) {
-      return this.getModule(name, true).prototype.model;
+    Application.prototype.__handleEnter = function(path) {
+
+        var Modules = this.__umi[path];
+        var self = this;
+
+        var lastActivePath = this.__lastActivePath;
+
+        if (typeof lastActivePath != 'undefined') {
+            var lastActiveModuleAry = this.__umi[lastActivePath];
+            var commonRoot = this.__findCommonRoot(lastActiveModuleAry, Modules);
+            for (var i = lastActiveModuleAry.length - 1; i > commonRoot; i--) {
+                this.__activePath.splice(i, 1)[0].destroy();
+            }
+        }
+
+
+        var options = {
+            path: path,
+            params: slice.call(arguments, 1)
+        };
+
+        // Refresh
+
+        for (; i >= 0; i--) {
+            this.__activePath[i].__traverseSubModules(['__onRefresh'], [options]);
+        }
+
+        this.__lastActivePath = path;
+
+        var each = function(Modules, idx, parentMod) {
+            var Module = Modules[idx];
+            if (idx >= Modules.length) return;
+            var mod = new Module();
+            var parent = mod.__parseParent(parentMod);
+            if (typeof parent == 'string' && parentMod) {
+                parent = parentMod.$el.find(parent);
+            }
+            mod.__onRefresh(options);
+            mod.render().$el.appendTo(parent);
+            mod.__traverseSubModules(['__onRefresh', 'render'], [options]);
+            self.__activePath.push(mod);
+            each(Modules, ++idx, mod);
+        };
+
+        var idx = typeof commonRoot != 'undefined' ? commonRoot + 1 : 0;
+        each(Modules, idx, this.__activePath[idx > 0 ? commonRoot : 0]);
+    };
+
+    Application.prototype.register = function(path) {
+        this.__umi[path] = slice.call(arguments, 1);
+        this.__router.route(path, path, _.bind(this.__handleEnter, this, path));
     };
 
     var Module = Backbone.View.extend({
         initialize: function() {
-            var tpl;
-
-            if (this.template instanceof Element) {
-                tpl = this.template.innerHTML;
-            } else if (typeof this.template == 'string') {
-                tpl = this.template;
-            }
-
-            if (tpl) this.template = Handlebars.compile(tpl);
-
             this.modules = new ArraySet();
-            this.active = false;
         },
 
-
-        /**
-         * Enter this module and trigger events
-         */
-        _handleEnter: function() {
-            if (this.active || this.options.render === false) return;
-
-            var args = slice.call(arguments);
-            this.beforeEnter.apply(this, args);
-
-            if (this.status != 'ready') {
-                this._prepareRender().done(function(module) {
-                    Backbone.application._currentModule = module;
-                    module
-                      ._render()
-                      ._handleChildEnter.apply(module, args);
+        __traverseSubModules: function(methodAry, args) {
+            this.modules.forEach(function(mod) {
+                methodAry.forEach(function(method) {
+                    mod[method].apply(mod, args);
                 });
+                mod.__traverseSubModules(methodAry, args);
+            });
+        },
+
+        __enter: function(options) {
+            this.__onRefresh(options);
+            this.render();
+            this.__traverseSubModules(['__onRefresh', 'render'], [options]);
+            return this;
+        },
+
+        __onRefresh: function() {
+
+        },
+
+        render: function(options) {
+            var self = this;
+
+            if (typeof this.model != 'undefined' && getValue(this.model, 'url') && (options && options.force || this.model.isNew())) {
+                this.model.fetch({
+                    data: this.options.data,
+                    success: function(resp) {
+                        self.__render();
+                    }
+                });
+            } else {
+                this.__render();
             }
 
-            this.enter.apply(this, args);
-            this.active = true;
             return this;
         },
 
-        _handleChildEnter: function() {
-            var args = slice.call(arguments);
+        __render: function() {
+            var html;
 
-            this.modules.chain().filter(function(module) {
-                return !module.active;
-            }).each(function(module) {
-                module._handleEnter.apply(module, args);
-            });
-        },
-
-        registerModule: function(moduleOrName) {
-            var module = _.isString(moduleOrName)
-                        ? Backbone.application.getModuleByName(moduleOrName)
-                        : moduleOrName;
-            this.modules.add(module.id, module);
-            module.parent = this;
-            return this;
-        },
-
-        getChildModuleById: function(id) {
-            return this.modules.get(id);
-        },
-
-        getChildModuleByName: function(name) {
-            var result = [];
-
-            this.modules.chain().each(function(module) {
-                if (module.name == name) {
-                    result.push(module);
-                }
-            });
-
-            return result;
-        },
-
-        setChildConfig: function(name, config) {
-          this.childConfig = this.childConfig || {};
-          this.childConfig[name] = $.extend({}, this.childConfig[name], config);
-        },
-
-        refresh: function() {
-            this.cleanup();
-            this.options.render = true;
-            this._handleEnter.apply(this, arguments);
-            return this;
-        },
-
-        render: function() {
-            this._handleEnter.apply(this, arguments);
-            return this;
-        },
-
-        /**
-         * Render template with data
-         */
-        _render: function() {
-            var data = this.model ? this.model.toJSON() : {};
-            var html = typeof this.template == 'function' ? this.template(data) : this.template;
+            if (this.templateType == 0) {
+                html = this.template;
+            } else {
+                html = (Handlebars.compile(this.template))(this.model.toJSON());
+            }
 
             this.$el.html(html);
-
-            var placeholderID = this.id + '-placeholder'
-              , placeholderEl = document.getElementById(placeholderID);
-            //Already in html
-            if (!placeholderEl && this.parent) {
-              placeholderEl = this.parent.el.querySelector('#' + placeholderID)
-            }
-
-            if (placeholderEl) {
-              $(placeholderEl).replaceWith(this.$el);
-            }
-
-            this.delegateEvents();
-            this.trigger('ready').status = 'ready';
-            this._checkStatus(this);
-
             return this;
         },
 
-        _checkStatus: function(module) {
-            if (!module) return;
-
-            var total = module.modules.toArray().length;
-            if (total == 0 || module.modules.filter(function(module) {
-                return module.status == 'loaded';
-            }).length == total) {
-                module.status = 'loaded';
-                module.trigger('load');
-                module._checkStatus(module.parent);
-            }
+        __parseParent: function(parentMod) {
+            var parent = parentMod.__exports[this.name];
+            if (typeof parent == 'undefined') throw new Error('Invalid parent');
+            return parent;
         },
 
         /**
@@ -394,75 +295,30 @@
          *
          * @param module {Backbone.Module}
          * @param selector [String]
-         * @param args Array
+         * @param options {Object}
          */
-        append: function(module, selector, args) {
-            if (Array.isArray(selector)) {
-                args = selector;
-                selector = null;
-            }
+        append: function(Module, selector, options) {
+            var container = selector ? (typeof selector === 'string' ? this.el.querySelector(selector) : selector) : this.el;
+            var mod = new Module(options || {});
+            container.appendChild(mod.el);
 
-            args = args || [];
-
-            var container = selector ? this.el.querySelector(selector) : this.el;
-            container.appendChild(module.el);
-
-            this.registerModule(module);
-            module._handleEnter.apply(module, args);
-            return this;
+            this.modules.add(mod.id, mod);
+//            this.registerModule(module);
+//            module._handleEnter.apply(module, args);
+            return mod;
         },
 
-        delegateReady: function(moduleName, func) {
-            this.modules.chain().each(function(module) {
-                if (module.name == moduleName) {
-                    module.onReady(func);
-                }
-                module.delegateReady(moduleName, func);
-            });
+        appendModule: function(mod) {
+            this.modules.add(mod.id, mod);
         },
-
-        delegate: function(moduleName, eventName, func) {
-            this.modules.chain().each(function(module) {
-                if (module.name == moduleName) {
-                    module.on(eventName, func);
-                }
-                module.delegate(moduleName, eventName, func);
-            });
-        },
-
-        // Events
-        beforeEnter: function() {},
-
-        enter: function() {},
 
         destroy: function() {
-          this.cleanup();
-          this.off(); // Remove all events
+            this.modules.forEach(function(mod) {
+                mod.destroy();
+            });
 
-          if (this instanceof ViewState) {
-            this.$el.empty();
-          } else {
-            this.remove();
-            if (this.parent) {
-              this.parent.modules.remove(this.id);
-            }
-          }
-        },
-
-        cleanup: function() {
-          this.active = false;
-          this.status = '';
-          this.undelegateEvents();
-
-          this.modules.forEach(function(module) {
-              module.destroy();
-          });
-          this.modules = new ArraySet();
-        },
-
-        onReady: function(func) {
-            if (this.status == 'loaded' || this.status == 'ready') return func.call(this);
-            this.on('ready', func, this);
+            this.undelegateEvents();
+            this.$el.remove();
         },
 
         _ensureElement: function() {
@@ -478,26 +334,6 @@
           } else {
             this.setElement(this.el, false);
           }
-        },
-
-        _prepareRender: function() {
-            var model = this.model
-              , self = this
-              , dtd = $.Deferred();
-
-            if (getValue(model, 'url')) {
-                var fetchOptions = {
-                    data: this.options.data,
-                    success: function() {
-                      dtd.resolve(self);
-                    }
-                }
-                model.fetch(fetchOptions);
-            } else {
-              dtd.resolve(this);
-            }
-
-            return dtd;
         }
     });
 
@@ -506,75 +342,10 @@
     _.extend(Module.prototype, Backbone.Events);
 
 
-    var ViewState = Module.extend({
+    var getValue = function(object, prop) {
+        if (!(object && object[prop])) return null;
+        return _.isFunction(object[prop]) ? object[prop]() : object[prop];
+    };
 
-        transition: function() {},
-
-        _handleEnter: function() {
-            if (this.parent) {
-                this.parent._handleEnter.apply(this.parent, arguments);
-            }
-
-            ViewState.__super__['_handleEnter'].apply(this, arguments);
-        },
-
-        isParentOf: function(viewState) {
-            var tmp = viewState, result = false;
-
-            do {
-                tmp = tmp && tmp.parent;
-                if (tmp == this) {
-                    result = true;
-                    break;
-                }
-            } while(tmp);
-
-            return result;
-        },
-
-        isSibling: function(viewState) {
-          return this.parent && (this.parent === viewState.parent);
-        },
-
-        isActive: function() {
-          return this === Backbone.routerManager.activeViewState;
-        }
-    });
-
-    ViewState.mergedOptions = ['path'];
-
-
-    Handlebars.registerHelper('module', function(context, options) {
-        if (_.isUndefined(options)) {
-            options = context;
-            context = null;
-        }
-
-        var name = options.hash.name
-          , application = Backbone.application
-          , currentModule = application._currentModule
-          , moduleOptions = _.extend({}, currentModule.childConfig
-                                          && currentModule.childConfig[name])
-
-        if (!application.moduleHasModel(name) && !moduleOptions.module) {
-            var Model = Backbone.Model.extend({ url: null });
-            moduleOptions.model = new Model(context || {});
-        }
-
-        var module = application.getModuleInstance(name, moduleOptions)
-        currentModule.registerModule(module);
-        module.renderByTemplate = true;
-        var placeHolderHtml = '<div id="' + module.id + '-placeholder">'
-            + (module.placeholder || 'Loading..')
-            + '</div>';
-
-        return placeHolderHtml
-    });
-
-
-    ViewState.extend = Backbone.View.extend;
-
-    Backbone.ViewState = ViewState;
     Backbone.Module = Module;
-    Backbone.RouteManager = RouteManager;
 }());
