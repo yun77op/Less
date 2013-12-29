@@ -5,7 +5,18 @@ seajs.use(['app/src/util', 'app/src/lib/oauth2'], function(util, OAuth2) {
 
 		document.getElementById('signin').onclick = function(e) {
 			e.preventDefault();
-		    var url = oauth2.getAccessURL();
-            location.href = url;
+            chrome.tabs.create({ url: oauth2.getAccessURL() }, function(tab) {
+
+            });
 		};
+
+
+    chrome.runtime.onMessage.addListener(
+        function(request, sender, sendResponse) {
+            if (!sender.tab) return;
+
+            sendResponse(0);
+
+            location.href = chrome.runtime.getURL('oauth2_callback.html') + request.hash;
+        });
 });

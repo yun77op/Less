@@ -1,9 +1,9 @@
 {
   "name": "Less",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "__MSG_siteTitle__",
-	"manifest_version": 2,
-	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "manifest_version": 2,
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "icons": {
     "128": "icon-128.png",
     "16": "icon-16.png"
@@ -15,6 +15,12 @@
     "unlimitedStorage",
     "tabs",
     "idle"],
+  "content_scripts": [
+    {
+      "matches": ["http://mystaff.herokuapp.com/static/less.html"],
+      "js": ["scripts/oauth-redirect.js"]
+    }
+  ],
   "app": {
     "launch": {
       "local_path": "main.html"
